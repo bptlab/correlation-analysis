@@ -1,6 +1,5 @@
-package de.hpi.bpt.transformation;
+package de.hpi.bpt;
 
-import de.hpi.bpt.datastructures.ColumnDefinition;
 import de.hpi.bpt.datastructures.EventLog;
 import de.hpi.bpt.datastructures.LogColumn;
 import de.hpi.bpt.datastructures.Schema;
@@ -8,6 +7,7 @@ import de.hpi.bpt.datastructures.Schema;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class EventLogBuilder {
@@ -45,8 +45,8 @@ public class EventLogBuilder {
         private ContentBuilder(Schema schema) {
             this.schema = schema;
             this.columns = new ArrayList<>();
-            for (ColumnDefinition<?> columnDefinition : schema) {
-                columns.add(new LogColumn<>(columnDefinition.getType()));
+            for (var columnDefinition : schema.values()) {
+                columns.add(columnDefinition.getId(), new LogColumn<>(columnDefinition.getType()));
             }
         }
 
@@ -55,10 +55,10 @@ public class EventLogBuilder {
         }
 
         public EventLog build() {
-            return new EventLog(schema, schema.stream().collect(
+            return new EventLog(schema, schema.entrySet().stream().collect(
                     Collectors.toMap(
-                            ColumnDefinition::getName,
-                            columnDefinition -> columns.get(columnDefinition.getId())
+                            Map.Entry::getKey,
+                            entry -> columns.get(entry.getValue().getId())
                     )
             ));
         }

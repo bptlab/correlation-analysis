@@ -1,20 +1,13 @@
 package de.hpi.bpt.datastructures;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
-public class Schema extends ArrayList<ColumnDefinition<?>> {
+public class Schema extends LinkedHashMap<String, ColumnDefinition<?>> {
 
     public <T> void addColumnDefinition(String name, Class<T> type) {
         var columnDefinition = new ColumnDefinition<>(this.size(), name, type);
-        this.add(columnDefinition);
+        this.put(name, columnDefinition);
     }
 
-    public ColumnDefinition<?> get(String columnName) {
-        for (ColumnDefinition<?> columnDefinition : this) {
-            if (columnDefinition.getName().equals(columnName)) {
-                return columnDefinition;
-            }
-        }
-        throw new RuntimeException("No column with name '" + columnName + "' found!");
-    }
+
 }

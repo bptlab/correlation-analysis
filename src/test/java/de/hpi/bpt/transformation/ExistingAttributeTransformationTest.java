@@ -1,5 +1,6 @@
 package de.hpi.bpt.transformation;
 
+import de.hpi.bpt.EventLogBuilder;
 import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.datastructures.CaseLog;
 import org.junit.jupiter.api.Test;

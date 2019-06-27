@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     implementation 'net.sf.supercsv:super-csv:2.4.0'
+    implementation 'org.apache.commons:commons-lang3:3.9'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
     testImplementation 'org.assertj:assertj-core:3.11.1'

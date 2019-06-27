@@ -1,14 +1,11 @@
 package de.hpi.bpt.transformation;
 
-import de.hpi.bpt.datastructures.CaseLog;
-import de.hpi.bpt.datastructures.EventLog;
-import de.hpi.bpt.datastructures.Schema;
-import de.hpi.bpt.datastructures.CaseColumn;
-import de.hpi.bpt.datastructures.LogColumn;
+import de.hpi.bpt.datastructures.*;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ExistingAttributeTransformation {
 
@@ -28,6 +25,12 @@ public class ExistingAttributeTransformation {
             var sourceColumnName = columnEntry.getKey();
             var sourceColumnType = sourceSchema.get(sourceColumnName).getType();
 
+            if (sourceColumnName.equals(sourceSchema.getCaseIdName())) {
+                targetSchema.addColumnDefinition(sourceColumnName, sourceColumnType);
+                transformedColumns.put(sourceColumnName, transformCaseIdColumn(sourceColumn.as(String.class)));
+                continue;
+            }
+
             var startColumnName = sourceColumnName + "_start";
             var endColumnName = sourceColumnName + "_end";
             targetSchema.addColumnDefinition(startColumnName, sourceColumnType);
@@ -35,12 +38,12 @@ public class ExistingAttributeTransformation {
 
             if (Integer.class.equals(sourceColumn.getType())) {
                 targetSchema.addColumnDefinition(sourceColumnName + "_max", Integer.class);
-                targetSchema.addColumnDefinition(sourceColumnName + "_max", Integer.class);
+                targetSchema.addColumnDefinition(sourceColumnName + "_min", Integer.class);
                 targetSchema.addColumnDefinition(sourceColumnName + "_avg", Double.class);
                 transformedColumns.putAll(transformIntegerColumn(sourceColumn.as(Integer.class), sourceColumnName));
             } else if (Double.class.equals(sourceColumn.getType())) {
                 targetSchema.addColumnDefinition(sourceColumnName + "_max", Double.class);
-                targetSchema.addColumnDefinition(sourceColumnName + "_max", Double.class);
+                targetSchema.addColumnDefinition(sourceColumnName + "_min", Double.class);
                 targetSchema.addColumnDefinition(sourceColumnName + "_avg", Double.class);
                 transformedColumns.putAll(transformDoubleColumn(sourceColumn.as(Double.class), sourceColumnName));
             } else {
@@ -51,6 +54,13 @@ public class ExistingAttributeTransformation {
         return new CaseLog(targetSchema, transformedColumns);
     }
 
+    private CaseColumn<String> transformCaseIdColumn(LogColumn<String> caseIdColumn) {
+        var column = new CaseColumn<>(String.class);
+        for (List<String> trace : caseIdColumn.getTraces()) {
+            column.addValue(trace.get(0)); // simply add first value, assuming the case id is the same for the one trace
+        }
+        return column;
+    }
 
     private Map<String, CaseColumn<?>> transformIntegerColumn(LogColumn<Integer> logColumn, String sourceColumnName) {
         var result = new LinkedHashMap<String, CaseColumn<?>>();
@@ -64,7 +74,7 @@ public class ExistingAttributeTransformation {
             var firstValue = traceColumn.get(0);
             startColumn.addValue(firstValue);
             endColumn.addValue(traceColumn.get(traceColumn.size() - 1));
-            var stats = traceColumn.stream().mapToInt(e -> e).summaryStatistics();
+            var stats = traceColumn.stream().filter(Objects::nonNull).mapToInt(e -> e).summaryStatistics();
             maxColumn.addValue(stats.getMax());
             minColumn.addValue(stats.getMin());
             avgColumn.addValue(stats.getAverage());
@@ -90,7 +100,7 @@ public class ExistingAttributeTransformation {
             var firstValue = traceColumn.get(0);
             startColumn.addValue(firstValue);
             endColumn.addValue(traceColumn.get(traceColumn.size() - 1));
-            var stats = traceColumn.stream().mapToDouble(e -> e).summaryStatistics();
+            var stats = traceColumn.stream().filter(Objects::nonNull).mapToDouble(e -> e).summaryStatistics();
             maxColumn.addValue(stats.getMax());
             minColumn.addValue(stats.getMin());
             avgColumn.addValue(stats.getAverage());

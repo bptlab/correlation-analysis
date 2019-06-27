@@ -1,4 +1,4 @@
-package de.hpi.bpt.input;
+package de.hpi.bpt.io;
 
 import de.hpi.bpt.datastructures.ColumnDefinition;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ class CsvLogReaderTest {
         // Arrange
         var csvLogReader = new CsvLogReader();
         var file = new File(this.getClass().getResource("simple.csv").getFile());
-        var dateFormat = new SimpleDateFormat(CsvLogReader.DATE_FORMAT);
+        var dateFormat = new SimpleDateFormat(csvLogReader.getDateFormat());
 
         // Act
         var eventLog = csvLogReader.read(file);

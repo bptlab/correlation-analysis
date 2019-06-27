@@ -25,7 +25,7 @@ public class LogColumn<T> {
     }
 
     public void addValue(Object value) {
-        if (!type.isInstance(value)) {
+        if (value != null && !type.isInstance(value)) {
             throw new RuntimeException("Unexpected value '" + value + "' for type '" + type.getSimpleName() + "'!");
         }
         getLastTrace().add(type.cast(value));

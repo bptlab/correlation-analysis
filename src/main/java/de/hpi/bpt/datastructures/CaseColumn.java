@@ -6,7 +6,7 @@ import java.util.List;
 public class CaseColumn<T> {
 
     private final Class<T> type;
-    List<T> values = new ArrayList<>();
+    private List<T> values = new ArrayList<>();
 
     public CaseColumn(Class<T> type) {
         this.type = type;
@@ -20,8 +20,12 @@ public class CaseColumn<T> {
         return values.get(i);
     }
 
+    public int size() {
+        return values.size();
+    }
+
     public void addValue(Object value) {
-        if (!type.isInstance(value)) {
+        if (value != null && !type.isInstance(value)) {
             throw new RuntimeException("Unexpected value '" + value + "' for type '" + type.getSimpleName() + "'!");
         }
         values.add(type.cast(value));

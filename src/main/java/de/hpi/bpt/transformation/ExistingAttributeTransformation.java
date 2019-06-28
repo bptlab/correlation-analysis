@@ -2,10 +2,8 @@ package de.hpi.bpt.transformation;
 
 import de.hpi.bpt.datastructures.*;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.time.Duration;
+import java.util.*;
 
 public class ExistingAttributeTransformation {
 
@@ -28,6 +26,12 @@ public class ExistingAttributeTransformation {
             if (sourceColumnName.equals(sourceSchema.getCaseIdName())) {
                 targetSchema.addColumnDefinition(sourceColumnName, sourceColumnType);
                 transformedColumns.put(sourceColumnName, transformCaseIdColumn(sourceColumn.as(String.class)));
+                continue;
+            }
+
+            if (sourceColumnName.equals(sourceSchema.getTimestampName())) {
+                targetSchema.addColumnDefinition("duration", Integer.class);
+                transformedColumns.put("duration", transformTimestampColumnToDuration(sourceColumn.as(Date.class)));
                 continue;
             }
 
@@ -58,6 +62,16 @@ public class ExistingAttributeTransformation {
         var column = new CaseColumn<>(String.class);
         for (List<String> trace : caseIdColumn.getTraces()) {
             column.addValue(trace.get(0)); // simply add first value, assuming the case id is the same for the one trace
+        }
+        return column;
+    }
+
+
+    private CaseColumn<Integer> transformTimestampColumnToDuration(LogColumn<Date> timestampColumn) {
+        var column = new CaseColumn<>(Integer.class);
+        for (List<Date> trace : timestampColumn.getTraces()) {
+            var duration = Duration.between(trace.get(0).toInstant(), trace.get(trace.size() - 1).toInstant());
+            column.addValue((int) duration.getSeconds());
         }
         return column;
     }

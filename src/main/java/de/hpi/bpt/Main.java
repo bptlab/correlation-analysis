@@ -1,5 +1,6 @@
 package de.hpi.bpt;
 
+import de.hpi.bpt.io.ArffLogWriter;
 import de.hpi.bpt.io.CsvLogReader;
 import de.hpi.bpt.io.CsvLogWriter;
 import de.hpi.bpt.transformation.ExistingAttributeTransformation;
@@ -33,25 +34,31 @@ public class Main {
         var transformation = new ExistingAttributeTransformation(eventLog);
         var caseLog = runTimed(transformation::transform, "Transforming attributes");
 
-        var writer = new CsvLogWriter();
-        runTimed(() -> writer.writeToFile(caseLog, "/home/jonas/Downloads/Hospital_caselog.csv"), "Writing CSV file");
+        runTimed(() -> new CsvLogWriter().writeToFile(caseLog, "/home/jonas/Downloads/Hospital_caselog.csv"), "Writing CSV file");
+        runTimed(() -> new ArffLogWriter().writeToFile(caseLog, "/home/jonas/Downloads/Hospital_caselog.arff"), "Writing ARFF file");
     }
 
     private static <T> T runTimed(Supplier<T> function, String message) {
-        StopWatch stopWatch = new StopWatch();
-        System.out.println("Starting: " + message);
-        stopWatch.start();
+        var stopWatch = start(message);
         var result = function.get();
-        stopWatch.stop();
-        System.out.println("Finished: " + message + " (" + stopWatch.getTime(TimeUnit.MILLISECONDS) + "ms)");
+        stopAndPrint(message, stopWatch);
         return result;
     }
 
     private static void runTimed(Runnable runnable, String message) {
+        var stopWatch = start(message);
+        runnable.run();
+        stopAndPrint(message, stopWatch);
+    }
+
+    private static StopWatch start(String message) {
         StopWatch stopWatch = new StopWatch();
         System.out.println("Starting: " + message);
         stopWatch.start();
-        runnable.run();
+        return stopWatch;
+    }
+
+    private static void stopAndPrint(String message, StopWatch stopWatch) {
         stopWatch.stop();
         System.out.println("Finished: " + message + " (" + stopWatch.getTime(TimeUnit.MILLISECONDS) + "ms)");
     }

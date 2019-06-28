@@ -13,20 +13,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-public class CsvLogWriter {
+public class CsvLogWriter implements CaseLogWriter {
 
     private String dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXX";
 
-
-    public void writeToFile(CaseLog caseLog, String fileName) {
-        try (var listWriter = new CsvListWriter(new FileWriter(fileName), CsvPreference.STANDARD_PREFERENCE)) {
+    @Override
+    public void writeToFile(CaseLog caseLog, String filePath) {
+        try (var listWriter = new CsvListWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE)) {
             var schema = caseLog.getSchema();
             var processors = getProcessors(schema);
             var header = schema.keySet().toArray(new String[0]);
 
             listWriter.writeHeader(header);
 
-            var rows = caseLog.asRows(false);
+            var rows = new CaseLogFormatter().asRows(caseLog, false);
             for (var row : rows) {
                 listWriter.write(row, processors);
             }

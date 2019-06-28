@@ -1,22 +1,18 @@
 package de.hpi.bpt.transformation;
 
-import de.hpi.bpt.datastructures.*;
+import de.hpi.bpt.datastructures.CaseColumn;
+import de.hpi.bpt.datastructures.EventLog;
+import de.hpi.bpt.datastructures.LogColumn;
+import de.hpi.bpt.datastructures.Schema;
 
 import java.time.Duration;
 import java.util.*;
 
-public class ExistingAttributeTransformation {
+public class ExistingAttributeTransformation implements Transformation {
 
-    private EventLog sourceEventLog;
-
-    public ExistingAttributeTransformation(EventLog sourceEventLog) {
-        this.sourceEventLog = sourceEventLog;
-    }
-
-    public CaseLog transform() {
-        Schema sourceSchema = sourceEventLog.getSchema();
-        Schema targetSchema = new Schema();
-        Map<String, CaseColumn<?>> transformedColumns = new LinkedHashMap<>();
+    @Override
+    public void transform(EventLog sourceEventLog, Schema targetSchema, Map<String, CaseColumn<?>> transformedColumns) {
+        var sourceSchema = sourceEventLog.getSchema();
 
         for (var columnEntry : sourceEventLog.entrySet()) {
             var sourceColumn = columnEntry.getValue();
@@ -54,8 +50,6 @@ public class ExistingAttributeTransformation {
                 transformedColumns.putAll(transformColumn(sourceColumn, sourceColumnName));
             }
         }
-
-        return new CaseLog(targetSchema, transformedColumns);
     }
 
     private CaseColumn<String> transformCaseIdColumn(LogColumn<String> caseIdColumn) {

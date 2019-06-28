@@ -4,6 +4,7 @@ import de.hpi.bpt.io.ArffLogWriter;
 import de.hpi.bpt.io.CsvLogReader;
 import de.hpi.bpt.io.CsvLogWriter;
 import de.hpi.bpt.transformation.ExistingAttributeTransformation;
+import de.hpi.bpt.transformation.LogTransformer;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.File;
@@ -31,8 +32,8 @@ public class Main {
 
         var eventLog = runTimed(() -> reader.read(file), "Reading CSV file");
 
-        var transformation = new ExistingAttributeTransformation(eventLog);
-        var caseLog = runTimed(transformation::transform, "Transforming attributes");
+        var transformer = new LogTransformer(eventLog).with(new ExistingAttributeTransformation());
+        var caseLog = runTimed(transformer::transform, "Transforming attributes");
 
         runTimed(() -> new CsvLogWriter().writeToFile(caseLog, "/home/jonas/Downloads/Hospital_caselog.csv"), "Writing CSV file");
         runTimed(() -> new ArffLogWriter().writeToFile(caseLog, "/home/jonas/Downloads/Hospital_caselog.arff"), "Writing ARFF file");

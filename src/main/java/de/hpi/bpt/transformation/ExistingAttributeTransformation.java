@@ -5,8 +5,10 @@ import de.hpi.bpt.datastructures.EventLog;
 import de.hpi.bpt.datastructures.LogColumn;
 import de.hpi.bpt.datastructures.Schema;
 
-import java.time.Duration;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class ExistingAttributeTransformation implements LogTransformation {
 
@@ -19,15 +21,8 @@ public class ExistingAttributeTransformation implements LogTransformation {
             var sourceColumnName = columnEntry.getKey();
             var sourceColumnType = sourceSchema.get(sourceColumnName).getType();
 
-            if (sourceColumnName.equals(sourceSchema.getCaseIdName())) {
-                targetSchema.addColumnDefinition(sourceColumnName, sourceColumnType);
-                transformedColumns.put(sourceColumnName, transformCaseIdColumn(sourceColumn.as(String.class)));
-                continue;
-            }
-
-            if (sourceColumnName.equals(sourceSchema.getTimestampName())) {
-                targetSchema.addColumnDefinition("duration", Integer.class);
-                transformedColumns.put("duration", transformTimestampColumnToDuration(sourceColumn.as(Date.class)));
+            if (sourceColumnName.equals(sourceSchema.getCaseIdName())
+                    || sourceColumnName.equals(sourceSchema.getTimestampName())) {
                 continue;
             }
 
@@ -50,24 +45,6 @@ public class ExistingAttributeTransformation implements LogTransformation {
                 transformedColumns.putAll(transformColumn(sourceColumn, sourceColumnName));
             }
         }
-    }
-
-    private CaseColumn<String> transformCaseIdColumn(LogColumn<String> caseIdColumn) {
-        var column = new CaseColumn<>(String.class);
-        for (List<String> trace : caseIdColumn.getTraces()) {
-            column.addValue(trace.get(0)); // simply add first value, assuming the case id is the same for the one trace
-        }
-        return column;
-    }
-
-
-    private CaseColumn<Integer> transformTimestampColumnToDuration(LogColumn<Date> timestampColumn) {
-        var column = new CaseColumn<>(Integer.class);
-        for (List<Date> trace : timestampColumn.getTraces()) {
-            var duration = Duration.between(trace.get(0).toInstant(), trace.get(trace.size() - 1).toInstant());
-            column.addValue((int) duration.getSeconds());
-        }
-        return column;
     }
 
     private Map<String, CaseColumn<?>> transformIntegerColumn(LogColumn<Integer> logColumn, String sourceColumnName) {

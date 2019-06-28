@@ -1,15 +1,20 @@
 package de.hpi.bpt;
 
+import de.hpi.bpt.datastructures.EventLog;
 import de.hpi.bpt.io.ArffLogWriter;
 import de.hpi.bpt.io.CsvLogReader;
 import de.hpi.bpt.io.CsvLogWriter;
-import de.hpi.bpt.transformation.ExistingAttributeTransformation;
+import de.hpi.bpt.transformation.ActivityAppearanceTransformation;
+import de.hpi.bpt.transformation.CaseDurationTransformation;
+import de.hpi.bpt.transformation.CaseIdTransformation;
 import de.hpi.bpt.transformation.LogTransformer;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.File;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -32,11 +37,24 @@ public class Main {
 
         var eventLog = runTimed(() -> reader.read(file), "Reading CSV file");
 
-        var transformer = new LogTransformer(eventLog).with(new ExistingAttributeTransformation());
+        var endActivityNames = runTimed(() -> extractEndActivityNames(eventLog), "Collecting end activities");
+        endActivityNames.forEach(System.out::println);
+        var transformer = new LogTransformer(eventLog)
+                .with(new CaseIdTransformation())
+                .with(new CaseDurationTransformation())
+                .with(new ActivityAppearanceTransformation(endActivityNames));
         var caseLog = runTimed(transformer::transform, "Transforming attributes");
 
         runTimed(() -> new CsvLogWriter().writeToFile(caseLog, "/home/jonas/Downloads/Hospital_caselog.csv"), "Writing CSV file");
         runTimed(() -> new ArffLogWriter().writeToFile(caseLog, "/home/jonas/Downloads/Hospital_caselog.arff"), "Writing ARFF file");
+    }
+
+    private static Set<String> extractEndActivityNames(EventLog eventLog) {
+        return eventLog.getTyped(eventLog.getSchema().getActivityName(), String.class)
+                .getTraces()
+                .parallelStream()
+                .map(trace -> trace.get(trace.size() - 1))
+                .collect(Collectors.toSet());
     }
 
     private static <T> T runTimed(Supplier<T> function, String message) {

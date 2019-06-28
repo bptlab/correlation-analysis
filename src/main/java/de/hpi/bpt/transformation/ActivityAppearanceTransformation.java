@@ -4,16 +4,13 @@ import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.datastructures.EventLog;
 import de.hpi.bpt.datastructures.Schema;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ActivityAppearanceTransformation implements LogTransformation {
 
-    private List<String> activityNames = new ArrayList<>();
+    private Set<String> activityNames = new HashSet<>();
 
-    public ActivityAppearanceTransformation(List<String> activityNames) {
+    public ActivityAppearanceTransformation(Set<String> activityNames) {
         this.activityNames.addAll(activityNames);
     }
 

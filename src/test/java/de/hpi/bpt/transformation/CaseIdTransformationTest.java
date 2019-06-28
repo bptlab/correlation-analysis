@@ -8,7 +8,7 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ActivityAppearanceTransformationTest {
+class CaseIdTransformationTest {
 
     @Test
     void transform() {
@@ -30,19 +30,14 @@ class ActivityAppearanceTransformationTest {
                 .build()
                 .build();
 
-        var transformation = new ActivityAppearanceTransformation("A1", "A2", "A3");
+        var transformation = new CaseIdTransformation();
 
         // Act
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        CaseColumn<Boolean> a1Appearance = afterTransformation.getTyped("A1_appearance");
-        CaseColumn<Boolean> a2Appearance = afterTransformation.getTyped("A2_appearance");
-        CaseColumn<Boolean> a3Appearance = afterTransformation.getTyped("A3_appearance");
+        CaseColumn<String> caseId = afterTransformation.getTyped("caseid");
 
-        assertThat(a1Appearance.getValues()).containsExactly(true, false, false);
-        assertThat(a2Appearance.getValues()).containsExactly(true, true, false);
-        assertThat(a3Appearance.getValues()).containsExactly(true, true, true);
+        assertThat(caseId.getValues()).containsExactly("1", "2", "3");
     }
-
 }

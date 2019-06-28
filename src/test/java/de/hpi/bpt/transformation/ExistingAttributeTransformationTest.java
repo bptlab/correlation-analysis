@@ -2,17 +2,16 @@ package de.hpi.bpt.transformation;
 
 import de.hpi.bpt.EventLogBuilder;
 import de.hpi.bpt.datastructures.CaseColumn;
-import de.hpi.bpt.datastructures.CaseLog;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ExistingAttributeTransformationTest {
+class ExistingAttributeTransformationTest {
 
     @Test
-    public void transform_calculatesStartEndAndAggregateValues() {
+    void transform() {
         // Arrange
         var sourceEventLog = new EventLogBuilder()
                 .schema()
@@ -29,7 +28,7 @@ public class ExistingAttributeTransformationTest {
         var transformation = new ExistingAttributeTransformation();
 
         // Act
-        CaseLog afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
+        var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
         CaseColumn<Integer> integerTestValueStart = afterTransformation.getTyped("integerTestValue_start");
@@ -40,12 +39,12 @@ public class ExistingAttributeTransformationTest {
         CaseColumn<String> stringTestValueStart = afterTransformation.getTyped("stringTestValue_start");
         CaseColumn<String> stringTestValueEnd = afterTransformation.getTyped("stringTestValue_end");
 
-        assertThat(integerTestValueStart.get(0)).isEqualTo(1);
-        assertThat(integerTestValueEnd.get(0)).isEqualTo(9);
-        assertThat(integerTestValueMax.get(0)).isEqualTo(20);
-        assertThat(integerTestValueMin.get(0)).isEqualTo(1);
-        assertThat(integerTestValueAvg.get(0)).isEqualTo(10D);
-        assertThat(stringTestValueStart.get(0)).isEqualTo("StartValue");
-        assertThat(stringTestValueEnd.get(0)).isEqualTo("EndValue");
+        assertThat(integerTestValueStart.getValues()).containsExactly(1);
+        assertThat(integerTestValueEnd.getValues()).containsExactly(9);
+        assertThat(integerTestValueMax.getValues()).containsExactly(20);
+        assertThat(integerTestValueMin.getValues()).containsExactly(1);
+        assertThat(integerTestValueAvg.getValues()).containsExactly(10D);
+        assertThat(stringTestValueStart.getValues()).containsExactly("StartValue");
+        assertThat(stringTestValueEnd.getValues()).containsExactly("EndValue");
     }
 }

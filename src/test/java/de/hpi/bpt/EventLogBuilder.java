@@ -23,8 +23,11 @@ public class EventLogBuilder {
         private SchemaBuilder() {
             schema = new Schema();
             schema.addColumnDefinition("caseid", String.class);
+            schema.setCaseIdName("caseid");
             schema.addColumnDefinition("timestamp", Date.class);
+            schema.setTimestampName("timestamp");
             schema.addColumnDefinition("activity", String.class);
+            schema.setActivityName("activity");
         }
 
         public SchemaBuilder column(String name, Class<?> type) {

@@ -12,13 +12,13 @@ import java.util.Set;
 public class LogTransformer {
 
     private EventLog sourceEventLog;
-    private Set<Transformation> transformations = new HashSet<>();
+    private Set<LogTransformation> transformations = new HashSet<>();
 
     public LogTransformer(EventLog sourceEventLog) {
         this.sourceEventLog = sourceEventLog;
     }
 
-    public LogTransformer with(Transformation transformation) {
+    public LogTransformer with(LogTransformation transformation) {
         transformations.add(transformation);
         return this;
     }

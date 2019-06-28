@@ -6,7 +6,7 @@ import de.hpi.bpt.datastructures.Schema;
 
 import java.util.Map;
 
-public interface Transformation {
+public interface LogTransformation {
 
     void transform(EventLog sourceEventLog, Schema targetSchema, Map<String, CaseColumn<?>> transformedColumns);
 }

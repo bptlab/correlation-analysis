@@ -8,7 +8,7 @@ import de.hpi.bpt.datastructures.Schema;
 import java.time.Duration;
 import java.util.*;
 
-public class ExistingAttributeTransformation implements Transformation {
+public class ExistingAttributeTransformation implements LogTransformation {
 
     @Override
     public void transform(EventLog sourceEventLog, Schema targetSchema, Map<String, CaseColumn<?>> transformedColumns) {

@@ -28,7 +28,7 @@ public class CsvLogReader {
     private String activityName = "activity";
 
     public EventLog read(File file) {
-        var csvPreference = new CsvPreference.Builder('"', separator, ";\r\n").build();
+        var csvPreference = new CsvPreference.Builder('"', separator, "\r\n").build();
 
         try (var mapReader = new CsvMapReader(new FileReader(file), csvPreference)) {
             var header = mapReader.getHeader(false);

@@ -22,7 +22,7 @@ public class EventLogBuilder {
 
         private SchemaBuilder() {
             schema = new Schema();
-            schema.addColumnDefinition("caseid", Integer.class);
+            schema.addColumnDefinition("caseid", String.class);
             schema.addColumnDefinition("timestamp", Date.class);
             schema.addColumnDefinition("activity", String.class);
         }
@@ -50,7 +50,7 @@ public class EventLogBuilder {
             }
         }
 
-        public TraceBuilder trace(int caseId) {
+        public TraceBuilder trace(String caseId) {
             return new TraceBuilder(this, caseId, columns);
         }
 
@@ -67,10 +67,10 @@ public class EventLogBuilder {
     public class TraceBuilder {
 
         private final ContentBuilder contentBuilder;
-        private final int caseId;
+        private final String caseId;
         private final List<LogColumn<?>> columns;
 
-        private TraceBuilder(ContentBuilder contentBuilder, int caseId, List<LogColumn<?>> columns) {
+        private TraceBuilder(ContentBuilder contentBuilder, String caseId, List<LogColumn<?>> columns) {
             this.contentBuilder = contentBuilder;
             this.caseId = caseId;
             this.columns = columns;

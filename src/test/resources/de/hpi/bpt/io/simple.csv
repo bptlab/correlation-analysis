@@ -1,4 +1,4 @@
-caseid:int,timestamp:date,activity:string,customername:string,isnew:boolean,discount:double
+caseid:string,timestamp:date,activity:string,customername:string,isnew:boolean,discount:double
 0,2005-01-03T00:14:24+01:00,register customer,muller,true,0
 0,2005-01-03T00:15:33+01:00,print card,muller,true,0
 1,2005-01-03T00:16:06+01:00,create invoice,smith,false,20.5

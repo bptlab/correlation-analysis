@@ -19,7 +19,7 @@ public class ExistingAttributeTransformationTest {
                 .column("integerTestValue", Integer.class)
                 .column("stringTestValue", String.class)
                 .build()
-                .trace(1)
+                .trace("1")
                 .row(new Date(1L), "C1A1", 1, "StartValue")
                 .row(new Date(2L), "C1A2", 20, "MidValue")
                 .row(new Date(3L), "C1A3", 9, "EndValue")

@@ -23,17 +23,17 @@ class CsvLogReaderTest {
 
         // Assert
         var schema = eventLog.getSchema();
-        assertThat(schema.get("caseid")).isEqualToComparingFieldByField(new ColumnDefinition<>(0, "caseid", Integer.class));
+        assertThat(schema.get("caseid")).isEqualToComparingFieldByField(new ColumnDefinition<>(0, "caseid", String.class));
         assertThat(schema.get("timestamp")).isEqualToComparingFieldByField(new ColumnDefinition<>(1, "timestamp", Date.class));
         assertThat(schema.get("activity")).isEqualToComparingFieldByField(new ColumnDefinition<>(2, "activity", String.class));
         assertThat(schema.get("customername")).isEqualToComparingFieldByField(new ColumnDefinition<>(3, "customername", String.class));
         assertThat(schema.get("isnew")).isEqualToComparingFieldByField(new ColumnDefinition<>(4, "isnew", Boolean.class));
         assertThat(schema.get("discount")).isEqualToComparingFieldByField(new ColumnDefinition<>(5, "discount", Double.class));
 
-        assertThat(eventLog.get("caseid").getType()).isEqualTo(Integer.class);
-        assertThat(eventLog.getTyped("caseid", Integer.class).getTraces())
+        assertThat(eventLog.get("caseid").getType()).isEqualTo(String.class);
+        assertThat(eventLog.getTyped("caseid", String.class).getTraces())
                 .flatExtracting(traceList -> traceList)
-                .containsExactly(0, 0, 1);
+                .containsExactly("0", "0", "1");
 
         assertThat(eventLog.get("timestamp").getType()).isEqualTo(Date.class);
         assertThat(eventLog.getTyped("timestamp", Date.class).getTraces())

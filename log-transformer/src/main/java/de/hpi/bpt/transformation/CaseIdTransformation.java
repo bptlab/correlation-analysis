@@ -14,6 +14,7 @@ public class CaseIdTransformation implements LogTransformation {
         var sourceColumn = sourceEventLog.getTyped(sourceSchema.getCaseIdName(), String.class);
 
         targetSchema.addColumnDefinition(sourceSchema.getCaseIdName(), String.class);
+        targetSchema.setCaseIdName(sourceSchema.getCaseIdName());
         var targetColumn = new CaseColumn<>(String.class);
 
         for (var trace : sourceColumn.getTraces()) {

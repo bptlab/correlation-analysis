@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 public class Main {
 
-    public static final String FILE_PATH = "/home/jonas/Downloads/Hospital_caselog.arff";
+    public static final String FILE_PATH = "/home/jonas/Data/Macif/Demands_Joined.arff";
     public static final String TARGET_VARIABLE = "duration";
 
     public static void main(String[] args) {

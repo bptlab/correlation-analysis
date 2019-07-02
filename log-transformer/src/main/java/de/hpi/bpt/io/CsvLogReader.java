@@ -1,23 +1,18 @@
 package de.hpi.bpt.io;
 
 import de.hpi.bpt.datastructures.ColumnDefinition;
-import de.hpi.bpt.datastructures.EventLog;
-import de.hpi.bpt.datastructures.LogColumn;
 import de.hpi.bpt.datastructures.Schema;
 import org.supercsv.cellprocessor.*;
 import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapReader;
-import org.supercsv.io.ICsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public class CsvLogReader {
 
@@ -27,54 +22,14 @@ public class CsvLogReader {
     private String timestampName = "timestamp";
     private String activityName = "activity";
 
-    public EventLog read(File file) {
+    CsvMapReader read(File file) throws FileNotFoundException {
         var csvPreference = new CsvPreference.Builder('"', separator, "\r\n").build();
-
-        try (var mapReader = new CsvMapReader(new FileReader(file), csvPreference)) {
-            var header = mapReader.getHeader(false);
-            var schema = readSchemaFromHeader(header);
-            var columns = readColumns(header, schema, mapReader);
-            return new EventLog(schema, columns);
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        return new CsvMapReader(new FileReader(file), csvPreference);
     }
 
-    private Map<String, LogColumn<?>> readColumns(String[] header, Schema schema, ICsvMapReader reader) throws IOException {
-        var columns = new LinkedHashMap<String, LogColumn<?>>();
-        for (var entry : schema.entrySet()) {
-            columns.put(entry.getKey(), new LogColumn<>(entry.getValue().getType()));
-        }
-
-        var processors = getProcessors(schema);
-
-        String currentCaseId = "-";
-        Map<String, Object> rowMap;
-        while ((rowMap = reader.read(header, processors)) != null) {
-            var newCaseId = (String) rowMap.get(header[0]);
-
-            if (!currentCaseId.equals(newCaseId)) {
-                columns.values().forEach(LogColumn::addNewTrace);
-                currentCaseId = newCaseId;
-            }
-
-            var columnArray = columns.keySet().toArray(new String[0]);
-            for (int i = 0; i < header.length; i++) {
-                var typedHeader = header[i];
-                var untypedHeader = columnArray[i];
-                columns.get(untypedHeader).addValue(rowMap.get(typedHeader));
-            }
-        }
-        return columns;
-    }
-
-    private CellProcessor[] getProcessors(Schema schema) {
+    CellProcessor[] getProcessors(Schema schema) {
         var cellProcessors = new CellProcessor[schema.size()];
-        var keys = Arrays.asList(schema.keySet().toArray(new String[0]));
         var values = schema.values().toArray(new ColumnDefinition<?>[0]);
-        cellProcessors[keys.indexOf(caseIdName)] = new NotNull();
-        cellProcessors[keys.indexOf(timestampName)] = new NotNull(new ParseDate(dateFormat));
-        cellProcessors[keys.indexOf(activityName)] = new NotNull();
         var numValues = schema.keySet().size();
         for (int i = 0; i < numValues; i++) {
             if (cellProcessors[i] == null) {
@@ -85,7 +40,7 @@ public class CsvLogReader {
     }
 
 
-    private Schema readSchemaFromHeader(String[] header) {
+    Schema readSchemaFromHeader(String[] header) {
         var schema = new Schema();
         for (var headerField : header) {
             var headerDeclaration = headerField.split(":");
@@ -131,6 +86,7 @@ public class CsvLogReader {
         return typeProcessor;
     }
 
+
     public CsvLogReader dateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
         return this;
@@ -158,5 +114,9 @@ public class CsvLogReader {
 
     public String getDateFormat() {
         return dateFormat;
+    }
+
+    public char getSeparator() {
+        return separator;
     }
 }

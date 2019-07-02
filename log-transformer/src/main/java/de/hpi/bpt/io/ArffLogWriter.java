@@ -53,7 +53,7 @@ public class ArffLogWriter implements CaseLogWriter {
         if (o == null) {
             return "?";
         } else if (o instanceof String) {
-            return String.format("'%s'", o);
+            return String.format("\"%s\"", o);
         } else if (o instanceof Date) {
             return String.format("\"%s\"", sdf.format((Date) o));
         } else {

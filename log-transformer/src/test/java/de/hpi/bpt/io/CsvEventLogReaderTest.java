@@ -9,7 +9,7 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class CsvLogReaderTest {
+class CsvEventLogReaderTest {
 
     @Test
     void read_simpleFile() {
@@ -17,9 +17,10 @@ class CsvLogReaderTest {
         var csvLogReader = new CsvLogReader();
         var file = new File(this.getClass().getResource("simple.csv").getFile());
         var dateFormat = new SimpleDateFormat(csvLogReader.getDateFormat());
+        var eventLogReader = new CsvEventLogReader(csvLogReader);
 
         // Act
-        var eventLog = csvLogReader.read(file);
+        var eventLog = eventLogReader.read(file);
 
         // Assert
         var schema = eventLog.getSchema();

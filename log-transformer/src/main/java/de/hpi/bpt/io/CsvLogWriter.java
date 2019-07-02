@@ -22,9 +22,12 @@ public class CsvLogWriter implements CaseLogWriter {
         try (var listWriter = new CsvListWriter(new FileWriter(filePath), CsvPreference.STANDARD_PREFERENCE)) {
             var schema = caseLog.getSchema();
             var processors = getProcessors(schema);
-            var header = schema.keySet().toArray(new String[0]);
 
-            listWriter.writeHeader(header);
+            var typedHeader = schema.entrySet().stream()
+                    .map(entry -> entry.getKey() + ":" + typeNameFor(entry.getValue().getType()))
+                    .toArray(String[]::new);
+
+            listWriter.writeHeader(typedHeader);
 
             var rows = new CaseLogFormatter().asRows(caseLog, false);
             for (var row : rows) {
@@ -50,6 +53,22 @@ public class CsvLogWriter implements CaseLogWriter {
             return new Optional(new FmtDate(dateFormat));
         } else {
             return new Optional();
+        }
+    }
+
+    private String typeNameFor(Class<?> type) {
+        if (Integer.class.equals(type)) {
+            return "int";
+        } else if (String.class.equals(type)) {
+            return "string";
+        } else if (Date.class.equals(type)) {
+            return "date";
+        } else if (Boolean.class.equals(type)) {
+            return "boolean";
+        } else if (Double.class.equals(type)) {
+            return "double";
+        } else {
+            throw new RuntimeException("Invalid type found in header: '" + type.getSimpleName() + "'!");
         }
     }
 

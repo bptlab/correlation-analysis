@@ -16,6 +16,10 @@ public class CaseColumn<T> {
         return values;
     }
 
+    public Class<T> getType() {
+        return type;
+    }
+
     public T get(int i) {
         return values.get(i);
     }

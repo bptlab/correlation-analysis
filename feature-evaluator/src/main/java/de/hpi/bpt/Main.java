@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 public class Main {
 
-    private static final String FILE_PATH = "/home/jonas/Data/Macif/Demands_Joined.arff";
+    private static final String FILE_PATH = "/home/jonas/Data/Macif/Demands_Joined_ParallelCount.arff";
     private static final String TARGET_VARIABLE = "duration";
     private static final String GRAPH_OUTPUT_FILE = "/home/jonas/Data/Macif/Demands_Result.gv";
 

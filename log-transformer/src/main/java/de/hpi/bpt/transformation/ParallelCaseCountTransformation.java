@@ -4,10 +4,11 @@ import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.datastructures.CaseLog;
 import de.hpi.bpt.datastructures.EventLog;
 
-import java.util.Comparator;
 import java.util.Date;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class ParallelCaseCountTransformation implements LogTransformation {
 
@@ -26,52 +27,70 @@ public class ParallelCaseCountTransformation implements LogTransformation {
                     var currentCaseTimestamps = caseTimestamps.get(i);
                     var start = currentCaseTimestamps.get(0);
                     var end = currentCaseTimestamps.get(currentCaseTimestamps.size() - 1);
-                    return new TimedCase(caseId, start, end);
+                    return Stream.of(new TimedCaseStartEvent(caseId, start), new TimedCaseEndEvent(caseId, end));
                 })
-                .sorted(Comparator.comparing(TimedCase::getStart))
+                .flatMap(Function.identity())
+                .sorted((e1, e2) -> e1.getDate().equals(e2.getDate()) ? Boolean.compare(e1.isEnd(), e2.isEnd()) : e1.getDate().compareTo(e2.getDate()))
                 .collect(Collectors.toList());
 
-        for (TimedCase timedCase : timedCases) {
-            var numOverlapping = 0;
+        System.out.println("done sorting");
 
-            for (TimedCase otherCase : timedCases) {
-                if (timedCase == otherCase) {
-                    continue;
-                }
-                if (!otherCase.getStart().before(timedCase.getEnd())) {
-                    break;
-                } else if (otherCase.getEnd().after(timedCase.getStart())) {
-                    numOverlapping++;
-                }
+        var currentCases = 0;
+        for (TimedCaseEvent timedCaseEvent : timedCases) {
+            if (timedCaseEvent.isEnd()) {
+                parallelCasesColumn.setValue(resultCaseLog.rowIndexOf(timedCaseEvent.getCaseId()), currentCases);
+                currentCases--;
+            } else {
+                currentCases++;
             }
-
-            parallelCasesColumn.setValue(resultCaseLog.rowIndexOf(timedCase.getCaseId()), numOverlapping);
         }
+
+        System.out.println("done finding parallels");
 
         resultCaseLog.put("numparallelcases", parallelCasesColumn);
     }
 
-    private class TimedCase {
+    private abstract class TimedCaseEvent {
         private String caseId;
-        private Date start;
-        private Date end;
+        private Date date;
 
-        TimedCase(String caseId, Date start, Date end) {
+        TimedCaseEvent(String caseId, Date date) {
             this.caseId = caseId;
-            this.start = start;
-            this.end = end;
+            this.date = date;
         }
 
         String getCaseId() {
             return caseId;
         }
 
-        Date getStart() {
-            return start;
+        Date getDate() {
+            return date;
         }
 
-        Date getEnd() {
-            return end;
+        abstract boolean isEnd();
+    }
+
+    private class TimedCaseStartEvent extends TimedCaseEvent {
+
+        TimedCaseStartEvent(String caseId, Date date) {
+            super(caseId, date);
+        }
+
+        @Override
+        boolean isEnd() {
+            return false;
+        }
+    }
+
+    private class TimedCaseEndEvent extends TimedCaseEvent {
+
+        TimedCaseEndEvent(String caseId, Date date) {
+            super(caseId, date);
+        }
+
+        @Override
+        boolean isEnd() {
+            return true;
         }
     }
 }

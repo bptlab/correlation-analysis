@@ -1,11 +1,8 @@
 package de.hpi.bpt;
 
 import de.hpi.bpt.datastructures.EventLog;
-import de.hpi.bpt.io.CsvEventLogReader;
-import de.hpi.bpt.io.CsvLogReader;
-import de.hpi.bpt.io.CsvLogWriter;
+import de.hpi.bpt.io.*;
 import de.hpi.bpt.transformation.CaseDurationTransformation;
-import de.hpi.bpt.transformation.CaseIdTransformation;
 import de.hpi.bpt.transformation.LogTransformer;
 import de.hpi.bpt.transformation.ParallelCaseCountTransformation;
 import org.apache.commons.lang3.time.StopWatch;
@@ -21,7 +18,6 @@ import java.util.stream.Collectors;
  */
 public class Main {
 
-    private static final String EVENT_FILE_NAME = "/home/jonas/Data/Macif/Demands_Event_Log_V4.csv";
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     private static final char SEPARATOR = ',';
 
@@ -38,19 +34,28 @@ public class Main {
                 .timestampName(TIMESTAMP_NAME)
                 .activityName(ACTIVITY_NAME);
 
-        var eventLog = runTimed(() -> new CsvEventLogReader(csvLogReader).read(new File(EVENT_FILE_NAME)), "Reading event log");
-//        var caseLog = runTimed(() -> new CsvCaseLogReader(csvLogReader).read(new File(EVENT_FILE_NAME)), "Reading event log");
+
+//        eventLogTransformation(csvLogReader, "/home/jonas/Data/Macif/Demands_Event_Log_Sorted.csv");
+        simpleArffConversion(csvLogReader, "/home/jonas/Data/Macif/Demands_Joined_ParallelCount.csv");
+    }
+
+    private static void eventLogTransformation(CsvLogReader csvLogReader, String fileName) {
+        var eventLog = runTimed(() -> new CsvEventLogReader(csvLogReader).read(new File(fileName)), "Reading event log");
 
 //        var endActivityNames = runTimed(() -> extractEndActivityNames(eventLog), "Collecting end activities");
         var transformer = new LogTransformer(eventLog)
-                .with(new CaseIdTransformation())
                 .with(new CaseDurationTransformation())
 //                .with(new ActivityAppearanceTransformation(endActivityNames))
                 .with(new ParallelCaseCountTransformation());
         var transformedLog = runTimed(transformer::transform, "Transforming attributes");
 
         runTimed(() -> new CsvLogWriter().writeToFile(transformedLog, "/home/jonas/Data/Macif/Demands_CaseLog_ParallelCount.csv"), "Writing CSV file");
-//        runTimed(() -> new ArffLogWriter().writeToFile(caseLog, "/home/jonas/Data/Macif/Demands_Joined.arff"), "Writing ARFF file");
+
+    }
+
+    private static void simpleArffConversion(CsvLogReader csvLogReader, String fileName) {
+        var caseLog = runTimed(() -> new CsvCaseLogReader(csvLogReader).read(new File(fileName)), "Reading case log");
+        runTimed(() -> new ArffLogWriter().writeToFile(caseLog, fileName.replace(".csv", ".arff")), "Writing ARFF file");
     }
 
     private static Set<String> extractEndActivityNames(EventLog eventLog) {

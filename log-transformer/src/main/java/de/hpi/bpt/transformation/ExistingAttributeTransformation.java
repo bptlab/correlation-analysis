@@ -1,9 +1,9 @@
 package de.hpi.bpt.transformation;
 
 import de.hpi.bpt.datastructures.CaseColumn;
+import de.hpi.bpt.datastructures.CaseLog;
 import de.hpi.bpt.datastructures.EventLog;
 import de.hpi.bpt.datastructures.LogColumn;
-import de.hpi.bpt.datastructures.Schema;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,8 +13,9 @@ import java.util.Objects;
 public class ExistingAttributeTransformation implements LogTransformation {
 
     @Override
-    public void transform(EventLog sourceEventLog, Schema targetSchema, Map<String, CaseColumn<?>> transformedColumns) {
+    public void transform(EventLog sourceEventLog, CaseLog resultCaseLog) {
         var sourceSchema = sourceEventLog.getSchema();
+        var targetSchema = resultCaseLog.getSchema();
 
         for (var columnEntry : sourceEventLog.entrySet()) {
             var sourceColumn = columnEntry.getValue();
@@ -35,14 +36,14 @@ public class ExistingAttributeTransformation implements LogTransformation {
                 targetSchema.addColumnDefinition(sourceColumnName + "_max", Integer.class);
                 targetSchema.addColumnDefinition(sourceColumnName + "_min", Integer.class);
                 targetSchema.addColumnDefinition(sourceColumnName + "_avg", Double.class);
-                transformedColumns.putAll(transformIntegerColumn(sourceColumn.as(Integer.class), sourceColumnName));
+                resultCaseLog.putAll(transformIntegerColumn(sourceColumn.as(Integer.class), sourceColumnName));
             } else if (Double.class.equals(sourceColumn.getType())) {
                 targetSchema.addColumnDefinition(sourceColumnName + "_max", Double.class);
                 targetSchema.addColumnDefinition(sourceColumnName + "_min", Double.class);
                 targetSchema.addColumnDefinition(sourceColumnName + "_avg", Double.class);
-                transformedColumns.putAll(transformDoubleColumn(sourceColumn.as(Double.class), sourceColumnName));
+                resultCaseLog.putAll(transformDoubleColumn(sourceColumn.as(Double.class), sourceColumnName));
             } else {
-                transformedColumns.putAll(transformColumn(sourceColumn, sourceColumnName));
+                resultCaseLog.putAll(transformColumn(sourceColumn, sourceColumnName));
             }
         }
     }

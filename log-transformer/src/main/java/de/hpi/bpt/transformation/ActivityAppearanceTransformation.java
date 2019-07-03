@@ -1,10 +1,13 @@
 package de.hpi.bpt.transformation;
 
 import de.hpi.bpt.datastructures.CaseColumn;
+import de.hpi.bpt.datastructures.CaseLog;
 import de.hpi.bpt.datastructures.EventLog;
-import de.hpi.bpt.datastructures.Schema;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ActivityAppearanceTransformation implements LogTransformation {
 
@@ -19,8 +22,9 @@ public class ActivityAppearanceTransformation implements LogTransformation {
     }
 
     @Override
-    public void transform(EventLog sourceEventLog, Schema targetSchema, Map<String, CaseColumn<?>> transformedColumns) {
+    public void transform(EventLog sourceEventLog, CaseLog resultCaseLog) {
         var sourceSchema = sourceEventLog.getSchema();
+        var targetSchema = resultCaseLog.getSchema();
         var activityColumn = sourceEventLog.getTyped(sourceSchema.getActivityName(), String.class);
 
         for (String activityName : activityNames) {
@@ -35,7 +39,7 @@ public class ActivityAppearanceTransformation implements LogTransformation {
                 }
             }
 
-            transformedColumns.put(activityName + "_appearance", appearanceColumn);
+            resultCaseLog.put(activityName + "_appearance", appearanceColumn);
         }
     }
 }

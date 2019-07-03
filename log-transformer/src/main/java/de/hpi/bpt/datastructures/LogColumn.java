@@ -16,6 +16,14 @@ public class LogColumn<T> {
         return traces;
     }
 
+    public int numTraces() {
+        return traces.size();
+    }
+
+    public List<T> get(int i) {
+        return traces.get(i);
+    }
+
     public List<T> getLastTrace() {
         return traces.get(traces.size() - 1);
     }

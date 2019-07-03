@@ -1,18 +1,19 @@
 package de.hpi.bpt.transformation;
 
 import de.hpi.bpt.datastructures.CaseColumn;
+import de.hpi.bpt.datastructures.CaseLog;
 import de.hpi.bpt.datastructures.EventLog;
-import de.hpi.bpt.datastructures.Schema;
 
 import java.time.Duration;
 import java.util.Date;
-import java.util.Map;
 
 public class CaseDurationTransformation implements LogTransformation {
 
     @Override
-    public void transform(EventLog sourceEventLog, Schema targetSchema, Map<String, CaseColumn<?>> transformedColumns) {
+    public void transform(EventLog sourceEventLog, CaseLog resultCaseLog) {
         var sourceSchema = sourceEventLog.getSchema();
+        var targetSchema = resultCaseLog.getSchema();
+
         var timestampColumn = sourceEventLog.getTyped(sourceSchema.getTimestampName(), Date.class);
 
         targetSchema.addColumnDefinition("duration", Integer.class);
@@ -24,6 +25,6 @@ public class CaseDurationTransformation implements LogTransformation {
             durationColumn.addValue((int) duration.getSeconds());
         }
 
-        transformedColumns.put("duration", durationColumn);
+        resultCaseLog.put("duration", durationColumn);
     }
 }

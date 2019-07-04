@@ -48,6 +48,8 @@ class WeekdaysOfCaseTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "casestartweekday", "caseendweekday");
+
         CaseColumn<String> startWeekdays = afterTransformation.getTyped("casestartweekday");
         CaseColumn<String> endWeekdays = afterTransformation.getTyped("caseendweekday");
 

@@ -36,7 +36,9 @@ class CaseIdTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        CaseColumn<String> caseId = afterTransformation.getTyped("caseid");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId");
+
+        CaseColumn<String> caseId = afterTransformation.getTyped("caseId");
 
         assertThat(caseId.getValues()).containsExactly("1", "2", "3");
     }

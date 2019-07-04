@@ -21,7 +21,7 @@ public class Main {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     private static final char SEPARATOR = ',';
 
-    private static final String CASE_ID_NAME = "CaseID";
+    private static final String CASE_ID_NAME = "CaseId";
     private static final String TIMESTAMP_NAME = "Timestamp";
     private static final String ACTIVITY_NAME = "EventName";
 
@@ -35,8 +35,8 @@ public class Main {
                 .activityName(ACTIVITY_NAME);
 
 
-//        eventLogTransformation(csvLogReader, "/home/jonas/Data/Macif/Demands_Event_Log_Sorted.csv");
-        simpleArffConversion(csvLogReader, "/home/jonas/Data/Macif/Demands_Joined_ParallelCount.csv");
+//        eventLogTransformation(csvLogReader, "/home/jonas/Data/McKesson/event_sorted.csv");
+        simpleArffConversion(csvLogReader, "/home/jonas/Data/McKesson/case_joined.csv");
     }
 
     private static void eventLogTransformation(CsvLogReader csvLogReader, String fileName) {
@@ -45,11 +45,11 @@ public class Main {
 //        var endActivityNames = runTimed(() -> extractEndActivityNames(eventLog), "Collecting end activities");
         var transformer = new LogTransformer(eventLog)
                 .with(new CaseDurationTransformation())
-//                .with(new ActivityAppearanceTransformation(endActivityNames))
+//                .with(new ActivityExecutionTransformation(endActivityNames))
                 .with(new ParallelCaseCountTransformation());
         var transformedLog = runTimed(transformer::transform, "Transforming attributes");
 
-        runTimed(() -> new CsvLogWriter().writeToFile(transformedLog, "/home/jonas/Data/Macif/Demands_CaseLog_ParallelCount.csv"), "Writing CSV file");
+        runTimed(() -> new CsvLogWriter().writeToFile(transformedLog, fileName.replace("event_sorted", "case")), "Writing CSV file");
 
     }
 

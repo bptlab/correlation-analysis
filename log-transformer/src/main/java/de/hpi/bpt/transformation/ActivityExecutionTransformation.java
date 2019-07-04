@@ -4,20 +4,17 @@ import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.datastructures.CaseLog;
 import de.hpi.bpt.datastructures.EventLog;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-public class ActivityAppearanceTransformation implements LogTransformation {
+public class ActivityExecutionTransformation implements LogTransformation {
 
     private Set<String> activityNames = new HashSet<>();
 
-    public ActivityAppearanceTransformation(Set<String> activityNames) {
+    public ActivityExecutionTransformation(Collection<String> activityNames) {
         this.activityNames.addAll(activityNames);
     }
 
-    public ActivityAppearanceTransformation(String... activityNames) {
+    public ActivityExecutionTransformation(String... activityNames) {
         this.activityNames.addAll(Arrays.asList(activityNames));
     }
 
@@ -28,7 +25,7 @@ public class ActivityAppearanceTransformation implements LogTransformation {
         var activityColumn = sourceEventLog.getTyped(sourceSchema.getActivityName(), String.class);
 
         for (String activityName : activityNames) {
-            targetSchema.addColumnDefinition(activityName + "_appearance", Boolean.class);
+            targetSchema.addColumnDefinition(activityName + "_wasexecuted", Boolean.class);
             var appearanceColumn = new CaseColumn<>(Boolean.class);
 
             for (List<String> trace : activityColumn.getTraces()) {
@@ -39,7 +36,7 @@ public class ActivityAppearanceTransformation implements LogTransformation {
                 }
             }
 
-            resultCaseLog.put(activityName + "_appearance", appearanceColumn);
+            resultCaseLog.put(activityName + "_wasexecuted", appearanceColumn);
         }
     }
 }

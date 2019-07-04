@@ -31,6 +31,10 @@ class ExistingAttributeTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "activity_start", "activity_end", "integerTestValue_start", "integerTestValue_end", "integerTestValue_max", "integerTestValue_min", "integerTestValue_avg", "stringTestValue_start", "stringTestValue_end");
+
+        CaseColumn<String> activityStart = afterTransformation.getTyped("activity_start");
+        CaseColumn<String> activityEnd = afterTransformation.getTyped("activity_end");
         CaseColumn<Integer> integerTestValueStart = afterTransformation.getTyped("integerTestValue_start");
         CaseColumn<Integer> integerTestValueEnd = afterTransformation.getTyped("integerTestValue_end");
         CaseColumn<Integer> integerTestValueMax = afterTransformation.getTyped("integerTestValue_max");
@@ -39,6 +43,8 @@ class ExistingAttributeTransformationTest {
         CaseColumn<String> stringTestValueStart = afterTransformation.getTyped("stringTestValue_start");
         CaseColumn<String> stringTestValueEnd = afterTransformation.getTyped("stringTestValue_end");
 
+        assertThat(activityStart.getValues()).containsExactly("C1A1");
+        assertThat(activityEnd.getValues()).containsExactly("C1A3");
         assertThat(integerTestValueStart.getValues()).containsExactly(1);
         assertThat(integerTestValueEnd.getValues()).containsExactly(9);
         assertThat(integerTestValueMax.getValues()).containsExactly(20);

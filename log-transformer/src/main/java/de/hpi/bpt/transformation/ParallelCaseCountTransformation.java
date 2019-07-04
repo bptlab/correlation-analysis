@@ -5,6 +5,7 @@ import de.hpi.bpt.datastructures.CaseLog;
 import de.hpi.bpt.datastructures.EventLog;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -35,13 +36,14 @@ public class ParallelCaseCountTransformation implements LogTransformation {
 
         System.out.println("done sorting");
 
-        var currentCases = 0;
+        var currentCases = new HashMap<String, ConcurrentCaseCounter>();
         for (TimedCaseEvent timedCaseEvent : timedCases) {
             if (timedCaseEvent.isEnd()) {
-                parallelCasesColumn.setValue(resultCaseLog.rowIndexOf(timedCaseEvent.getCaseId()), currentCases);
-                currentCases--;
-            } else {
-                currentCases++;
+                var numCurrentCases = currentCases.remove(timedCaseEvent.getCaseId()).getCount();
+                parallelCasesColumn.setValue(resultCaseLog.rowIndexOf(timedCaseEvent.getCaseId()), numCurrentCases);
+            } else { // is start
+                currentCases.values().forEach(ConcurrentCaseCounter::increment);
+                currentCases.put(timedCaseEvent.getCaseId(), new ConcurrentCaseCounter(currentCases.size()));
             }
         }
 
@@ -91,6 +93,23 @@ public class ParallelCaseCountTransformation implements LogTransformation {
         @Override
         boolean isEnd() {
             return true;
+        }
+    }
+
+    private class ConcurrentCaseCounter {
+
+        int concurrentCases;
+
+        ConcurrentCaseCounter(int initialCount) {
+            this.concurrentCases = initialCount;
+        }
+
+        void increment() {
+            concurrentCases++;
+        }
+
+        int getCount() {
+            return concurrentCases;
         }
     }
 }

@@ -35,6 +35,8 @@ class CaseDurationTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "duration");
+
         CaseColumn<Integer> durations = afterTransformation.getTyped("duration");
 
         assertThat(durations.getValues()).containsExactly(200, 13);

@@ -48,9 +48,11 @@ class ParallelCaseCountTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        CaseColumn<Integer> caseId = afterTransformation.getTyped("numparallelcases");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "numparallelcases");
 
-        assertThat(caseId.getValues()).containsExactly(3, 0, 1, 1, 1, 0);
+        CaseColumn<Integer> parallelCases = afterTransformation.getTyped("numparallelcases");
+
+        assertThat(parallelCases.getValues()).containsExactly(3, 0, 1, 1, 1, 0);
     }
 
 }

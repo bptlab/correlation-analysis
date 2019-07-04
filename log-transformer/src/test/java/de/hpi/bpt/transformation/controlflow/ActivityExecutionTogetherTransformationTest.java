@@ -1,14 +1,15 @@
-package de.hpi.bpt.transformation;
+package de.hpi.bpt.transformation.controlflow;
 
 import de.hpi.bpt.EventLogBuilder;
 import de.hpi.bpt.datastructures.CaseColumn;
+import de.hpi.bpt.transformation.LogTransformer;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ActivityExecutionTransformationTest {
+class ActivityExecutionTogetherTransformationTest {
 
     @Test
     void transform() {
@@ -30,21 +31,17 @@ class ActivityExecutionTransformationTest {
                 .build()
                 .build();
 
-        var transformation = new ActivityExecutionTransformation("A1", "A2", "A3");
+        var transformation = new ActivityExecutionTogetherTransformation().with("A2", "A3");
 
         // Act
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "A1_wasexecuted", "A2_wasexecuted", "A3_wasexecuted");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "A2_A3_together");
 
-        CaseColumn<Boolean> a1Appearance = afterTransformation.getTyped("A1_wasexecuted");
-        CaseColumn<Boolean> a2Appearance = afterTransformation.getTyped("A2_wasexecuted");
-        CaseColumn<Boolean> a3Appearance = afterTransformation.getTyped("A3_wasexecuted");
+        CaseColumn<Boolean> a2A3Together = afterTransformation.getTyped("A2_A3_together");
 
-        assertThat(a1Appearance.getValues()).containsExactly(true, false, false);
-        assertThat(a2Appearance.getValues()).containsExactly(true, true, false);
-        assertThat(a3Appearance.getValues()).containsExactly(true, true, true);
+        assertThat(a2A3Together.getValues()).containsExactly(true, true, false);
     }
 
 }

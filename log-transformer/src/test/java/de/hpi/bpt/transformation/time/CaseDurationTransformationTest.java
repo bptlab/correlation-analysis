@@ -1,7 +1,8 @@
-package de.hpi.bpt.transformation;
+package de.hpi.bpt.transformation.time;
 
 import de.hpi.bpt.EventLogBuilder;
 import de.hpi.bpt.datastructures.CaseColumn;
+import de.hpi.bpt.transformation.LogTransformer;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;

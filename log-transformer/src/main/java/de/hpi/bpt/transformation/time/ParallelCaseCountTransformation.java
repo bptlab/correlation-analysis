@@ -1,8 +1,9 @@
-package de.hpi.bpt.transformation;
+package de.hpi.bpt.transformation.time;
 
 import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.datastructures.CaseLog;
 import de.hpi.bpt.datastructures.EventLog;
+import de.hpi.bpt.transformation.LogTransformation;
 
 import java.util.Date;
 import java.util.HashMap;

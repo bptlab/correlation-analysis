@@ -2,9 +2,9 @@ package de.hpi.bpt;
 
 import de.hpi.bpt.datastructures.EventLog;
 import de.hpi.bpt.io.*;
-import de.hpi.bpt.transformation.CaseDurationTransformation;
 import de.hpi.bpt.transformation.LogTransformer;
-import de.hpi.bpt.transformation.ParallelCaseCountTransformation;
+import de.hpi.bpt.transformation.time.CaseDurationTransformation;
+import de.hpi.bpt.transformation.time.ParallelCaseCountTransformation;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.File;

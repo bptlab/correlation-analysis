@@ -8,7 +8,7 @@ class DecisionTreeClassifier {
     String buildDecisionRules(Instances data) {
         try {
             REPTree tree = new REPTree();
-            tree.setMaxDepth(5);
+            tree.setMaxDepth(3);
             tree.buildClassifier(data);
             return tree.graph();
         } catch (Exception e) {

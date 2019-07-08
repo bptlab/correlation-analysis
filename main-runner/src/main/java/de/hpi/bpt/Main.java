@@ -1,5 +1,6 @@
 package de.hpi.bpt;
 
+import de.hpi.bpi.ModelAnalyzer;
 import de.hpi.bpt.datastructures.EventLog;
 import de.hpi.bpt.io.*;
 import de.hpi.bpt.transformation.LogTransformer;
@@ -8,15 +9,18 @@ import de.hpi.bpt.transformation.time.ParallelCaseCountTransformation;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-/**
- * Precondition: Event log is sorted by CaseID,Timestamp
- */
 public class Main {
+
+    private static final String MODEL_FILE = "/home/jonas/Data/McKesson/model.bpmn";
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     private static final char SEPARATOR = ',';
@@ -25,7 +29,13 @@ public class Main {
     private static final String TIMESTAMP_NAME = "Timestamp";
     private static final String ACTIVITY_NAME = "EventName";
 
+    private static final String FILE_PATH = "/home/jonas/Data/McKesson/case_joined.arff";
+    private static final String TARGET_VARIABLE = "duration";
+    private static final String GRAPH_OUTPUT_FILE = "/home/jonas/Data/McKesson/tree.gv";
+
     public static void main(String[] args) {
+        var analysisResults = new ModelAnalyzer().analyzeModel(MODEL_FILE);
+        System.out.println(analysisResults);
 
         var csvLogReader = new CsvLogReader()
                 .separator(SEPARATOR)
@@ -50,6 +60,29 @@ public class Main {
         var transformedLog = runTimed(transformer::transform, "Transforming attributes");
 
         runTimed(() -> new CsvLogWriter().writeToFile(transformedLog, fileName.replace("event_sorted", "case")), "Writing CSV file");
+
+
+        var data = runTimed(() -> new DataLoader().loadData(FILE_PATH), "Reading ARFF file");
+
+        var attributeScore = runTimed(() -> new FeatureEvaluator().calculateFeatureScores(data, TARGET_VARIABLE), "Calculating feature scores");
+
+        var importantAttributes = attributeScore.entrySet().stream()
+                .filter(entry -> entry.getValue() > 0.2)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        importantAttributes.entrySet().stream()
+                .sorted(Comparator.comparingDouble(Map.Entry<String, Double>::getValue).reversed())
+                .forEach(entry -> System.out.println(entry.getKey() + " -> " + entry.getValue()));
+
+        new AttributeFilter().filterImportantAttributes(data, importantAttributes.keySet());
+
+        var decisionTreeGraph = runTimed(() -> new DecisionTreeClassifier().buildDecisionRules(data), "Learning decision tree");
+
+        try (var fileWriter = new FileWriter(GRAPH_OUTPUT_FILE)) {
+            fileWriter.write(decisionTreeGraph);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 

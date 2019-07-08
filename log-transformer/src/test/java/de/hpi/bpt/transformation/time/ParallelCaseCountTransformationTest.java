@@ -1,7 +1,6 @@
 package de.hpi.bpt.transformation.time;
 
 import de.hpi.bpt.EventLogBuilder;
-import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.transformation.LogTransformer;
 import org.junit.jupiter.api.Test;
 
@@ -51,9 +50,21 @@ class ParallelCaseCountTransformationTest {
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "numparallelcases");
 
-        CaseColumn<Integer> parallelCases = afterTransformation.getTyped("numparallelcases");
+        var row1 = afterTransformation.get("1");
+        var before = afterTransformation.get("before 1");
+        var into = afterTransformation.get("into 1");
+        var inside = afterTransformation.get("inside 1");
+        var outOf = afterTransformation.get("out of 1");
+        var after = afterTransformation.get("after 1");
 
-        assertThat(parallelCases.getValues()).containsExactly(3, 0, 1, 1, 1, 0);
+
+        assertThat(row1).containsExactly("1", 3);
+        assertThat(before).containsExactly("before 1", 0);
+        assertThat(into).containsExactly("into 1", 1);
+        assertThat(inside).containsExactly("inside 1", 1);
+        assertThat(outOf).containsExactly("out of 1", 1);
+        assertThat(after).containsExactly("after 1", 0);
+
     }
 
 }

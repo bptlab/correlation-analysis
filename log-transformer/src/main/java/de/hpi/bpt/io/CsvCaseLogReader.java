@@ -1,12 +1,14 @@
 package de.hpi.bpt.io;
 
 import de.hpi.bpt.datastructures.CaseColumn;
-import de.hpi.bpt.datastructures.CaseLog;
+import de.hpi.bpt.datastructures.ColumnCaseLog;
+import de.hpi.bpt.datastructures.RowCaseLog;
 import de.hpi.bpt.datastructures.Schema;
 import org.supercsv.io.ICsvMapReader;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,14 +24,43 @@ public class CsvCaseLogReader {
         this.basicReader = basicReader;
     }
 
-    public CaseLog read(File file) {
+    public ColumnCaseLog readToColumnCaseLog(File file, String logName) {
         try (var mapReader = basicReader.read(file)) {
             var header = mapReader.getHeader(false);
             var schema = basicReader.readSchemaFromHeader(header);
             var columns = readColumns(header, schema, mapReader);
-            return new CaseLog(schema, columns);
+            return new ColumnCaseLog(logName, schema, columns);
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    public RowCaseLog readToRowCaseLog(File file, String logName) {
+        try (var mapReader = basicReader.read(file)) {
+            var header = mapReader.getHeader(false);
+            var schema = basicReader.readSchemaFromHeader(header);
+            var rowCaseLog = new RowCaseLog(logName, schema);
+            readRows(header, schema, mapReader, rowCaseLog);
+            return rowCaseLog;
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    private void readRows(String[] header, Schema schema, ICsvMapReader reader, RowCaseLog rowCaseLog) throws IOException {
+        var processors = basicReader.getProcessors(schema);
+        var caseIdColumnName = header[schema.get(schema.getCaseIdName()).getId()];
+
+
+        Map<String, Object> rowMap;
+        while ((rowMap = reader.read(header, processors)) != null) {
+            var row = new ArrayList<>();
+            for (String s : header) {
+                row.add(rowMap.get(s));
+            }
+
+            var caseId = (String) rowMap.get(caseIdColumnName);
+            rowCaseLog.put(caseId, row);
         }
     }
 

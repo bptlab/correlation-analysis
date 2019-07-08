@@ -1,7 +1,6 @@
 package de.hpi.bpt.transformation.controlflow;
 
 import de.hpi.bpt.EventLogBuilder;
-import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.transformation.LogTransformer;
 import org.junit.jupiter.api.Test;
 
@@ -39,9 +38,13 @@ class ActivityExecutionTogetherTransformationTest {
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "A2_A3_together");
 
-        CaseColumn<Boolean> a2A3Together = afterTransformation.getTyped("A2_A3_together");
+        var row1 = afterTransformation.get("1");
+        var row2 = afterTransformation.get("2");
+        var row3 = afterTransformation.get("3");
 
-        assertThat(a2A3Together.getValues()).containsExactly(true, true, false);
+        assertThat(row1).containsExactly("1", true);
+        assertThat(row2).containsExactly("2", true);
+        assertThat(row3).containsExactly("3", false);
     }
 
 }

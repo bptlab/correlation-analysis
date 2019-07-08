@@ -1,14 +1,13 @@
 package de.hpi.bpt;
 
-import de.hpi.bpt.datastructures.EventLog;
+import de.hpi.bpt.datastructures.ColumnEventLog;
 import de.hpi.bpt.datastructures.LogColumn;
 import de.hpi.bpt.datastructures.Schema;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class EventLogBuilder {
 
@@ -57,13 +56,10 @@ public class EventLogBuilder {
             return new TraceBuilder(this, caseId, columns);
         }
 
-        public EventLog build() {
-            return new EventLog(schema, schema.entrySet().stream().collect(
-                    Collectors.toMap(
-                            Map.Entry::getKey,
-                            entry -> columns.get(entry.getValue().getId())
-                    )
-            ));
+        public ColumnEventLog build() {
+            var map = new LinkedHashMap<String, LogColumn<?>>();
+            schema.forEach((key, value) -> map.put(key, columns.get(value.getId())));
+            return new ColumnEventLog(schema, map);
         }
     }
 

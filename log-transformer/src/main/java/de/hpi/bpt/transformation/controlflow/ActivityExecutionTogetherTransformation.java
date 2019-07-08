@@ -1,8 +1,8 @@
 package de.hpi.bpt.transformation.controlflow;
 
 import de.hpi.bpt.datastructures.CaseColumn;
-import de.hpi.bpt.datastructures.CaseLog;
-import de.hpi.bpt.datastructures.EventLog;
+import de.hpi.bpt.datastructures.ColumnCaseLog;
+import de.hpi.bpt.datastructures.ColumnEventLog;
 import de.hpi.bpt.transformation.LogTransformation;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -29,7 +29,7 @@ public class ActivityExecutionTogetherTransformation implements LogTransformatio
     }
 
     @Override
-    public void transform(EventLog sourceEventLog, CaseLog resultCaseLog) {
+    public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
         var sourceSchema = sourceEventLog.getSchema();
         var targetSchema = resultCaseLog.getSchema();
         var activityColumn = sourceEventLog.getTyped(sourceSchema.getActivityName(), String.class);

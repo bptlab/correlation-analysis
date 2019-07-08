@@ -3,21 +3,23 @@ package de.hpi.bpt.datastructures;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class CaseLog extends LinkedHashMap<String, CaseColumn<?>> {
+public class ColumnCaseLog extends LinkedHashMap<String, CaseColumn<?>> {
 
+    private String name;
     private Schema schema;
     private int numCases;
 
-    public CaseLog(Schema schema, Map<String, CaseColumn<?>> columns) {
+    public ColumnCaseLog(String name, Schema schema, Map<String, CaseColumn<?>> columns) {
+        this.name = name;
         this.schema = schema;
         this.putAll(columns);
     }
 
-    public CaseLog(Schema schema) {
+    public ColumnCaseLog(Schema schema) {
         this.schema = schema;
     }
 
-    public CaseLog() {
+    public ColumnCaseLog() {
         this.schema = new Schema();
     }
 
@@ -43,5 +45,9 @@ public class CaseLog extends LinkedHashMap<String, CaseColumn<?>> {
 
     public void setNumCases(int numCases) {
         this.numCases = numCases;
+    }
+
+    public String getName() {
+        return name;
     }
 }

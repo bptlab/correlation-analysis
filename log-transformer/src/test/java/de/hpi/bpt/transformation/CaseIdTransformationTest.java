@@ -1,7 +1,6 @@
 package de.hpi.bpt.transformation;
 
 import de.hpi.bpt.EventLogBuilder;
-import de.hpi.bpt.datastructures.CaseColumn;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -38,8 +37,12 @@ class CaseIdTransformationTest {
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId");
 
-        CaseColumn<String> caseId = afterTransformation.getTyped("caseId");
+        var row1 = afterTransformation.get("1");
+        var row2 = afterTransformation.get("2");
+        var row3 = afterTransformation.get("3");
 
-        assertThat(caseId.getValues()).containsExactly("1", "2", "3");
+        assertThat(row1).containsExactly("1");
+        assertThat(row2).containsExactly("2");
+        assertThat(row3).containsExactly("3");
     }
 }

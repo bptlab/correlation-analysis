@@ -1,8 +1,8 @@
 package de.hpi.bpt.transformation;
 
 import de.hpi.bpt.datastructures.CaseColumn;
-import de.hpi.bpt.datastructures.CaseLog;
-import de.hpi.bpt.datastructures.EventLog;
+import de.hpi.bpt.datastructures.ColumnCaseLog;
+import de.hpi.bpt.datastructures.ColumnEventLog;
 import de.hpi.bpt.datastructures.LogColumn;
 
 import java.util.LinkedHashMap;
@@ -13,7 +13,7 @@ import java.util.Objects;
 public class ExistingAttributeTransformation implements LogTransformation {
 
     @Override
-    public void transform(EventLog sourceEventLog, CaseLog resultCaseLog) {
+    public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
         var sourceSchema = sourceEventLog.getSchema();
         var targetSchema = resultCaseLog.getSchema();
 

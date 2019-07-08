@@ -1,7 +1,6 @@
 package de.hpi.bpt.transformation.time;
 
 import de.hpi.bpt.EventLogBuilder;
-import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.transformation.LogTransformer;
 import org.junit.jupiter.api.Test;
 
@@ -38,9 +37,11 @@ class CaseDurationTransformationTest {
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "duration");
 
-        CaseColumn<Integer> durations = afterTransformation.getTyped("duration");
+        var row1 = afterTransformation.get("1");
+        var row2 = afterTransformation.get("2");
 
-        assertThat(durations.getValues()).containsExactly(200, 13);
+        assertThat(row1).containsExactly("1", 200);
+        assertThat(row2).containsExactly("2", 13);
     }
 
 }

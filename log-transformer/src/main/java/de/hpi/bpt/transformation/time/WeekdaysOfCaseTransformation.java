@@ -1,8 +1,8 @@
 package de.hpi.bpt.transformation.time;
 
 import de.hpi.bpt.datastructures.CaseColumn;
-import de.hpi.bpt.datastructures.CaseLog;
-import de.hpi.bpt.datastructures.EventLog;
+import de.hpi.bpt.datastructures.ColumnCaseLog;
+import de.hpi.bpt.datastructures.ColumnEventLog;
 import de.hpi.bpt.transformation.LogTransformation;
 
 import java.text.SimpleDateFormat;
@@ -12,7 +12,7 @@ import java.util.List;
 public class WeekdaysOfCaseTransformation implements LogTransformation {
 
     @Override
-    public void transform(EventLog sourceEventLog, CaseLog resultCaseLog) {
+    public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
         var sourceSchema = sourceEventLog.getSchema();
         var targetSchema = resultCaseLog.getSchema();
         var timestampColumn = sourceEventLog.getTyped(sourceSchema.getTimestampName(), Date.class);

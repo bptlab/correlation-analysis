@@ -3,11 +3,11 @@ package de.hpi.bpt.datastructures;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class EventLog extends LinkedHashMap<String, LogColumn<?>> {
+public class ColumnEventLog extends LinkedHashMap<String, LogColumn<?>> {
 
     private Schema schema;
 
-    public EventLog(Schema schema, Map<String, LogColumn<?>> columns) {
+    public ColumnEventLog(Schema schema, Map<String, LogColumn<?>> columns) {
         this.schema = schema;
         this.putAll(columns);
     }

@@ -1,6 +1,6 @@
 package de.hpi.bpt.io;
 
-import de.hpi.bpt.datastructures.EventLog;
+import de.hpi.bpt.datastructures.ColumnEventLog;
 import de.hpi.bpt.datastructures.LogColumn;
 import de.hpi.bpt.datastructures.Schema;
 import org.supercsv.io.ICsvMapReader;
@@ -22,12 +22,12 @@ public class CsvEventLogReader {
         this.basicReader = csvLogReader;
     }
 
-    public EventLog read(File file) {
+    public ColumnEventLog read(File file) {
         try (var mapReader = basicReader.read(file)) {
             var header = mapReader.getHeader(false);
             var schema = basicReader.readSchemaFromHeader(header);
             var columns = readColumns(header, schema, mapReader);
-            return new EventLog(schema, columns);
+            return new ColumnEventLog(schema, columns);
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

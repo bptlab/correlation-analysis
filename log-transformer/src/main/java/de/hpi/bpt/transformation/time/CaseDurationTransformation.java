@@ -1,8 +1,8 @@
 package de.hpi.bpt.transformation.time;
 
 import de.hpi.bpt.datastructures.CaseColumn;
-import de.hpi.bpt.datastructures.CaseLog;
-import de.hpi.bpt.datastructures.EventLog;
+import de.hpi.bpt.datastructures.ColumnCaseLog;
+import de.hpi.bpt.datastructures.ColumnEventLog;
 import de.hpi.bpt.transformation.LogTransformation;
 
 import java.time.Duration;
@@ -11,7 +11,7 @@ import java.util.Date;
 public class CaseDurationTransformation implements LogTransformation {
 
     @Override
-    public void transform(EventLog sourceEventLog, CaseLog resultCaseLog) {
+    public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
         var sourceSchema = sourceEventLog.getSchema();
         var targetSchema = resultCaseLog.getSchema();
 

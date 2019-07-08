@@ -1,17 +1,24 @@
 package de.hpi.bpt.transformation;
 
-import de.hpi.bpt.datastructures.CaseLog;
-import de.hpi.bpt.datastructures.EventLog;
+import de.hpi.bpt.datastructures.ColumnCaseLog;
+import de.hpi.bpt.datastructures.ColumnEventLog;
+import de.hpi.bpt.datastructures.RowCaseLog;
+import de.hpi.bpt.feature.AnalysisResult;
+import de.hpi.bpt.feature.AnalysisResultType;
+import de.hpi.bpt.feature.FollowingActivityFeature;
+import de.hpi.bpt.logmanipulation.CaseLogConverter;
+import de.hpi.bpt.logmanipulation.RowCaseLogJoiner;
+import de.hpi.bpt.transformation.controlflow.FollowingActivityTransformation;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class LogTransformer {
 
-    private EventLog sourceEventLog;
+    private ColumnEventLog sourceEventLog;
     private Set<LogTransformation> transformations = new LinkedHashSet<>();
 
-    public LogTransformer(EventLog sourceEventLog) {
+    public LogTransformer(ColumnEventLog sourceEventLog) {
         this.sourceEventLog = sourceEventLog;
 
         // Requirement for every other transformation, extracts and counts the unique cases
@@ -23,13 +30,31 @@ public class LogTransformer {
         return this;
     }
 
-    public CaseLog transform() {
-        var resultCaseLog = new CaseLog();
+    public LogTransformer withAnalysisResults(Set<AnalysisResult> analysisResults) {
+        analysisResults.forEach(analysisResult -> transformations.add(transformationFor(analysisResult)));
+        return this;
+    }
+
+    private LogTransformation transformationFor(AnalysisResult analysisResult) {
+        if (analysisResult.getType() == AnalysisResultType.FOLLOWING_ACTIVITY) {
+            var feature = (FollowingActivityFeature) analysisResult;
+            return new FollowingActivityTransformation(feature.getActivityNames());
+        }
+
+        throw new RuntimeException("Unknown type of AnalysisResult: '" + analysisResult.getType().name() + "'");
+    }
+
+    public RowCaseLog transform() {
+        var resultCaseLog = new ColumnCaseLog();
 
         for (var transformation : transformations) {
             transformation.transform(sourceEventLog, resultCaseLog);
         }
 
-        return resultCaseLog;
+        return new CaseLogConverter().asRowCaseLog(resultCaseLog);
+    }
+
+    public RowCaseLog transformJoining(RowCaseLog otherAttributes) {
+        return new RowCaseLogJoiner().join(transform(), otherAttributes);
     }
 }

@@ -1,10 +1,9 @@
-package de.hpi.bpi;
+package de.hpi.bpt;
 
-import de.hpi.bpi.analysis.OutgoingGatewayAnalysis;
-import de.hpi.bpi.feature.AnalysisResult;
+import de.hpi.bpt.analysis.OutgoingGatewayAnalysis;
+import de.hpi.bpt.feature.AnalysisResult;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
-import org.camunda.bpm.model.bpmn.instance.Activity;
 
 import java.io.File;
 import java.util.HashSet;
@@ -25,7 +24,6 @@ public class ModelAnalyzer {
     }
 
     private void analyzeModel(BpmnModelInstance bpmnModelInstance, Set<AnalysisResult> analysisResults) {
-        var activities = bpmnModelInstance.getModelElementsByType(Activity.class);
-        new OutgoingGatewayAnalysis().analyze(activities, analysisResults);
+        new OutgoingGatewayAnalysis().analyze(bpmnModelInstance, analysisResults);
     }
 }

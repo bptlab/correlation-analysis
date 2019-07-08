@@ -1,11 +1,10 @@
-package de.hpi.bpi.analysis;
+package de.hpi.bpt.analysis;
 
-import de.hpi.bpi.feature.AnalysisResult;
-import de.hpi.bpi.feature.FollowingActivityFeature;
-import org.camunda.bpm.model.bpmn.GatewayDirection;
+import de.hpi.bpt.feature.AnalysisResult;
+import de.hpi.bpt.feature.FollowingActivityFeature;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
 
-import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -14,12 +13,16 @@ import java.util.Set;
  */
 public class OutgoingGatewayAnalysis {
 
-    public void analyze(Collection<Activity> activities, Set<AnalysisResult> analysisResults) {
+    public void analyze(BpmnModelInstance modelInstance, Set<AnalysisResult> analysisResults) {
+        var activities = modelInstance.getModelElementsByType(Activity.class);
+        var analysisResult = new FollowingActivityFeature();
         activities.parallelStream()
                 .filter(this::isFollowedByExclusiveSplitGateway)
                 .forEach(
-                        activity -> analysisResults.add(new FollowingActivityFeature(activity.getName()))
+                        activity -> analysisResult.addActivityName(activity.getName())
                 );
+
+        analysisResults.add(analysisResult);
     }
 
     private boolean isFollowedByExclusiveSplitGateway(Activity activity) {
@@ -27,8 +30,6 @@ public class OutgoingGatewayAnalysis {
                 .map(SequenceFlow::getTarget)
                 .filter(outNode -> outNode instanceof ExclusiveGateway || outNode instanceof InclusiveGateway)
                 .map(Gateway.class::cast)
-                .anyMatch(gateway ->
-                        gateway.getGatewayDirection().equals(GatewayDirection.Diverging)
-                                || gateway.getGatewayDirection().equals(GatewayDirection.Mixed));
+                .anyMatch(gateway -> gateway.getOutgoing().size() > 1);
     }
 }

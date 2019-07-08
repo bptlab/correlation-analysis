@@ -1,7 +1,6 @@
 package de.hpi.bpt.transformation.time;
 
 import de.hpi.bpt.EventLogBuilder;
-import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.transformation.LogTransformer;
 import org.junit.jupiter.api.Test;
 
@@ -51,20 +50,13 @@ class WeekdaysOfCaseTransformationTest {
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "casestartweekday", "caseendweekday");
 
-        CaseColumn<String> startWeekdays = afterTransformation.getTyped("casestartweekday");
-        CaseColumn<String> endWeekdays = afterTransformation.getTyped("caseendweekday");
+        var rowMonday = afterTransformation.get("starts monday");
+        var rowWednesday = afterTransformation.get("starts wednesday");
+        var rowThursday = afterTransformation.get("starts thursday");
 
-        assertThat(startWeekdays.getValues()).containsExactly(
-                "Monday",
-                "Wednesday",
-                "Thursday"
-        );
-
-        assertThat(endWeekdays.getValues()).containsExactly(
-                "Sunday",
-                "Saturday",
-                "Friday"
-        );
+        assertThat(rowMonday).containsExactly("starts monday", "Monday", "Sunday");
+        assertThat(rowWednesday).containsExactly("starts wednesday", "Wednesday", "Saturday");
+        assertThat(rowThursday).containsExactly("starts thursday", "Thursday", "Friday");
     }
 
 }

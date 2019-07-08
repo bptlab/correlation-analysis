@@ -1,7 +1,6 @@
 package de.hpi.bpt.transformation.controlflow;
 
 import de.hpi.bpt.EventLogBuilder;
-import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.transformation.LogTransformer;
 import org.junit.jupiter.api.Test;
 
@@ -39,8 +38,12 @@ class ActivityExecutionDirectFlowTransformationTest {
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "A1_A3_directflow");
 
-        CaseColumn<Boolean> a1A3directFlow = afterTransformation.getTyped("A1_A3_directflow");
+        var row1 = afterTransformation.get("1");
+        var row2 = afterTransformation.get("2");
+        var row3 = afterTransformation.get("3");
 
-        assertThat(a1A3directFlow.getValues()).containsExactly(false, true, false);
+        assertThat(row1).containsExactly("1", false);
+        assertThat(row2).containsExactly("2", true);
+        assertThat(row3).containsExactly("3", false);
     }
 }

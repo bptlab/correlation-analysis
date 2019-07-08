@@ -1,4 +1,4 @@
-package de.hpi.bpi.feature;
+package de.hpi.bpt.feature;
 
 public interface AnalysisResult {
 

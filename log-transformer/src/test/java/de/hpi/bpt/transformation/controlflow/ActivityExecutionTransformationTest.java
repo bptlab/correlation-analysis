@@ -1,7 +1,6 @@
 package de.hpi.bpt.transformation.controlflow;
 
 import de.hpi.bpt.EventLogBuilder;
-import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.transformation.LogTransformer;
 import org.junit.jupiter.api.Test;
 
@@ -39,13 +38,13 @@ class ActivityExecutionTransformationTest {
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "A1_wasexecuted", "A2_wasexecuted", "A3_wasexecuted");
 
-        CaseColumn<Boolean> a1Appearance = afterTransformation.getTyped("A1_wasexecuted");
-        CaseColumn<Boolean> a2Appearance = afterTransformation.getTyped("A2_wasexecuted");
-        CaseColumn<Boolean> a3Appearance = afterTransformation.getTyped("A3_wasexecuted");
+        var row1 = afterTransformation.get("1");
+        var row2 = afterTransformation.get("2");
+        var row3 = afterTransformation.get("3");
 
-        assertThat(a1Appearance.getValues()).containsExactly(true, false, false);
-        assertThat(a2Appearance.getValues()).containsExactly(true, true, false);
-        assertThat(a3Appearance.getValues()).containsExactly(true, true, true);
+        assertThat(row1).containsExactly("1", true, true, true);
+        assertThat(row2).containsExactly("2", false, true, true);
+        assertThat(row3).containsExactly("3", false, false, true);
     }
 
 }

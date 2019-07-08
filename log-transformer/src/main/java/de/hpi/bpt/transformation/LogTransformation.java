@@ -1,9 +1,9 @@
 package de.hpi.bpt.transformation;
 
-import de.hpi.bpt.datastructures.CaseLog;
-import de.hpi.bpt.datastructures.EventLog;
+import de.hpi.bpt.datastructures.ColumnCaseLog;
+import de.hpi.bpt.datastructures.ColumnEventLog;
 
 public interface LogTransformation {
 
-    void transform(EventLog sourceEventLog, CaseLog resultCaseLog);
+    void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog);
 }

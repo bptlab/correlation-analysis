@@ -1,8 +1,8 @@
 package de.hpi.bpt.transformation.time;
 
 import de.hpi.bpt.datastructures.CaseColumn;
-import de.hpi.bpt.datastructures.CaseLog;
-import de.hpi.bpt.datastructures.EventLog;
+import de.hpi.bpt.datastructures.ColumnCaseLog;
+import de.hpi.bpt.datastructures.ColumnEventLog;
 import de.hpi.bpt.transformation.LogTransformation;
 
 import java.util.Date;
@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public class ParallelCaseCountTransformation implements LogTransformation {
 
     @Override
-    public void transform(EventLog sourceEventLog, CaseLog resultCaseLog) {
+    public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
         var targetSchema = resultCaseLog.getSchema();
         targetSchema.addColumnDefinition("numparallelcases", Integer.class);
         var parallelCasesColumn = new CaseColumn<>(Integer.class, resultCaseLog.getNumCases());

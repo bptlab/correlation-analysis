@@ -2,6 +2,7 @@ package de.hpi.bpt.analysis;
 
 import de.hpi.bpt.feature.AnalysisResult;
 import de.hpi.bpt.feature.FollowingActivityFeature;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
 
@@ -19,7 +20,8 @@ public class OutgoingGatewayAnalysis {
         activities.parallelStream()
                 .filter(this::isFollowedByExclusiveSplitGateway)
                 .forEach(
-                        activity -> analysisResult.addActivityName(activity.getName())
+                        activity -> analysisResult.addActivityName(
+                                StringUtils.normalizeSpace(activity.getName()))
                 );
 
         analysisResults.add(analysisResult);

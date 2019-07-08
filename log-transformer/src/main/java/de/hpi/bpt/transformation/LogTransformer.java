@@ -46,6 +46,7 @@ public class LogTransformer {
 
     public RowCaseLog transform() {
         var resultCaseLog = new ColumnCaseLog();
+        resultCaseLog.setName(sourceEventLog.getName() + "_case");
 
         for (var transformation : transformations) {
             transformation.transform(sourceEventLog, resultCaseLog);

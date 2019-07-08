@@ -27,7 +27,9 @@ public class CsvEventLogReader {
             var header = mapReader.getHeader(false);
             var schema = basicReader.readSchemaFromHeader(header);
             var columns = readColumns(header, schema, mapReader);
-            return new ColumnEventLog(schema, columns);
+            var fileParts = file.getName().split("/");
+            var logName = fileParts[fileParts.length - 1].replace(".csv", "");
+            return new ColumnEventLog(logName, schema, columns);
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

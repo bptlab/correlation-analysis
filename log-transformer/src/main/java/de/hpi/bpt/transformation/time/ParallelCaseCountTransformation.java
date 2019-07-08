@@ -35,8 +35,6 @@ public class ParallelCaseCountTransformation implements LogTransformation {
                 .sorted((e1, e2) -> e1.getDate().equals(e2.getDate()) ? Boolean.compare(e1.isEnd(), e2.isEnd()) : e1.getDate().compareTo(e2.getDate()))
                 .collect(Collectors.toList());
 
-        System.out.println("done sorting");
-
         var currentCases = new HashMap<String, ConcurrentCaseCounter>();
         for (TimedCaseEvent timedCaseEvent : timedCases) {
             if (timedCaseEvent.isEnd()) {
@@ -47,8 +45,6 @@ public class ParallelCaseCountTransformation implements LogTransformation {
                 currentCases.put(timedCaseEvent.getCaseId(), new ConcurrentCaseCounter(currentCases.size()));
             }
         }
-
-        System.out.println("done finding parallels");
 
         resultCaseLog.put("numparallelcases", parallelCasesColumn);
     }

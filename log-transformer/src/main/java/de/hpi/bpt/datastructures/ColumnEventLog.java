@@ -5,9 +5,11 @@ import java.util.Map;
 
 public class ColumnEventLog extends LinkedHashMap<String, LogColumn<?>> {
 
+    private String name;
     private Schema schema;
 
-    public ColumnEventLog(Schema schema, Map<String, LogColumn<?>> columns) {
+    public ColumnEventLog(String name, Schema schema, Map<String, LogColumn<?>> columns) {
+        this.name = name;
         this.schema = schema;
         this.putAll(columns);
     }
@@ -18,5 +20,9 @@ public class ColumnEventLog extends LinkedHashMap<String, LogColumn<?>> {
 
     public <T> LogColumn<T> getTyped(String name, Class<T> type) {
         return get(name).as(type);
+    }
+
+    public String getName() {
+        return name;
     }
 }

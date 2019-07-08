@@ -4,6 +4,9 @@ import de.hpi.bpt.datastructures.RowCaseLog;
 import de.hpi.bpt.datastructures.Schema;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class RowCaseLogJoiner {
 
@@ -12,10 +15,18 @@ public class RowCaseLogJoiner {
 
         var caseLog2CaseIdIndex = caseLog2.getSchema().get(caseLog2.getSchema().getCaseIdName()).getId();
 
+        var numCaseLog2Attributes = caseLog2.getSchema().size() - 1; // not counting the CaseId
+
         caseLog1.forEach((caseId, values) -> {
             var joinedValues = new ArrayList<>(values);
-            var caseLog2Values = caseLog2.get(caseId);
-            caseLog2Values.remove(caseLog2CaseIdIndex);
+            List<Object> caseLog2Values;
+            if (caseLog2.containsKey(caseId)) {
+                caseLog2Values = caseLog2.get(caseId);
+                caseLog2Values.remove(caseLog2CaseIdIndex);
+
+            } else {
+                caseLog2Values = IntStream.range(0, numCaseLog2Attributes).mapToObj(i -> null).collect(Collectors.toList());
+            }
             joinedValues.addAll(caseLog2Values);
             joined.put(caseId, joinedValues);
         });

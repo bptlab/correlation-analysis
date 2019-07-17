@@ -8,10 +8,8 @@ import java.util.Map;
 
 class FeatureEvaluator {
 
-    Map<String, Double> calculateFeatureScores(Instances data, String targetVariable) {
+    Map<String, Double> calculateFeatureScores(Instances data) {
         try {
-            data.setClass(data.attribute(targetVariable));
-
             var reliefF = new ReliefFAttributeEval();
             reliefF.buildEvaluator(data);
 

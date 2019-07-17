@@ -37,17 +37,19 @@ class OutgoingGatewayAnalysisTest {
         assertThat(((XorSplitFollowsFeature) result).getActivityPairs()).containsExactlyInAnyOrder(
                 Pair.of("A1", "A2"),
                 Pair.of("A1", "A3"),
-                Pair.of("A1", "A4")
+                Pair.of("A1", "A4"),
+                Pair.of("A1", "A5")
         );
     }
 
-
-    /*                /-> A2 -------\
-    Start --> A1 --> X               \
-                      \     /-> A3 ---X --> End
-                       \-> X         /
-                            \-> A4 -/
-     */
+    /*                      /---------\
+                           /           \
+                          /-> A2 -------\
+        Start --> A1 --> X               \
+                          \     /-> A3 ---X --> A5 --> End
+                           \-> X         /
+                                \-> A4 -/
+    */
     private BpmnModelInstance aModelInstance() {
         var builder = new BpmnModelInstanceBuilder();
 
@@ -57,6 +59,7 @@ class OutgoingGatewayAnalysisTest {
         var taskA2 = builder.createElement("A2", Task.class);
         var taskA3 = builder.createElement("A3", Task.class);
         var taskA4 = builder.createElement("A4", Task.class);
+        var taskA5 = builder.createElement("A5", Task.class);
         var split1 = builder.createElement("Split1", ExclusiveGateway.class);
         var split2 = builder.createElement("Split2", ExclusiveGateway.class);
         var join = builder.createElement("Join", ExclusiveGateway.class);
@@ -70,7 +73,9 @@ class OutgoingGatewayAnalysisTest {
         builder.connect(split2, taskA4);
         builder.connect(taskA3, join);
         builder.connect(taskA4, join);
-        builder.connect(join, end);
+        builder.connect(split1, join);
+        builder.connect(join, taskA5);
+        builder.connect(taskA5, end);
 
         return builder.getModelInstance();
     }

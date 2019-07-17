@@ -7,40 +7,44 @@ import de.hpi.bpt.io.CsvCaseLogReader;
 import de.hpi.bpt.io.CsvEventLogReader;
 import de.hpi.bpt.io.CsvLogReader;
 import de.hpi.bpt.transformation.LogTransformer;
-import de.hpi.bpt.transformation.time.CaseDurationTransformation;
-import de.hpi.bpt.transformation.time.ParallelCaseCountTransformation;
 import org.apache.commons.lang3.time.StopWatch;
 import weka.core.Instances;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 public class Main {
 
-    private static final String MODEL_FILE = "/home/jonas/Data/Macif/model.bpmn";
-    private static final String EVENTS_FILE = "/home/jonas/Data/Macif/event_sorted.csv";
-    private static final String ATTRIBUTES_FILE = "/home/jonas/Data/McKesson/case_attribute.csv";
+    private static final String FOLDER = "/home/jonas/Data/Macif/incidents/";
+    private static final String MODEL_FILE = "model.bpmn";
+    private static final String EVENTS_FILE = "events_sorted.csv";
+    private static final List<String> ATTRIBUTES_FILES = List.of("attributes_region_sorted.csv"/*, "attributes1_sorted.csv", "attributes2_sorted.csv"*/);
+    private static final String GRAPH_OUTPUT_FILE = "tree.gv";
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-    private static final char SEPARATOR = ';';
+    private static final char SEPARATOR = ',';
 
-    private static final String CASE_ID_NAME = "CaseId";
+    private static final String CASE_ID_NAME = "CaseID";
     private static final String TIMESTAMP_NAME = "Timestamp";
     private static final String ACTIVITY_NAME = "EventName";
 
-    private static final String TARGET_VARIABLE = "duration";
-    private static final String GRAPH_OUTPUT_FILE = "/home/jonas/Data/McKesson/tree.gv";
+    private static final String TARGET_VARIABLE = "Region";
 
     public static void main(String[] args) {
         var analysisResults = retrieveAnalysisResults();
         var caseLog = retrieveCaseLog(analysisResults);
+
+        caseLog.entrySet().removeIf(entry -> Collections.frequency(entry.getValue(), true) != 3);
+
+        System.out.println(caseLog.keySet().size());
+
         var data = retrieveData(caseLog);
 
         evaluateFeatures(data);
@@ -50,7 +54,7 @@ public class Main {
     private static void buildDecisionTree(Instances data) {
         var decisionTreeGraph = runTimed(() -> new DecisionTreeClassifier().buildDecisionRules(data), "Learning decision tree");
 
-        try (var fileWriter = new FileWriter(GRAPH_OUTPUT_FILE)) {
+        try (var fileWriter = new FileWriter(FOLDER + GRAPH_OUTPUT_FILE)) {
             fileWriter.write(decisionTreeGraph);
         } catch (IOException e) {
             e.printStackTrace();
@@ -58,10 +62,11 @@ public class Main {
     }
 
     private static void evaluateFeatures(Instances data) {
-        var attributeScore = runTimed(() -> new FeatureEvaluator().calculateFeatureScores(data, TARGET_VARIABLE), "Calculating feature scores");
+        var attributeScore = runTimed(() -> new FeatureEvaluator().calculateFeatureScores(data), "Calculating feature scores");
 
         var importantAttributes = attributeScore.entrySet().stream()
-                .filter(entry -> entry.getValue() > 0.01)
+                .filter(entry -> !entry.getKey().equals(CASE_ID_NAME))
+                .filter(entry -> entry.getValue() > 0)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         importantAttributes.entrySet().stream()
@@ -74,11 +79,14 @@ public class Main {
     private static Instances retrieveData(RowCaseLog caseLog) {
         // TODO can this be done without String serialization?
         var caseLogAsString = new ArffCaseLogWriter().writeToString(caseLog);
-        return runTimed(() -> new DataLoader().loadData(caseLogAsString), "Reading ARFF string into Instances");
+        var data = runTimed(() -> new DataLoader().loadData(caseLogAsString), "Reading ARFF string into Instances");
+        data.setClass(data.attribute(TARGET_VARIABLE));
+        return data;
+
     }
 
     private static Set<AnalysisResult> retrieveAnalysisResults() {
-        return runTimed(() -> new ModelAnalyzer().analyzeModel(MODEL_FILE), "Analyzing model");
+        return runTimed(() -> new ModelAnalyzer().analyzeModel(FOLDER + MODEL_FILE), "Analyzing model");
     }
 
     private static RowCaseLog retrieveCaseLog(Set<AnalysisResult> analysisResults) {
@@ -89,17 +97,19 @@ public class Main {
                 .timestampName(TIMESTAMP_NAME)
                 .activityName(ACTIVITY_NAME);
 
-        var eventLog = runTimed(() -> new CsvEventLogReader(csvLogReader).read(new File(EVENTS_FILE)), "Reading event log");
+        var eventLog = runTimed(() -> new CsvEventLogReader(csvLogReader).read(new File(FOLDER + EVENTS_FILE)), "Reading event log");
 
         var transformer = new LogTransformer(eventLog)
-                .with(new CaseDurationTransformation())
+//                .with(new CaseDurationTransformation())
 //                .with(new ActivityExecutionTransformation(endActivityNames))
-                .with(new ParallelCaseCountTransformation())
+//                .with(new ParallelCaseCountTransformation())
                 .withAnalysisResults(analysisResults);
 
-        var attributesLog = runTimed(() -> new CsvCaseLogReader(csvLogReader).readToRowCaseLog(new File(ATTRIBUTES_FILE), "Attributes"), "Reading attributes log");
+        var attributesLogs = ATTRIBUTES_FILES.stream()
+                .map(file -> runTimed(() -> new CsvCaseLogReader(csvLogReader).readToRowCaseLog(new File(FOLDER + file), file.replace(".csv", "")), "Reading attributes log"))
+                .collect(toList());
 
-        return runTimed(() -> transformer.transformJoining(attributesLog), "Transforming attributes");
+        return runTimed(() -> transformer.transformJoining(attributesLogs), "Transforming attributes");
     }
 
     private static <T> T runTimed(Supplier<T> function, String message) {

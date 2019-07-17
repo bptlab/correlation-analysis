@@ -45,8 +45,12 @@ public class CsvLogReader {
         for (var headerField : header) {
             var headerDeclaration = headerField.split(":");
             var fieldName = headerDeclaration[0];
-            var fieldTypeString = headerDeclaration[1];
-            schema.addColumnDefinition(fieldName, typeFor(fieldTypeString));
+            if (headerDeclaration.length > 1) {
+                var fieldTypeString = headerDeclaration[1];
+                schema.addColumnDefinition(fieldName, typeFor(fieldTypeString));
+            } else {
+                schema.addColumnDefinition(fieldName, String.class);
+            }
         }
         schema.setCaseIdName(caseIdName);
         schema.setActivityName(activityName);

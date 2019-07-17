@@ -13,6 +13,7 @@ import de.hpi.bpt.transformation.controlflow.FollowingActivityTransformation;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -64,7 +65,8 @@ public class LogTransformer {
         return new CaseLogConverter().asRowCaseLog(resultCaseLog);
     }
 
-    public RowCaseLog transformJoining(RowCaseLog otherAttributes) {
-        return new RowCaseLogJoiner().join(transform(), otherAttributes);
+    public RowCaseLog transformJoining(List<RowCaseLog> attributeLogs) {
+        var joiner = new RowCaseLogJoiner();
+        return attributeLogs.stream().reduce(transform(), joiner::join);
     }
 }

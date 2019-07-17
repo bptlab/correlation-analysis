@@ -43,6 +43,13 @@ public class OutgoingGatewayAnalysis {
                 .filter(gateway -> gateway.getOutgoing().size() > 1);
     }
 
+    private Stream<FlowNode> findOutgoingForwardingGateways(FlowNode flowNode) {
+        return flowNode.getOutgoing().stream()
+                .map(SequenceFlow::getTarget)
+                .filter(outNode -> outNode instanceof ExclusiveGateway || outNode instanceof InclusiveGateway)
+                .filter(gateway -> gateway.getOutgoing().size() == 1);
+    }
+
     private Set<String> collectOutgoingActivityNames(FlowNode flowNode) {
         var outgoingActivityNames = flowNode.getOutgoing().stream().map(SequenceFlow::getTarget)
                 .filter(target -> target instanceof Activity)
@@ -50,6 +57,10 @@ public class OutgoingGatewayAnalysis {
 
         findOutgoingSplitGateways(flowNode)
                 .forEach(gateway -> outgoingActivityNames.addAll(collectOutgoingActivityNames(gateway)));
+
+        findOutgoingForwardingGateways(flowNode)
+                .forEach(gateway -> outgoingActivityNames.addAll(collectOutgoingActivityNames(gateway)));
+
         return outgoingActivityNames;
     }
 }

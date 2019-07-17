@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 
 public class Main {
 
-    private static final String MODEL_FILE = "/home/jonas/Data/McKesson/model.bpmn";
-    private static final String EVENTS_FILE = "/home/jonas/Data/McKesson/event_sorted.csv";
+    private static final String MODEL_FILE = "/home/jonas/Data/Macif/model.bpmn";
+    private static final String EVENTS_FILE = "/home/jonas/Data/Macif/event_sorted.csv";
     private static final String ATTRIBUTES_FILE = "/home/jonas/Data/McKesson/case_attribute.csv";
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-    private static final char SEPARATOR = ',';
+    private static final char SEPARATOR = ';';
 
     private static final String CASE_ID_NAME = "CaseId";
     private static final String TIMESTAMP_NAME = "Timestamp";
@@ -61,7 +61,7 @@ public class Main {
         var attributeScore = runTimed(() -> new FeatureEvaluator().calculateFeatureScores(data, TARGET_VARIABLE), "Calculating feature scores");
 
         var importantAttributes = attributeScore.entrySet().stream()
-                .filter(entry -> entry.getValue() > 0.2)
+                .filter(entry -> entry.getValue() > 0.01)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         importantAttributes.entrySet().stream()

@@ -3,7 +3,8 @@ package de.hpi.bpt.analysis;
 import de.hpi.bpt.BpmnModelInstanceBuilder;
 import de.hpi.bpt.feature.AnalysisResult;
 import de.hpi.bpt.feature.AnalysisResultType;
-import de.hpi.bpt.feature.FollowingActivityFeature;
+import de.hpi.bpt.feature.XorSplitFollowsFeature;
+import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.EndEvent;
 import org.camunda.bpm.model.bpmn.instance.ExclusiveGateway;
@@ -32,10 +33,21 @@ class OutgoingGatewayAnalysisTest {
         assertThat(analysisResults).hasSize(1);
         var result = analysisResults.iterator().next();
 
-        assertThat(result.getType()).isEqualTo(AnalysisResultType.FOLLOWING_ACTIVITY);
-        assertThat(((FollowingActivityFeature) result).getActivityNames()).containsExactlyInAnyOrder("A1", "A3");
+        assertThat(result.getType()).isEqualTo(AnalysisResultType.XOR_SPLIT_FOLLOWS);
+        assertThat(((XorSplitFollowsFeature) result).getActivityPairs()).containsExactlyInAnyOrder(
+                Pair.of("A1", "A2"),
+                Pair.of("A1", "A3"),
+                Pair.of("A1", "A4")
+        );
     }
 
+
+    /*                /-> A2 -------\
+    Start --> A1 --> X               \
+                      \     /-> A3 ---X --> End
+                       \-> X         /
+                            \-> A4 -/
+     */
     private BpmnModelInstance aModelInstance() {
         var builder = new BpmnModelInstanceBuilder();
 
@@ -45,7 +57,6 @@ class OutgoingGatewayAnalysisTest {
         var taskA2 = builder.createElement("A2", Task.class);
         var taskA3 = builder.createElement("A3", Task.class);
         var taskA4 = builder.createElement("A4", Task.class);
-        var taskA5 = builder.createElement("A5", Task.class);
         var split1 = builder.createElement("Split1", ExclusiveGateway.class);
         var split2 = builder.createElement("Split2", ExclusiveGateway.class);
         var join = builder.createElement("Join", ExclusiveGateway.class);
@@ -53,13 +64,12 @@ class OutgoingGatewayAnalysisTest {
         builder.connect(start, taskA1);
         builder.connect(taskA1, split1);
         builder.connect(split1, taskA2);
-        builder.connect(split1, taskA3);
+        builder.connect(split1, split2);
         builder.connect(taskA2, join);
-        builder.connect(taskA3, split2);
+        builder.connect(split2, taskA3);
         builder.connect(split2, taskA4);
-        builder.connect(split2, taskA5);
+        builder.connect(taskA3, join);
         builder.connect(taskA4, join);
-        builder.connect(taskA5, join);
         builder.connect(join, end);
 
         return builder.getModelInstance();

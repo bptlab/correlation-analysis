@@ -5,13 +5,18 @@ import de.hpi.bpt.datastructures.ColumnEventLog;
 import de.hpi.bpt.datastructures.RowCaseLog;
 import de.hpi.bpt.feature.AnalysisResult;
 import de.hpi.bpt.feature.AnalysisResultType;
-import de.hpi.bpt.feature.FollowingActivityFeature;
+import de.hpi.bpt.feature.XorSplitFollowsFeature;
 import de.hpi.bpt.logmanipulation.CaseLogConverter;
 import de.hpi.bpt.logmanipulation.RowCaseLogJoiner;
+import de.hpi.bpt.transformation.controlflow.ActivityExecutionDirectFlowTransformation;
 import de.hpi.bpt.transformation.controlflow.FollowingActivityTransformation;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static de.hpi.bpt.transformation.ActivityMapping.ACTIVITY_MAPPING;
 
 public class LogTransformer {
 
@@ -36,9 +41,13 @@ public class LogTransformer {
     }
 
     private LogTransformation transformationFor(AnalysisResult analysisResult) {
-        if (analysisResult.getType() == AnalysisResultType.FOLLOWING_ACTIVITY) {
-            var feature = (FollowingActivityFeature) analysisResult;
-            return new FollowingActivityTransformation(feature.getActivityNames());
+        if (analysisResult.getType() == AnalysisResultType.XOR_SPLIT_FOLLOWS) {
+            var feature = (XorSplitFollowsFeature) analysisResult;
+            var eventPairs = feature.getActivityPairs().stream()
+                    .filter(pair -> ACTIVITY_MAPPING.containsKey(pair.getLeft()) && ACTIVITY_MAPPING.containsKey(pair.getRight()))
+                    .map(pair -> Pair.of(ACTIVITY_MAPPING.get(pair.getLeft()), ACTIVITY_MAPPING.get(pair.getRight())))
+                    .collect(Collectors.toSet());
+            return new ActivityExecutionDirectFlowTransformation(eventPairs);
         }
 
         throw new RuntimeException("Unknown type of AnalysisResult: '" + analysisResult.getType().name() + "'");

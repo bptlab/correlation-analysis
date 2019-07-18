@@ -8,9 +8,14 @@ import java.util.Map;
 
 class FeatureEvaluator {
 
+    private static final int SAMPLE_SIZE = 1000;
+
     Map<String, Double> calculateFeatureScores(Instances data) {
         try {
             var reliefF = new ReliefFAttributeEval();
+            if (data.size() > SAMPLE_SIZE) {
+                reliefF.setSampleSize(SAMPLE_SIZE);
+            }
             reliefF.buildEvaluator(data);
 
             var attributeScore = new HashMap<String, Double>();

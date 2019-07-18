@@ -8,8 +8,7 @@ import de.hpi.bpt.feature.AnalysisResultType;
 import de.hpi.bpt.feature.XorSplitFollowsFeature;
 import de.hpi.bpt.logmanipulation.CaseLogConverter;
 import de.hpi.bpt.logmanipulation.RowCaseLogJoiner;
-import de.hpi.bpt.transformation.controlflow.ActivityExecutionDirectFlowTransformation;
-import de.hpi.bpt.transformation.controlflow.FollowingActivityTransformation;
+import de.hpi.bpt.transformation.controlflow.ActivityExecutionIndirectFlowTransformation;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.LinkedHashSet;
@@ -48,7 +47,7 @@ public class LogTransformer {
                     .filter(pair -> ACTIVITY_MAPPING.containsKey(pair.getLeft()) && ACTIVITY_MAPPING.containsKey(pair.getRight()))
                     .map(pair -> Pair.of(ACTIVITY_MAPPING.get(pair.getLeft()), ACTIVITY_MAPPING.get(pair.getRight())))
                     .collect(Collectors.toSet());
-            return new ActivityExecutionDirectFlowTransformation(eventPairs);
+            return new ActivityExecutionIndirectFlowTransformation(eventPairs);
         }
 
         throw new RuntimeException("Unknown type of AnalysisResult: '" + analysisResult.getType().name() + "'");

@@ -9,17 +9,28 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
 
 class DataLoader {
 
+    private Set<String> attributesToIgnore = new HashSet<>();
+
+    DataLoader ignoring(String... attributeNames) {
+        attributesToIgnore.addAll(Arrays.asList(attributeNames));
+        return this;
+    }
+
     Instances loadData(String dataAsArff) {
         try (var inputStream = new ByteArrayInputStream(dataAsArff.getBytes(StandardCharsets.UTF_8))) {
             var arffLoader = new ArffLoader();
             arffLoader.setSource(inputStream);
             var data = arffLoader.getDataSet();
+            attributesToIgnore.forEach(attribute -> data.deleteAttributeAt(data.attribute(attribute).index()));
             return convertStringFieldsToNominal(data);
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);

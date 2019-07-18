@@ -4,11 +4,13 @@ import de.hpi.bpt.datastructures.CaseColumn;
 import de.hpi.bpt.datastructures.ColumnCaseLog;
 import de.hpi.bpt.datastructures.RowCaseLog;
 import de.hpi.bpt.datastructures.Schema;
+import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvMapReader;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -45,6 +47,36 @@ public class CsvCaseLogReader {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    public RowCaseLog readClassVariableToRowCaseLog(File file, String classVariableName) {
+        try (var mapReader = basicReader.read(file)) {
+            var header = mapReader.getHeader(false);
+            var schema = basicReader.readSchemaFromHeader(header);
+            return readClassVariableRows(header, schema, mapReader, classVariableName);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    private RowCaseLog readClassVariableRows(String[] header, Schema schema, CsvMapReader reader, String classVariableName) throws IOException {
+        var processors = basicReader.getProcessors(schema);
+        var caseIdColumnName = header[schema.get(schema.getCaseIdName()).getId()];
+        schema.entrySet().removeIf(entry -> !entry.getKey().equals(basicReader.getCaseIdName()) && !entry.getKey().equals(classVariableName));
+        var resultSchema = new Schema();
+        schema.forEach((name, columnDefinition) -> resultSchema.addColumnDefinition(name, columnDefinition.getType()));
+        resultSchema.setCaseIdName(schema.getCaseIdName());
+        var rowCaseLog = new RowCaseLog(classVariableName + "_Log", resultSchema);
+
+
+        Map<String, Object> rowMap;
+        while ((rowMap = reader.read(header, processors)) != null) {
+            var caseId = (String) rowMap.get(caseIdColumnName);
+            var row = new ArrayList<>(Arrays.asList(caseId, rowMap.get(classVariableName)));
+            rowCaseLog.put(caseId, row);
+        }
+
+        return rowCaseLog;
     }
 
     private void readRows(String[] header, Schema schema, ICsvMapReader reader, RowCaseLog rowCaseLog) throws IOException {

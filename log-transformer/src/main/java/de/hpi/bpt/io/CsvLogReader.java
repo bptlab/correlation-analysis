@@ -3,7 +3,6 @@ package de.hpi.bpt.io;
 import de.hpi.bpt.datastructures.ColumnDefinition;
 import de.hpi.bpt.datastructures.Schema;
 import org.supercsv.cellprocessor.*;
-import org.supercsv.cellprocessor.constraint.NotNull;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.CsvMapReader;
 import org.supercsv.prefs.CsvPreference;
@@ -11,7 +10,6 @@ import org.supercsv.prefs.CsvPreference;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.Arrays;
 import java.util.Date;
 
 public class CsvLogReader {
@@ -122,5 +120,9 @@ public class CsvLogReader {
 
     public char getSeparator() {
         return separator;
+    }
+
+    String getCaseIdName() {
+        return caseIdName;
     }
 }

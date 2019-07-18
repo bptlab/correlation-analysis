@@ -13,7 +13,10 @@ import weka.core.Instances;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -25,7 +28,7 @@ public class Main {
     private static final String FOLDER = "/home/jonas/Data/Macif/incidents/";
     private static final String MODEL_FILE = "model.bpmn";
     private static final String EVENTS_FILE = "events_sorted.csv";
-    private static final List<String> ATTRIBUTES_FILES = List.of("attributes_region_sorted.csv"/*, "attributes1_sorted.csv", "attributes2_sorted.csv"*/);
+    private static final List<String> ATTRIBUTES_FILES = List.of(/*"attributes_region_sorted.csv", */"attributes1_sorted.csv"/*, "attributes2_sorted.csv"*/);
     private static final String GRAPH_OUTPUT_FILE = "tree.gv";
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
@@ -35,13 +38,13 @@ public class Main {
     private static final String TIMESTAMP_NAME = "Timestamp";
     private static final String ACTIVITY_NAME = "EventName";
 
-    private static final String TARGET_VARIABLE = "Region";
+    private static final String TARGET_VARIABLE = "Bénéficiaire";
 
     public static void main(String[] args) {
         var analysisResults = retrieveAnalysisResults();
         var caseLog = retrieveCaseLog(analysisResults);
 
-        caseLog.entrySet().removeIf(entry -> Collections.frequency(entry.getValue(), true) != 3);
+//        caseLog.entrySet().removeIf(entry -> Collections.frequency(entry.getValue(), true) != 3);
 
         System.out.println(caseLog.keySet().size());
 
@@ -79,7 +82,7 @@ public class Main {
     private static Instances retrieveData(RowCaseLog caseLog) {
         // TODO can this be done without String serialization?
         var caseLogAsString = new ArffCaseLogWriter().writeToString(caseLog);
-        var data = runTimed(() -> new DataLoader().loadData(caseLogAsString), "Reading ARFF string into Instances");
+        var data = runTimed(() -> new DataLoader().ignoring(CASE_ID_NAME).loadData(caseLogAsString), "Reading ARFF string into Instances");
         data.setClass(data.attribute(TARGET_VARIABLE));
         return data;
 
@@ -106,7 +109,7 @@ public class Main {
                 .withAnalysisResults(analysisResults);
 
         var attributesLogs = ATTRIBUTES_FILES.stream()
-                .map(file -> runTimed(() -> new CsvCaseLogReader(csvLogReader).readToRowCaseLog(new File(FOLDER + file), file.replace(".csv", "")), "Reading attributes log"))
+                .map(file -> runTimed(() -> new CsvCaseLogReader(csvLogReader).readClassVariableToRowCaseLog(new File(FOLDER + file), TARGET_VARIABLE), "Reading attributes log"))
                 .collect(toList());
 
         return runTimed(() -> transformer.transformJoining(attributesLogs), "Transforming attributes");

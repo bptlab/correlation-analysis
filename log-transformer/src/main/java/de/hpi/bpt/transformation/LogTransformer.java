@@ -5,10 +5,12 @@ import de.hpi.bpt.datastructures.ColumnEventLog;
 import de.hpi.bpt.datastructures.RowCaseLog;
 import de.hpi.bpt.feature.AnalysisResult;
 import de.hpi.bpt.feature.AnalysisResultType;
+import de.hpi.bpt.feature.LaneSwitchFeature;
 import de.hpi.bpt.feature.XorSplitFollowsFeature;
 import de.hpi.bpt.logmanipulation.CaseLogConverter;
 import de.hpi.bpt.logmanipulation.RowCaseLogJoiner;
 import de.hpi.bpt.transformation.controlflow.ActivityExecutionIndirectFlowTransformation;
+import de.hpi.bpt.transformation.time.HandoverTimeTransformation;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.LinkedHashSet;
@@ -48,6 +50,13 @@ public class LogTransformer {
                     .map(pair -> Pair.of(ACTIVITY_MAPPING.get(pair.getLeft()), ACTIVITY_MAPPING.get(pair.getRight())))
                     .collect(Collectors.toSet());
             return new ActivityExecutionIndirectFlowTransformation(eventPairs);
+        } else if (analysisResult.getType() == AnalysisResultType.LANE_SWITCH) {
+            var feature = (LaneSwitchFeature) analysisResult;
+            var eventPairs = feature.getActivityPairs().stream()
+                    .filter(pair -> ACTIVITY_MAPPING.containsKey(pair.getLeft()) && ACTIVITY_MAPPING.containsKey(pair.getRight()))
+                    .map(pair -> Pair.of(ACTIVITY_MAPPING.get(pair.getLeft()), ACTIVITY_MAPPING.get(pair.getRight())))
+                    .collect(Collectors.toSet());
+            return new HandoverTimeTransformation(eventPairs);
         }
 
         throw new RuntimeException("Unknown type of AnalysisResult: '" + analysisResult.getType().name() + "'");

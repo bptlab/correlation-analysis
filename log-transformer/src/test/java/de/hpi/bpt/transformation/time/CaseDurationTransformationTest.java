@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class CaseDurationTransformationTest {
 
-    private static final int NANO_SECONDS_FACTOR = 1000;
+    private static final int MILLISECONDS_FACTOR = 1000;
 
     @Test
     void transform() {
@@ -20,12 +20,12 @@ class CaseDurationTransformationTest {
                 .build()
                 .trace("1")
                 .row(new Date(0), "A1")
-                .row(new Date(100 * NANO_SECONDS_FACTOR), "A2")
-                .row(new Date(200 * NANO_SECONDS_FACTOR), "A3")
+                .row(new Date(100 * MILLISECONDS_FACTOR), "A2")
+                .row(new Date(200 * MILLISECONDS_FACTOR), "A3")
                 .build()
                 .trace("2")
-                .row(new Date(300 * NANO_SECONDS_FACTOR), "A2")
-                .row(new Date(313 * NANO_SECONDS_FACTOR), "A3")
+                .row(new Date(300 * MILLISECONDS_FACTOR), "A2")
+                .row(new Date(313 * MILLISECONDS_FACTOR), "A3")
                 .build()
                 .build();
 

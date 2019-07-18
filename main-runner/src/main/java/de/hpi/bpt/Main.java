@@ -27,7 +27,7 @@ public class Main {
 
     private static final String FOLDER = "/home/jonas/Data/Macif/incidents/";
     private static final String MODEL_FILE = "model.bpmn";
-    private static final String EVENTS_FILE = "events_sorted.csv";
+    private static final String EVENTS_FILE = "events_sorted_subset.csv";
     private static final List<String> ATTRIBUTES_FILES = List.of(/*"attributes_region_sorted.csv", */"attributes1_sorted.csv"/*, "attributes2_sorted.csv"*/);
     private static final String GRAPH_OUTPUT_FILE = "tree.gv";
 

@@ -1,8 +1,7 @@
 package de.hpi.bpt.analysis;
 
-import de.hpi.bpt.feature.AnalysisResult;
+import de.hpi.bpt.feature.AbstractActivityPairFeature;
 import de.hpi.bpt.feature.XorSplitFollowsFeature;
-import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
 
 import java.util.Set;
@@ -14,23 +13,17 @@ import static java.util.stream.Collectors.toSet;
  * Check for exclusive paths in the process. The path taken (i.e., the activity-pair around an exclusive gateway)
  * can then be used as a feature for evaluation.
  */
-public class OutgoingGatewayAnalysis {
+public class OutgoingGatewayAnalysis extends AbstractActivityPairAnalysis {
 
-    public void analyze(BpmnModelInstance modelInstance, Set<AnalysisResult> analysisResults) {
-        var activities = modelInstance.getModelElementsByType(Activity.class);
-        var analysisResult = new XorSplitFollowsFeature();
 
-        for (Activity activity : activities) {
-            var firstActivityName = activity.getName();
-            findExclusiveFollowingActivities(activity)
-                    .forEach(secondActivityName -> analysisResult.addActivityPair(firstActivityName, secondActivityName));
-        }
-
-        analysisResults.add(analysisResult);
+    @Override
+    AbstractActivityPairFeature feature() {
+        return new XorSplitFollowsFeature();
     }
 
-    private Set<String> findExclusiveFollowingActivities(FlowNode flowNode) {
-        return findOutgoingSplitGateways(flowNode)
+    @Override
+    Set<String> findCorrespondingActivities(Activity activity) {
+        return findOutgoingSplitGateways(activity)
                 .map(this::collectOutgoingActivityNames)
                 .flatMap(Set::stream)
                 .collect(toSet());

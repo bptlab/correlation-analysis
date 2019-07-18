@@ -1,5 +1,6 @@
 package de.hpi.bpt;
 
+import de.hpi.bpt.analysis.LaneSwitchAnalysis;
 import de.hpi.bpt.analysis.OutgoingGatewayAnalysis;
 import de.hpi.bpt.feature.AnalysisResult;
 import org.camunda.bpm.model.bpmn.Bpmn;
@@ -25,5 +26,6 @@ public class ModelAnalyzer {
 
     private void analyzeModel(BpmnModelInstance bpmnModelInstance, Set<AnalysisResult> analysisResults) {
         new OutgoingGatewayAnalysis().analyze(bpmnModelInstance, analysisResults);
+        new LaneSwitchAnalysis().analyze(bpmnModelInstance, analysisResults);
     }
 }

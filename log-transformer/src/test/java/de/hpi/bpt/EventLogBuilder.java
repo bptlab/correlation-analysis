@@ -59,7 +59,7 @@ public class EventLogBuilder {
         public ColumnEventLog build() {
             var map = new LinkedHashMap<String, LogColumn<?>>();
             schema.forEach((key, value) -> map.put(key, columns.get(value.getId())));
-            return new ColumnEventLog(schema, map);
+            return new ColumnEventLog("TestLog", schema, map);
         }
     }
 

@@ -3,6 +3,7 @@ package de.hpi.bpt.feature;
 public enum AnalysisResultType {
 
     XOR_SPLIT_FOLLOWS,
-    LANE_SWITCH
+    LANE_SWITCH,
+    REPEATING_ACTIVITY,
 
 }

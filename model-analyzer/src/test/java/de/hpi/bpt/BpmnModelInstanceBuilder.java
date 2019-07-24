@@ -39,13 +39,14 @@ public class BpmnModelInstanceBuilder {
         return element;
     }
 
-    public void connect(FlowNode from, FlowNode to) {
+    public BpmnModelInstanceBuilder connect(FlowNode from, FlowNode to) {
         String identifier = from.getId() + "-" + to.getId();
         SequenceFlow sequenceFlow = createElement(identifier, SequenceFlow.class);
         sequenceFlow.setSource(from);
         from.getOutgoing().add(sequenceFlow);
         sequenceFlow.setTarget(to);
         to.getIncoming().add(sequenceFlow);
+        return this;
     }
 
     public BpmnModelInstance getModelInstance() {

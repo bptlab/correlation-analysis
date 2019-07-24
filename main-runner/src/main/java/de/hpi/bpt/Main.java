@@ -7,6 +7,7 @@ import de.hpi.bpt.io.CsvCaseLogReader;
 import de.hpi.bpt.io.CsvEventLogReader;
 import de.hpi.bpt.io.CsvLogReader;
 import de.hpi.bpt.transformation.LogTransformer;
+import de.hpi.bpt.transformation.controlflow.ActivityExecutionTransformation;
 import org.apache.commons.lang3.time.StopWatch;
 import weka.core.Instances;
 
@@ -27,8 +28,8 @@ public class Main {
 
     private static final String FOLDER = "/home/jonas/Data/Macif/incidents/";
     private static final String MODEL_FILE = "model.bpmn";
-    private static final String EVENTS_FILE = "events_sorted_subset.csv";
-    private static final List<String> ATTRIBUTES_FILES = List.of(/*"attributes_region_sorted.csv", */"attributes1_sorted.csv"/*, "attributes2_sorted.csv"*/);
+    private static final String EVENTS_FILE = "events_sorted.csv";
+    private static final List<String> ATTRIBUTES_FILES = List.of(/*"attributes_region_sorted.csv", "attributes1_sorted.csv", "attributes2_sorted.csv"*/);
     private static final String GRAPH_OUTPUT_FILE = "tree.gv";
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
@@ -38,7 +39,7 @@ public class Main {
     private static final String TIMESTAMP_NAME = "Timestamp";
     private static final String ACTIVITY_NAME = "EventName";
 
-    private static final String TARGET_VARIABLE = "Bénéficiaire";
+    private static final String TARGET_VARIABLE = "Ticket Escalated_wasexecuted";
 
     public static void main(String[] args) {
         var analysisResults = retrieveAnalysisResults();
@@ -46,46 +47,10 @@ public class Main {
 
 //        caseLog.entrySet().removeIf(entry -> Collections.frequency(entry.getValue(), true) != 3);
 
-        System.out.println(caseLog.keySet().size());
-
         var data = retrieveData(caseLog);
 
         evaluateFeatures(data);
         buildDecisionTree(data);
-    }
-
-    private static void buildDecisionTree(Instances data) {
-        var decisionTreeGraph = runTimed(() -> new DecisionTreeClassifier().buildDecisionRules(data), "Learning decision tree");
-
-        try (var fileWriter = new FileWriter(FOLDER + GRAPH_OUTPUT_FILE)) {
-            fileWriter.write(decisionTreeGraph);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void evaluateFeatures(Instances data) {
-        var attributeScore = runTimed(() -> new FeatureEvaluator().calculateFeatureScores(data), "Calculating feature scores");
-
-        var importantAttributes = attributeScore.entrySet().stream()
-                .filter(entry -> !entry.getKey().equals(CASE_ID_NAME))
-                .filter(entry -> entry.getValue() > 0)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-
-        importantAttributes.entrySet().stream()
-                .sorted(Comparator.comparingDouble(Map.Entry<String, Double>::getValue).reversed())
-                .forEach(entry -> System.out.println(entry.getKey() + " -> " + entry.getValue()));
-
-        new AttributeFilter().filterImportantAttributes(data, importantAttributes.keySet());
-    }
-
-    private static Instances retrieveData(RowCaseLog caseLog) {
-        // TODO can this be done without String serialization?
-        var caseLogAsString = new ArffCaseLogWriter().writeToString(caseLog);
-        var data = runTimed(() -> new DataLoader().ignoring(CASE_ID_NAME).loadData(caseLogAsString), "Reading ARFF string into Instances");
-        data.setClass(data.attribute(TARGET_VARIABLE));
-        return data;
-
     }
 
     private static Set<AnalysisResult> retrieveAnalysisResults() {
@@ -104,7 +69,7 @@ public class Main {
 
         var transformer = new LogTransformer(eventLog)
 //                .with(new CaseDurationTransformation())
-//                .with(new ActivityExecutionTransformation(endActivityNames))
+                .with(new ActivityExecutionTransformation("Ticket Escalated"))
 //                .with(new ParallelCaseCountTransformation())
                 .withAnalysisResults(analysisResults);
 
@@ -113,6 +78,40 @@ public class Main {
                 .collect(toList());
 
         return runTimed(() -> transformer.transformJoining(attributesLogs), "Transforming attributes");
+    }
+
+    private static Instances retrieveData(RowCaseLog caseLog) {
+        // TODO can this be done without String serialization?
+        var caseLogAsString = new ArffCaseLogWriter().writeToString(caseLog);
+        var data = runTimed(() -> new DataLoader().ignoring(CASE_ID_NAME).loadData(caseLogAsString), "Reading ARFF string into Instances");
+        data.setClass(data.attribute(TARGET_VARIABLE));
+        return data;
+
+    }
+
+    private static void evaluateFeatures(Instances data) {
+        var attributeScore = runTimed(() -> new FeatureEvaluator().calculateFeatureScores(data), "Calculating feature scores");
+
+        var importantAttributes = attributeScore.entrySet().stream()
+                .filter(entry -> !entry.getKey().equals(CASE_ID_NAME))
+                .filter(entry -> entry.getValue() > 0)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        importantAttributes.entrySet().stream()
+                .sorted(Comparator.comparingDouble(Map.Entry<String, Double>::getValue).reversed())
+                .forEach(entry -> System.out.println(entry.getKey() + " -> " + entry.getValue()));
+
+        new AttributeFilter().filterImportantAttributes(data, importantAttributes.keySet());
+    }
+
+    private static void buildDecisionTree(Instances data) {
+        var decisionTreeGraph = runTimed(() -> new DecisionTreeClassifier().buildDecisionRules(data), "Learning decision tree");
+
+        try (var fileWriter = new FileWriter(FOLDER + GRAPH_OUTPUT_FILE)) {
+            fileWriter.write(decisionTreeGraph);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static <T> T runTimed(Supplier<T> function, String message) {

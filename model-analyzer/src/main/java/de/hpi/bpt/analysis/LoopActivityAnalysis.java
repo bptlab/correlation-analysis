@@ -5,14 +5,15 @@ import de.hpi.bpt.feature.RepeatingActivityFeature;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.Activity;
+import org.camunda.bpm.model.bpmn.instance.FlowElement;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
-import org.camunda.bpm.model.bpmn.instance.StartEvent;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
+import java.util.Stack;
+
+import static java.util.stream.Collectors.toSet;
 
 public class LoopActivityAnalysis implements Analysis {
 
@@ -28,37 +29,39 @@ public class LoopActivityAnalysis implements Analysis {
 
 
     private Set<String> findLoopsViaDfs(BpmnModelInstance modelInstance) {
-        var startEvents = modelInstance.getModelElementsByType(StartEvent.class);
-        if (startEvents.size() != 1) {
-            throw new RuntimeException("Multiple start events in process '" + modelInstance.getDefinitions().getName() + "'");
-        }
+        return modelInstance.getModelElementsByType(Activity.class)
+                .stream()
+                .filter(this::findLoopViaDfs)
+                .map(FlowElement::getName)
+                .collect(toSet());
+    }
 
-        var startEvent = startEvents.iterator().next();
-
-        var toVisit = new LinkedList<FlowNode>();
-
+    private boolean findLoopViaDfs(Activity activity) {
+        var toVisit = new Stack<FlowNode>();
         var seenNodes = new HashMap<FlowNode, MutableInt>();
-        var loopActivities = new HashSet<String>();
 
-        toVisit.push(startEvent);
+        for (SequenceFlow sequenceFlow : activity.getOutgoing()) {
+            toVisit.push(sequenceFlow.getTarget());
+        }
 
         while (!toVisit.isEmpty()) {
             var currentNode = toVisit.pop();
 
-            if (currentNode instanceof Activity && seenNodes.containsKey(currentNode)) {
-                loopActivities.add(currentNode.getName());
-            } else {
-                var count = seenNodes.computeIfAbsent(currentNode, k -> new MutableInt(0));
+            if (activity.equals(currentNode)) {
+                return true;
+            }
 
-                if (count.getValue() < 2) { // non-activities can be visited twice to check if there's an activity following them somewhere
-                    count.increment();
-                    for (SequenceFlow sequenceFlow : currentNode.getOutgoing()) {
-                        toVisit.push(sequenceFlow.getTarget());
-                    }
+            var count = seenNodes.computeIfAbsent(currentNode, k -> new MutableInt(0));
+
+            if (count.getValue() < 2) {
+                count.increment();
+                for (SequenceFlow sequenceFlow : currentNode.getOutgoing()) {
+                    toVisit.push(sequenceFlow.getTarget());
                 }
             }
         }
 
-        return loopActivities;
+        return false;
     }
+
 }

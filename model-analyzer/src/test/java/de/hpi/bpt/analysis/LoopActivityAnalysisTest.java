@@ -34,17 +34,17 @@ class LoopActivityAnalysisTest {
 
         assertThat(result.getType()).isEqualTo(AnalysisResultType.REPEATING_ACTIVITY);
         assertThat(((RepeatingActivityFeature) result).getActivityNames()).containsExactlyInAnyOrder(
-                "A2", "A3"
+                "A2", "A3", "A4"
         );
     }
 
 
     /*
-    Start --> A1 --> X --> A2 --> X --> A3 --> X --> X --> End
-                      \            \          / \   /
-                       \            -----<----   \</
-                        \                   /
-                         -------------<-----
+    Start --> A1 --> X --> A2 --> A3 --> X --> A4 --> X --> X --> A5 --> End
+                      \                   \          / \   /
+                       \                   -----<----   \</
+                        \                          /
+                         -------------<------------
 
     */
     private BpmnModelInstance aModelInstance() {
@@ -54,20 +54,24 @@ class LoopActivityAnalysisTest {
         var taskA1 = builder.createElement("A1", Task.class);
         var taskA2 = builder.createElement("A2", Task.class);
         var taskA3 = builder.createElement("A3", Task.class);
+        var taskA4 = builder.createElement("A4", Task.class);
+        var taskA5 = builder.createElement("A5", Task.class);
         var join1 = builder.createElement("Join1", ExclusiveGateway.class);
         var join2 = builder.createElement("Join2", ExclusiveGateway.class);
-        var split = builder.createElement("Split", ExclusiveGateway.class);
+        var split = builder.createElement("Split1", ExclusiveGateway.class);
         var end = builder.createElement("End", EndEvent.class);
 
-        builder.connect(start, taskA1);
-        builder.connect(taskA1, join1);
-        builder.connect(join1, taskA2);
-        builder.connect(taskA2, join2);
-        builder.connect(join2, taskA3);
-        builder.connect(taskA3, split);
-        builder.connect(split, end);
-        builder.connect(split, join1);
-        builder.connect(split, join2);
+        builder.connect(start, taskA1)
+                .connect(taskA1, join1)
+                .connect(join1, taskA2)
+                .connect(taskA2, taskA3)
+                .connect(taskA3, join2)
+                .connect(join2, taskA4)
+                .connect(taskA4, split)
+                .connect(split, taskA5)
+                .connect(split, join1)
+                .connect(split, join2)
+                .connect(taskA5, end);
 
         return builder.getModelInstance();
     }

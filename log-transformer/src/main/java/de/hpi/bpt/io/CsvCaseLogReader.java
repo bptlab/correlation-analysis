@@ -49,30 +49,31 @@ public class CsvCaseLogReader {
         }
     }
 
-    public RowCaseLog readClassVariableToRowCaseLog(File file, String classVariableName) {
+    public RowCaseLog readVariableToRowCaseLog(File file, String variableName) {
         try (var mapReader = basicReader.read(file)) {
             var header = mapReader.getHeader(false);
             var schema = basicReader.readSchemaFromHeader(header);
-            return readClassVariableRows(header, schema, mapReader, classVariableName);
+            return readVariableRows(header, schema, mapReader, variableName);
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    private RowCaseLog readClassVariableRows(String[] header, Schema schema, CsvMapReader reader, String classVariableName) throws IOException {
+    private RowCaseLog readVariableRows(String[] header, Schema schema, CsvMapReader reader, String variableName) throws IOException {
         var processors = basicReader.getProcessors(schema);
         var caseIdColumnName = header[schema.get(schema.getCaseIdName()).getId()];
-        schema.entrySet().removeIf(entry -> !entry.getKey().equals(basicReader.getCaseIdName()) && !entry.getKey().equals(classVariableName));
+        var variableColumnName = header[schema.get(variableName).getId()];
+        schema.entrySet().removeIf(entry -> !entry.getKey().equals(basicReader.getCaseIdName()) && !entry.getKey().equals(variableName));
         var resultSchema = new Schema();
         schema.forEach((name, columnDefinition) -> resultSchema.addColumnDefinition(name, columnDefinition.getType()));
         resultSchema.setCaseIdName(schema.getCaseIdName());
-        var rowCaseLog = new RowCaseLog(classVariableName + "_Log", resultSchema);
+        var rowCaseLog = new RowCaseLog(variableName + "_Log", resultSchema);
 
 
         Map<String, Object> rowMap;
         while ((rowMap = reader.read(header, processors)) != null) {
             var caseId = (String) rowMap.get(caseIdColumnName);
-            var row = new ArrayList<>(Arrays.asList(caseId, rowMap.get(classVariableName)));
+            var row = new ArrayList<>(Arrays.asList(caseId, rowMap.get(variableColumnName)));
             rowCaseLog.put(caseId, row);
         }
 

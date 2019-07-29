@@ -6,10 +6,7 @@ import de.hpi.bpt.feature.RepeatingActivityFeature;
 import de.hpi.bpt.feature.XorSplitFollowsFeature;
 import de.hpi.bpt.transformation.controlflow.ActivityExecutionIndirectFlowTransformation;
 import de.hpi.bpt.transformation.controlflow.NumberOfActivityExecutionsTransformation;
-import de.hpi.bpt.transformation.time.PostExecutionWaitingTimeTransformation;
 import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.stream.Collectors;
 
 import static de.hpi.bpt.transformation.ActivityMapping.ACTIVITY_MAPPING;
 import static java.util.stream.Collectors.toSet;
@@ -43,7 +40,8 @@ class FeatureGenerator {
                 .map(pair -> Pair.of(ACTIVITY_MAPPING.get(pair.getLeft()), ACTIVITY_MAPPING.get(pair.getRight())))
                 .collect(toSet());
 //        return new HandoverTimeTransformation(eventPairs);
-        return new PostExecutionWaitingTimeTransformation(eventPairs.stream().map(Pair::getLeft).collect(Collectors.toSet()));
+//        return new PostExecutionWaitingTimeTransformation(eventPairs.stream().map(Pair::getLeft).collect(Collectors.toSet()));
+        return new ActivityExecutionIndirectFlowTransformation(eventPairs);
     }
 
     private LogTransformation from(RepeatingActivityFeature feature) {

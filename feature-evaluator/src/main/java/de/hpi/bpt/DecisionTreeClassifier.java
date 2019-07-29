@@ -1,18 +1,33 @@
 package de.hpi.bpt;
 
-import weka.classifiers.meta.AdaBoostM1;
-import weka.classifiers.trees.J48;
+import weka.attributeSelection.ReliefFAttributeEval;
+import weka.classifiers.meta.AttributeSelectedClassifier;
 import weka.core.Instances;
 
 class DecisionTreeClassifier {
 
+    private static final int SAMPLE_SIZE = 1000;
+
     String buildDecisionRules(Instances data) {
         try {
-            var j48 = new J48();
-            var boost = new AdaBoostM1();
-            boost.setClassifier(j48);
-            boost.buildClassifier(data);
-            return j48.graph();
+            var reliefF = new ReliefFAttributeEval();
+            if (data.size() > SAMPLE_SIZE) {
+                reliefF.setSampleSize(SAMPLE_SIZE);
+            }
+//            reliefF.buildEvaluator(data);
+
+            var classifier = new AttributeSelectedClassifier();
+//            classifier.setEvaluator(reliefF);
+//            classifier.setSearch(new Ranker());
+            classifier.buildClassifier(data);
+//
+//            var boost = new AdaBoostM1();
+//            boost.setClassifier(classifier);
+//            boost.buildClassifier(data);
+//
+//            return ((AttributeSelectedClassifier) boost.getClassifier()).graph();
+
+            return classifier.graph();
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

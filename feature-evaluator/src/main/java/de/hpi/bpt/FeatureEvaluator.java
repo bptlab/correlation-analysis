@@ -12,17 +12,17 @@ class FeatureEvaluator {
 
     Map<String, Double> calculateFeatureScores(Instances data) {
         try {
-            var reliefF = new ReliefFAttributeEval();
+            var evaluator = new ReliefFAttributeEval();
             if (data.size() > SAMPLE_SIZE) {
-                reliefF.setSampleSize(SAMPLE_SIZE);
+                evaluator.setSampleSize(SAMPLE_SIZE);
             }
-            reliefF.buildEvaluator(data);
+            evaluator.buildEvaluator(data);
 
             var attributeScore = new HashMap<String, Double>();
             for (int i = 0; i < data.numAttributes(); i++) {
                 attributeScore.put(
                         data.get(0).attribute(i).name(),
-                        reliefF.evaluateAttribute(i)
+                        evaluator.evaluateAttribute(i)
                 );
             }
             return attributeScore;

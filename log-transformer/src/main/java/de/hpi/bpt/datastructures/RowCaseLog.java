@@ -17,6 +17,10 @@ public class RowCaseLog extends LinkedHashMap<String, List<Object>> {
         return schema;
     }
 
+    public void setSchema(Schema schema) {
+        this.schema = schema;
+    }
+
     public String getName() {
         return name;
     }

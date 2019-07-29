@@ -9,7 +9,7 @@ class Parameters {
     static final String MODEL_FILE = "model.bpmn";
     static final String EVENTS_FILE = "events_sorted_no_night.csv";
     static final List<String> ATTRIBUTES_FILES = List.of("attributes1_sorted.csv");
-    static final String GRAPH_OUTPUT_FILE = "tree.gv";
+    static final String GRAPH_OUTPUT_FILE = "tree.png";
 
     static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     static final char SEPARATOR = ',';
@@ -18,5 +18,6 @@ class Parameters {
     static final String TIMESTAMP_NAME = "Timestamp";
     static final String ACTIVITY_NAME = "EventName";
 
-    static final String TARGET_VARIABLE = "caseend_before_SLA";
+    static final String TARGET_VARIABLE = "Ticket Reopened_wasexecuted";
+    static final String TARGET_VALUE = "true";
 }

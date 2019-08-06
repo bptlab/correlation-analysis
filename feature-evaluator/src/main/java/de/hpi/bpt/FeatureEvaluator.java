@@ -10,7 +10,7 @@ class FeatureEvaluator {
 
     private static final int SAMPLE_SIZE = 1000;
 
-    Map<String, Double> calculateFeatureScores(Instances data) {
+    Map<Integer, Double> calculateFeatureScores(Instances data) {
         try {
             var evaluator = new ReliefFAttributeEval();
             if (data.size() > SAMPLE_SIZE) {
@@ -18,10 +18,10 @@ class FeatureEvaluator {
             }
             evaluator.buildEvaluator(data);
 
-            var attributeScore = new HashMap<String, Double>();
+            var attributeScore = new HashMap<Integer, Double>();
             for (int i = 0; i < data.numAttributes(); i++) {
                 attributeScore.put(
-                        data.get(0).attribute(i).name(),
+                        i,
                         evaluator.evaluateAttribute(i)
                 );
             }

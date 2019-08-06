@@ -5,5 +5,6 @@ public enum AnalysisResultType {
     XOR_SPLIT_FOLLOWS,
     LANE_SWITCH,
     REPEATING_ACTIVITY,
+    OPTIONAL_ACTIVITY,
 
 }

@@ -12,10 +12,12 @@ public class Main {
         var caseLog = CaseLogTransformationStep.retrieveCaseLog(analysisResults);
 
         var data = WekaPreparationStep.retrieveData(caseLog);
+//        var singleClassData = WekaPreparationStep.removeWithWrongClassValue(data);
 
-        FeatureEvaluationStep.evaluateFeatures(data);
+        var relevantFeatures = FeatureEvaluationStep.evaluateFeatures(data);
+        var relevantData = new AttributeFilter().filterImportantAttributesKeepingClass(data, relevantFeatures);
 
-//        DecisionTreeStep.buildDecisionTree(data);
+        DecisionTreeStep.buildDecisionTree(relevantData);
     }
 
 }

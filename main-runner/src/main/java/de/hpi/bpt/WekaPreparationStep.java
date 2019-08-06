@@ -17,11 +17,11 @@ class WekaPreparationStep {
             var caseLogData = TimeTracker.runTimed(() -> new DataLoader()
                     .loadData(caseLogAsString), "Reading ARFF string into Instances");
 
-            return removeWithWrongClassValue(
-                    removeWithEmptyAttributes(
-                            convertStringToNominal(
-                                    caseLogData
-                            )));
+            var preprocessedData = applyFilters(caseLogData);
+
+            preprocessedData.setClass(preprocessedData.attribute(Parameters.TARGET_VARIABLE));
+            preprocessedData.deleteWithMissingClass();
+            return preprocessedData;
 
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -29,40 +29,39 @@ class WekaPreparationStep {
 
     }
 
-    private static Instances convertStringToNominal(Instances data) throws Exception {
+    public static Instances removeWithWrongClassValue(Instances data) {
+        var newData = new Instances(data);
+        newData.setClass(data.classAttribute());
+
+        var classIndex = newData.classIndex();
+        var targetValueIndex = newData.instance(0).attribute(classIndex).indexOfValue(Parameters.TARGET_VALUE);
+
+        newData.removeIf(instance -> !(instance.value(classIndex) == targetValueIndex));
+        return newData;
+    }
+
+    private static Instances applyFilters(Instances data) throws Exception {
+        var nominal = Filter.useFilter(data, stringToNominalFilter(data));
+        return Filter.useFilter(nominal, removeEmptyAttributesFilter(nominal));
+    }
+
+    private static StringToNominal stringToNominalFilter(Instances data) throws Exception {
         var stringToNominal = new StringToNominal();
         stringToNominal.setAttributeRange("first-last");
         stringToNominal.setInputFormat(data);
-
-        data = Filter.useFilter(data, stringToNominal);
-        return data;
+        return stringToNominal;
     }
 
-    private static Instances removeWithEmptyAttributes(final Instances data) throws Exception {
+    private static Remove removeEmptyAttributesFilter(final Instances data) throws Exception {
         var toRemove = IntStream.range(0, data.numAttributes())
                 .filter(i -> {
                     var attribute = data.attribute(i);
                     return attribute.isNominal() && attribute.numValues() == 0;
                 })
                 .toArray();
-        if (toRemove.length > 0) {
-            var remove = new Remove();
-            remove.setAttributeIndicesArray(toRemove);
-            remove.setInputFormat(data);
-            return Filter.useFilter(data, remove);
-        } else {
-            return data;
-        }
-    }
-
-    private static Instances removeWithWrongClassValue(Instances data) {
-        data.setClass(data.attribute(Parameters.TARGET_VARIABLE));
-        data.deleteWithMissingClass();
-
-        var classIndex = data.classIndex();
-        var targetValueIndex = data.instance(0).attribute(classIndex).indexOfValue(Parameters.TARGET_VALUE);
-
-        data.removeIf(instance -> !(instance.value(classIndex) == targetValueIndex));
-        return data;
+        var remove = new Remove();
+        remove.setAttributeIndicesArray(toRemove);
+        remove.setInputFormat(data);
+        return remove;
     }
 }

@@ -1,14 +1,14 @@
 package de.hpi.bpt.transformation;
 
-import de.hpi.bpt.feature.AnalysisResult;
-import de.hpi.bpt.feature.LaneSwitchFeature;
-import de.hpi.bpt.feature.RepeatingActivityFeature;
-import de.hpi.bpt.feature.XorSplitFollowsFeature;
+import de.hpi.bpt.feature.*;
+import de.hpi.bpt.transformation.controlflow.ActivityExecutionDirectFlowTransformation;
 import de.hpi.bpt.transformation.controlflow.ActivityExecutionIndirectFlowTransformation;
+import de.hpi.bpt.transformation.controlflow.ActivityExecutionTransformation;
 import de.hpi.bpt.transformation.controlflow.NumberOfActivityExecutionsTransformation;
 import org.apache.commons.lang3.tuple.Pair;
 
-import static de.hpi.bpt.transformation.ActivityMapping.ACTIVITY_MAPPING;
+import java.util.Set;
+
 import static java.util.stream.Collectors.toSet;
 
 class FeatureGenerator {
@@ -21,34 +21,42 @@ class FeatureGenerator {
                 return from((LaneSwitchFeature) analysisResult);
             case REPEATING_ACTIVITY:
                 return from((RepeatingActivityFeature) analysisResult);
+            case OPTIONAL_ACTIVITY:
+                return from((OptionalActivityFeature) analysisResult);
             default:
                 throw new RuntimeException("Unknown type of AnalysisResult: '" + analysisResult.getType().name() + "'");
         }
     }
 
     private LogTransformation from(XorSplitFollowsFeature feature) {
-        var eventPairs = feature.getActivityPairs().stream()
-                .filter(pair -> ACTIVITY_MAPPING.containsKey(pair.getLeft()) && ACTIVITY_MAPPING.containsKey(pair.getRight()))
-                .map(pair -> Pair.of(ACTIVITY_MAPPING.get(pair.getLeft()), ACTIVITY_MAPPING.get(pair.getRight())))
-                .collect(toSet());
-        return new ActivityExecutionIndirectFlowTransformation(eventPairs);
+        return new ActivityExecutionDirectFlowTransformation(mapNames(feature));
     }
 
     private LogTransformation from(LaneSwitchFeature feature) {
-        var eventPairs = feature.getActivityPairs().stream()
-                .filter(pair -> ACTIVITY_MAPPING.containsKey(pair.getLeft()) && ACTIVITY_MAPPING.containsKey(pair.getRight()))
-                .map(pair -> Pair.of(ACTIVITY_MAPPING.get(pair.getLeft()), ACTIVITY_MAPPING.get(pair.getRight())))
-                .collect(toSet());
 //        return new HandoverTimeTransformation(eventPairs);
 //        return new PostExecutionWaitingTimeTransformation(eventPairs.stream().map(Pair::getLeft).collect(Collectors.toSet()));
-        return new ActivityExecutionIndirectFlowTransformation(eventPairs);
+        return new ActivityExecutionIndirectFlowTransformation(mapNames(feature));
     }
 
     private LogTransformation from(RepeatingActivityFeature feature) {
-        var eventNames = feature.getActivityNames().stream()
-                .filter(ACTIVITY_MAPPING::containsKey)
-                .map(ACTIVITY_MAPPING::get)
+        return new NumberOfActivityExecutionsTransformation(mapNames(feature));
+    }
+
+    private LogTransformation from(OptionalActivityFeature feature) {
+        return new ActivityExecutionTransformation(mapNames(feature));
+    }
+
+    private Set<String> mapNames(AbstractActivityFeature feature) {
+        return feature.getActivityNames().stream()
+                .filter(ActivityMapping.get()::containsKey)
+                .map(ActivityMapping.get()::get)
                 .collect(toSet());
-        return new NumberOfActivityExecutionsTransformation(eventNames);
+    }
+
+    private Set<Pair<String, String>> mapNames(AbstractActivityPairFeature feature) {
+        return feature.getActivityPairs().stream()
+                .filter(pair -> ActivityMapping.get().containsKey(pair.getLeft()) && ActivityMapping.get().containsKey(pair.getRight()))
+                .map(pair -> Pair.of(ActivityMapping.get().get(pair.getLeft()), ActivityMapping.get().get(pair.getRight())))
+                .collect(toSet());
     }
 }

@@ -16,6 +16,7 @@ dependencies {
     implementation("de.hpi.bpt:feature-evaluator:1.0-SNAPSHOT")
 
     implementation("guru.nidi:graphviz-java:0.8.10")
+    implementation("nz.ac.waikato.cms.weka:weka-stable:3.8.3")
 }
 
 java {

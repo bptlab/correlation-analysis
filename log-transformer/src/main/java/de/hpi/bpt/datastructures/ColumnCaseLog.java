@@ -54,4 +54,11 @@ public class ColumnCaseLog extends LinkedHashMap<String, CaseColumn<?>> {
     public void setName(String name) {
         this.name = name;
     }
+
+    public <T> CaseColumn<T> addColumn(String columnName, Class<T> clazz) {
+        schema.addColumnDefinition(columnName, String.class);
+        var column = new CaseColumn<>(clazz);
+        put(columnName, column);
+        return column;
+    }
 }

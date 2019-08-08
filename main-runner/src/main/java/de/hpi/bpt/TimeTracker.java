@@ -9,25 +9,25 @@ class TimeTracker {
     static <T> T runTimed(Supplier<T> function, String message) {
         var stopWatch = start(message);
         var result = function.get();
-        stopAndPrint(message, stopWatch);
+        stopAndPrint(stopWatch);
         return result;
     }
 
     static void runTimed(Runnable runnable, String message) {
         var stopWatch = start(message);
         runnable.run();
-        stopAndPrint(message, stopWatch);
+        stopAndPrint(stopWatch);
     }
 
     private static StopWatch start(String message) {
         StopWatch stopWatch = new StopWatch();
-        System.out.println("Starting: " + message);
+        System.out.println(message + "...");
         stopWatch.start();
         return stopWatch;
     }
 
-    private static void stopAndPrint(String message, StopWatch stopWatch) {
+    private static void stopAndPrint(StopWatch stopWatch) {
         stopWatch.stop();
-        System.out.println("Finished: " + message + " (" + stopWatch.getTime(TimeUnit.MILLISECONDS) + "ms)");
+        System.out.println("\tdone (" + stopWatch.getTime(TimeUnit.MILLISECONDS) + "ms)");
     }
 }

@@ -5,11 +5,11 @@ import de.hpi.bpt.feature.OptionalActivityFeature;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 public class OptionalActivityAnalysis implements Analysis {
@@ -37,7 +37,7 @@ public class OptionalActivityAnalysis implements Analysis {
     }
 
     private Stream<String> findOptionalActivities(ExclusiveGateway exclusiveJoinGateway) {
-        var ancestor = findLowestCommonAncestor(exclusiveJoinGateway);
+        var ancestor = new SplitFinder().findLowestCommonAncestor(exclusiveJoinGateway);
         if (ancestor.isEmpty()) {
             return Stream.empty();
         }
@@ -86,81 +86,5 @@ public class OptionalActivityAnalysis implements Analysis {
         return result;
     }
 
-    private Optional<Gateway> findLowestCommonAncestor(ExclusiveGateway exclusiveJoinGateway) {
-        var incomingShapes = getIncomingControlFlowNodes(exclusiveJoinGateway);
-
-        var commonAncestorsWithTotalDistance = new HashMap<FlowNode, Integer>();
-
-        for (int i = 0; i < incomingShapes.size(); i++) {
-            var incomingShape = incomingShapes.get(i);
-
-            var ancestorsWithDistance = collectAncestorsWithLevels(exclusiveJoinGateway, incomingShape);
-
-            retainOnlyJoinGateways(ancestorsWithDistance);
-
-            if (i == 0) {
-                commonAncestorsWithTotalDistance.putAll(ancestorsWithDistance);
-            } else {
-                var commonNodes = commonAncestorsWithTotalDistance.keySet();
-                commonNodes.retainAll(ancestorsWithDistance.keySet());
-
-                for (var nodeWithDistance : ancestorsWithDistance.entrySet()) {
-                    if (commonAncestorsWithTotalDistance.containsKey(nodeWithDistance.getKey())) {
-                        commonAncestorsWithTotalDistance.merge(
-                                nodeWithDistance.getKey(),
-                                nodeWithDistance.getValue(),
-                                Integer::sum
-                        );
-                    }
-                }
-            }
-        }
-
-
-        return commonAncestorsWithTotalDistance.entrySet().stream()
-                .sorted(comparing(Map.Entry::getValue))
-                .map(Map.Entry::getKey)
-                .map(Gateway.class::cast)
-                .findFirst();
-    }
-
-
-    private void retainOnlyJoinGateways(Map<FlowNode, Integer> ancestorsWithDistance) {
-        var nodesToRetain = ancestorsWithDistance.keySet().stream()
-                .filter(flowNode -> flowNode instanceof Gateway)
-                .collect(toSet());
-        ancestorsWithDistance.keySet().retainAll(nodesToRetain);
-    }
-
-
-    private Map<FlowNode, Integer> collectAncestorsWithLevels(FlowNode gateway, FlowNode leafShape) {
-        var ancestorsWithDistance = new HashMap<FlowNode, Integer>();
-        var shapesToVisit = new ArrayDeque<FlowNode>();
-
-        ancestorsWithDistance.put(gateway, 0);
-        ancestorsWithDistance.put(leafShape, 1);
-        shapesToVisit.add(leafShape);
-        var distance = 2;
-
-        FlowNode currentShape;
-        while ((currentShape = shapesToVisit.poll()) != null) {
-            List<FlowNode> incomingShapes = getIncomingControlFlowNodes(currentShape);
-            for (FlowNode incomingShape : incomingShapes) {
-                if (ancestorsWithDistance.putIfAbsent(incomingShape, distance) == null) {
-                    shapesToVisit.add(incomingShape);
-                }
-            }
-
-            distance++;
-        }
-
-        ancestorsWithDistance.remove(gateway);
-        return ancestorsWithDistance;
-    }
-
-
-    private List<FlowNode> getIncomingControlFlowNodes(FlowNode flowNode) {
-        return flowNode.getIncoming().stream().map(SequenceFlow::getSource).collect(toList());
-    }
 
 }

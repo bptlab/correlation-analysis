@@ -16,7 +16,8 @@ public class ModelAnalyzer {
             new OutgoingGatewayAnalysis(),
             new LaneSwitchAnalysis(),
             new LoopActivityAnalysis(),
-            new OptionalActivityAnalysis()
+            new OptionalActivityAnalysis(),
+            new ParallelActivityOrderAnalysis()
     );
 
     public Set<AnalysisResult> analyzeModel(String fileName) {

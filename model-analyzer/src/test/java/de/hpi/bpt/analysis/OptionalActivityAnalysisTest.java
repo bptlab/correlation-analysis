@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class OptionalActivityAnalysisTest {
 
     @Test
-    void findsActivitiesWithOutgoingGateway() {
+    void findsOptionalActivities() {
         // Arrange
         var analysis = new OptionalActivityAnalysis();
         var analysisResults = new HashSet<AnalysisResult>();

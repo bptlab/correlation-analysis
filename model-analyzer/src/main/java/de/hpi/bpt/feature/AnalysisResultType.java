@@ -6,5 +6,6 @@ public enum AnalysisResultType {
     LANE_SWITCH,
     REPEATING_ACTIVITY,
     OPTIONAL_ACTIVITY,
+    PARALLEL_ACTIVITY_ORDER,
 
 }

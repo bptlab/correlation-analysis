@@ -7,7 +7,7 @@ class Parameters {
     static final String FOLDER = "/home/jonas/Data/BPIC2019/";
 
     static final String MODEL_FILE = "model.bpmn";
-    static final String EVENTS_FILE = "events.csv";
+    static final String EVENTS_FILE = "events_sorted.csv";
     static final List<String> ATTRIBUTES_FILES = List.of("caseattributes.csv");
     static final String GRAPH_OUTPUT_FILE = "tree.png";
 
@@ -18,6 +18,6 @@ class Parameters {
     static final String TIMESTAMP_NAME = "timestamp";
     static final String ACTIVITY_NAME = "name";
 
-    static final String TARGET_VARIABLE = "spendarea";
-    static final String TARGET_VALUE = "false";
+    static final String TARGET_VARIABLE = "Record Goods Receipt_Clear Invoice_duration_below_threshold";
+    static final String TARGET_VALUE = "true";
 }

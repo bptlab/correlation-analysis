@@ -1,10 +1,7 @@
 package de.hpi.bpt.transformation;
 
 import de.hpi.bpt.feature.*;
-import de.hpi.bpt.transformation.controlflow.ActivityExecutionDirectFlowTransformation;
-import de.hpi.bpt.transformation.controlflow.ActivityExecutionIndirectFlowTransformation;
-import de.hpi.bpt.transformation.controlflow.ActivityExecutionTransformation;
-import de.hpi.bpt.transformation.controlflow.NumberOfActivityExecutionsTransformation;
+import de.hpi.bpt.transformation.controlflow.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Set;
@@ -23,6 +20,8 @@ class FeatureGenerator {
                 return from((RepeatingActivityFeature) analysisResult);
             case OPTIONAL_ACTIVITY:
                 return from((OptionalActivityFeature) analysisResult);
+            case PARALLEL_ACTIVITY_ORDER:
+                return from((ParallelActivityOrderFeature) analysisResult);
             default:
                 throw new RuntimeException("Unknown type of AnalysisResult: '" + analysisResult.getType().name() + "'");
         }
@@ -44,6 +43,10 @@ class FeatureGenerator {
 
     private LogTransformation from(OptionalActivityFeature feature) {
         return new ActivityExecutionTransformation(mapNames(feature));
+    }
+
+    private LogTransformation from(ParallelActivityOrderFeature feature) {
+        return new ParallelActivityWhosFirstTransformation(mapNames(feature));
     }
 
     private Set<String> mapNames(AbstractActivityFeature feature) {

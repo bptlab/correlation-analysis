@@ -19,7 +19,7 @@ class DecisionTreeClassifier {
     String buildDecisionRules(Instances data) {
         try {
             var classifier = new J48();
-            classifier.setConfidenceFactor(0.5f);
+//            classifier.setConfidenceFactor(0.5f);
             classifier.buildClassifier(data);
 
 
@@ -74,7 +74,7 @@ class DecisionTreeClassifier {
 
                 var attributeRule = oneR.newRule(attribute, data);
                 if (attributeRule.percentCorrect() > 80) {
-                    System.out.println(attributeRule.valuesCorrelatingTo("false"));
+                    System.out.println(attributeRule.valuesCorrelatingTo("true"));
                 }
 //                var remove = new Remove();
 //                remove.setInvertSelection(true);

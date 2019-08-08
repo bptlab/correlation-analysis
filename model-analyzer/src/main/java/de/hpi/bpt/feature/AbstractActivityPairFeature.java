@@ -16,4 +16,8 @@ public abstract class AbstractActivityPairFeature implements AnalysisResult {
     public void addActivityPair(String first, String second) {
         activityPairs.add(Pair.of(first, second));
     }
+
+    public void addActivityPairs(Set<Pair<String, String>> activityPairs) {
+        this.activityPairs.addAll(activityPairs);
+    }
 }

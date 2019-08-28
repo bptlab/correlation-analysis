@@ -1,19 +1,19 @@
-package de.hpi.bpt;
+package de.hpi.bpt.util;
 
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-class TimeTracker {
-    static <T> T runTimed(Supplier<T> function, String message) {
+public class TimeTracker {
+    public static <T> T runTimed(Supplier<T> function, String message) {
         var stopWatch = start(message);
         var result = function.get();
         stopAndPrint(stopWatch);
         return result;
     }
 
-    static void runTimed(Runnable runnable, String message) {
+    public static void runTimed(Runnable runnable, String message) {
         var stopWatch = start(message);
         runnable.run();
         stopAndPrint(stopWatch);

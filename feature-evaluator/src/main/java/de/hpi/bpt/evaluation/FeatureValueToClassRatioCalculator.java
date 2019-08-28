@@ -48,7 +48,7 @@ public class FeatureValueToClassRatioCalculator {
         return result;
     }
 
-    static class FeatureToClassRatio {
+    public static class FeatureToClassRatio {
 
         private String featureName;
         private List<FeatureValueToClassRatio> values = new ArrayList<>();

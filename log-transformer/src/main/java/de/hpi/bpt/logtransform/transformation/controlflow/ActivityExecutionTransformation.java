@@ -3,9 +3,12 @@ package de.hpi.bpt.logtransform.transformation.controlflow;
 import de.hpi.bpt.logtransform.datastructures.CaseColumn;
 import de.hpi.bpt.logtransform.datastructures.ColumnCaseLog;
 import de.hpi.bpt.logtransform.datastructures.ColumnEventLog;
+import de.hpi.bpt.logtransform.datastructures.LogColumn;
 import de.hpi.bpt.logtransform.transformation.LogTransformation;
 
 import java.util.*;
+
+import static java.util.stream.Collectors.toSet;
 
 public class ActivityExecutionTransformation implements LogTransformation {
 
@@ -25,6 +28,10 @@ public class ActivityExecutionTransformation implements LogTransformation {
         var targetSchema = resultCaseLog.getSchema();
         var activityColumn = sourceEventLog.getTyped(sourceSchema.getActivityName(), String.class);
 
+        if (activityNames.isEmpty()) {
+            activityNames.addAll(uniqueActivityNames(activityColumn));
+        }
+
         for (String activityName : activityNames) {
             targetSchema.addColumnDefinition(activityName + "_wasexecuted", Boolean.class);
             var appearanceColumn = new CaseColumn<>(Boolean.class);
@@ -39,5 +46,9 @@ public class ActivityExecutionTransformation implements LogTransformation {
 
             resultCaseLog.put(activityName + "_wasexecuted", appearanceColumn);
         }
+    }
+
+    private Set<String> uniqueActivityNames(LogColumn<String> activityColumn) {
+        return activityColumn.getTraces().stream().flatMap(List::stream).collect(toSet());
     }
 }

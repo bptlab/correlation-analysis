@@ -15,8 +15,8 @@ public class ModelAnalyzer {
     private static final List<? extends Analysis> analyses = List.of(
             new OutgoingGatewayAnalysis(),
             new LaneSwitchAnalysis(),
-            new LoopActivityAnalysis(),
-            new OptionalActivityAnalysis()
+            new LoopActivityAnalysis()
+//            new OptionalActivityAnalysis()
 //            new ParallelActivityOrderAnalysis()
     );
 

@@ -7,6 +7,7 @@ import de.hpi.bpt.logtransform.io.CsvEventLogReader;
 import de.hpi.bpt.logtransform.io.CsvLogReader;
 import de.hpi.bpt.logtransform.transformation.ExistingAttributeTransformation;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
+import de.hpi.bpt.logtransform.transformation.controlflow.ActivityExecutionTransformation;
 import de.hpi.bpt.logtransform.transformation.controlflow.FinalActivityTransformation;
 import de.hpi.bpt.logtransform.transformation.time.CaseDurationTransformation;
 import de.hpi.bpt.logtransform.transformation.time.CaseEndTimeTransformation;
@@ -68,6 +69,9 @@ public class LogTransformRunner {
                 .with(new CaseEndTimeTransformation())
                 .with(new WeekdaysOfCaseTransformation())
 //                .with(new ParallelCaseCountTransformation()) // Caution - might be slow
+
+                // control flow
+                .with(new ActivityExecutionTransformation()) // all activities
 
                 // model analysis
                 .withAnalysisResults(analysisResults);

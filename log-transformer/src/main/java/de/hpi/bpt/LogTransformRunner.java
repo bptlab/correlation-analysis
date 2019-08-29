@@ -8,7 +8,9 @@ import de.hpi.bpt.logtransform.io.CsvLogReader;
 import de.hpi.bpt.logtransform.transformation.ExistingAttributeTransformation;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
 import de.hpi.bpt.logtransform.transformation.controlflow.ActivityExecutionTransformation;
-import de.hpi.bpt.logtransform.transformation.controlflow.FinalActivityTransformation;
+import de.hpi.bpt.logtransform.transformation.resource.HandoverCountTransformation;
+import de.hpi.bpt.logtransform.transformation.resource.NumberOfResourcesInvolvedTransformation;
+import de.hpi.bpt.logtransform.transformation.resource.PingPongOccurrenceTransformation;
 import de.hpi.bpt.logtransform.transformation.time.CaseDurationTransformation;
 import de.hpi.bpt.logtransform.transformation.time.CaseEndTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.time.ParallelCaseCountTransformation;
@@ -36,6 +38,7 @@ public class LogTransformRunner {
     private static final String CASE_ID_NAME = "caseid";
     private static final String TIMESTAMP_NAME = "timestamp";
     private static final String ACTIVITY_NAME = "name";
+    private static final String RESOURCE_NAME = "resource";
 
     public static void main(String[] args) {
 
@@ -43,7 +46,7 @@ public class LogTransformRunner {
 
         var rowCaseLog = retrieveCaseLog(analysisResults);
 
-        new ArffCaseLogWriter().writeToFile(rowCaseLog, FOLDER + CASES_FILE);
+        TimeTracker.runTimed(() -> new ArffCaseLogWriter().writeToFile(rowCaseLog, FOLDER + CASES_FILE), "Writing case log...");
     }
 
     private static Set<AnalysisResult> analyzeModel() {
@@ -56,7 +59,8 @@ public class LogTransformRunner {
                 .dateFormat(DATE_FORMAT)
                 .caseIdName(CASE_ID_NAME)
                 .timestampName(TIMESTAMP_NAME)
-                .activityName(ACTIVITY_NAME);
+                .activityName(ACTIVITY_NAME)
+                .resourceName(RESOURCE_NAME);
 
         var eventLog = TimeTracker.runTimed(() -> new CsvEventLogReader(csvLogReader).read(new File(FOLDER + EVENTS_FILE)), "Reading event log");
 
@@ -68,10 +72,15 @@ public class LogTransformRunner {
                 .with(new CaseDurationTransformation())
                 .with(new CaseEndTimeTransformation())
                 .with(new WeekdaysOfCaseTransformation())
-//                .with(new ParallelCaseCountTransformation()) // Caution - might be slow
+                .with(new ParallelCaseCountTransformation())
 
                 // control flow
                 .with(new ActivityExecutionTransformation()) // all activities
+
+                // resource
+                .with(new HandoverCountTransformation())
+                .with(new PingPongOccurrenceTransformation())
+                .with(new NumberOfResourcesInvolvedTransformation())
 
                 // model analysis
                 .withAnalysisResults(analysisResults);

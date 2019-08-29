@@ -1,11 +1,19 @@
 package de.hpi.bpt.logtransform.transformation;
 
+import de.hpi.bpt.ActivityMapping;
+import de.hpi.bpt.logtransform.transformation.controlflow.ActivityExecutionDirectFlowTransformation;
+import de.hpi.bpt.logtransform.transformation.controlflow.ActivityExecutionTransformation;
+import de.hpi.bpt.logtransform.transformation.controlflow.NumberOfActivityExecutionsTransformation;
+import de.hpi.bpt.logtransform.transformation.controlflow.ParallelActivityWhosFirstTransformation;
+import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedHandoverCountTransformation;
+import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedPingPongOccurrenceTransformation;
 import de.hpi.bpt.modelanalysis.feature.*;
-import de.hpi.bpt.logtransform.transformation.controlflow.*;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Map;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 class FeatureGenerator {
@@ -22,6 +30,8 @@ class FeatureGenerator {
                 return from((OptionalActivityFeature) analysisResult);
             case PARALLEL_ACTIVITY_ORDER:
                 return from((ParallelActivityOrderFeature) analysisResult);
+            case ACTIVITY_TO_LANE:
+                return from((ActivityToLaneFeature) analysisResult);
             default:
                 throw new RuntimeException("Unknown type of AnalysisResult: '" + analysisResult.getType().name() + "'");
         }
@@ -34,7 +44,7 @@ class FeatureGenerator {
     private LogTransformation from(LaneSwitchFeature feature) {
 //        return new HandoverTimeTransformation(eventPairs);
 //        return new PostExecutionWaitingTimeTransformation(eventPairs.stream().map(Pair::getLeft).collect(Collectors.toSet()));
-        return new ActivityExecutionIndirectFlowTransformation(mapNames(feature));
+        return new ActivityBasedHandoverCountTransformation(mapNames(feature));
     }
 
     private LogTransformation from(RepeatingActivityFeature feature) {
@@ -47,6 +57,17 @@ class FeatureGenerator {
 
     private LogTransformation from(ParallelActivityOrderFeature feature) {
         return new ParallelActivityWhosFirstTransformation(mapNames(feature));
+    }
+
+    private LogTransformation from(ActivityToLaneFeature feature) {
+        return new ActivityBasedPingPongOccurrenceTransformation(
+                feature.getActivityToLane().entrySet().stream()
+                        .filter(entry -> ActivityMapping.get().containsKey(entry.getKey()))
+                        .collect(toMap(
+                                entry -> ActivityMapping.get().get(entry.getKey()),
+                                Map.Entry::getValue
+                        ))
+        );
     }
 
     private Set<String> mapNames(AbstractActivityFeature feature) {

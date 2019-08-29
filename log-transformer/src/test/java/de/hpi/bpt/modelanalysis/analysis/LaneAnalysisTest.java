@@ -1,10 +1,9 @@
 package de.hpi.bpt.modelanalysis.analysis;
 
 import de.hpi.bpt.modelanalysis.BpmnModelInstanceBuilder;
+import de.hpi.bpt.modelanalysis.feature.ActivityToLaneFeature;
 import de.hpi.bpt.modelanalysis.feature.AnalysisResult;
 import de.hpi.bpt.modelanalysis.feature.AnalysisResultType;
-import de.hpi.bpt.modelanalysis.feature.LaneSwitchFeature;
-import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.junit.jupiter.api.Test;
@@ -12,13 +11,14 @@ import org.junit.jupiter.api.Test;
 import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
-class LaneSwitchAnalysisTest {
+class LaneAnalysisTest {
 
     @Test
-    void findsActivitiesWithLaneSwitch() {
+    void findsLanesForActivities() {
         // Arrange
-        var analysis = new LaneSwitchAnalysis();
+        var analysis = new LaneAnalysis();
         var analysisResults = new HashSet<AnalysisResult>();
 
         var modelInstance = aModelInstance();
@@ -30,10 +30,12 @@ class LaneSwitchAnalysisTest {
         assertThat(analysisResults).hasSize(1);
         var result = analysisResults.iterator().next();
 
-        assertThat(result.getType()).isEqualTo(AnalysisResultType.LANE_SWITCH);
-        assertThat(((LaneSwitchFeature) result).getActivityPairs()).containsExactlyInAnyOrder(
-                Pair.of("A1", "A2"),
-                Pair.of("A2", "A3")
+        assertThat(result.getType()).isEqualTo(AnalysisResultType.ACTIVITY_TO_LANE);
+        assertThat(((ActivityToLaneFeature) result).getActivityToLane()).containsExactly(
+                entry("A1", "Lane1"),
+                entry("A2", "Lane2"),
+                entry("A3", "Lane1"),
+                entry("A4", "Lane2")
         );
     }
 

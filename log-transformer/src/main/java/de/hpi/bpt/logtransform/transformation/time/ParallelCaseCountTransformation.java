@@ -12,16 +12,18 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toMap;
+
 public class ParallelCaseCountTransformation implements LogTransformation {
 
     @Override
     public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
         var targetSchema = resultCaseLog.getSchema();
         targetSchema.addColumnDefinition("numparallelcases", Integer.class);
-        var parallelCasesColumn = new CaseColumn<>(Integer.class, resultCaseLog.getNumCases());
 
         var caseTimestamps = sourceEventLog.getTyped(sourceEventLog.getSchema().getTimestampName(), Date.class);
         var caseIds = resultCaseLog.getCaseIds();
+        var caseIdsByIndex = IntStream.range(0, caseIds.size()).boxed().collect(toMap(caseIds::get, i -> i));
 
         var timedCases = IntStream.range(0, caseIds.size())
                 .mapToObj(i -> {
@@ -35,17 +37,30 @@ public class ParallelCaseCountTransformation implements LogTransformation {
                 .sorted((e1, e2) -> e1.getDate().equals(e2.getDate()) ? Boolean.compare(e1.isEnd(), e2.isEnd()) : e1.getDate().compareTo(e2.getDate()))
                 .collect(Collectors.toList());
 
-        var currentCases = new HashMap<String, ConcurrentCaseCounter>();
+        var currentCases = new HashMap<String, CaseStartStats>();
+        var numStarted = 0;
+        var numEnded = 0;
+        var parallelCaseCounts = new Integer[caseIds.size()];
         for (TimedCaseEvent timedCaseEvent : timedCases) {
+            if (timedCases.indexOf(timedCaseEvent) % 10000 == 0) {
+                System.out.print(".");
+            }
             if (timedCaseEvent.isEnd()) {
-                var numCurrentCases = currentCases.remove(timedCaseEvent.getCaseId()).getCount();
-                parallelCasesColumn.setValue(resultCaseLog.rowIndexOf(timedCaseEvent.getCaseId()), numCurrentCases);
+                var caseStartStats = currentCases.get(timedCaseEvent.getCaseId());
+                var parallelCases =
+                        caseStartStats.getActiveAtStart() // running before this case was started (into)
+                                + (numStarted - caseStartStats.getNumStarted()  // started after this case was started and before it was ended (inside or out of)
+                                - 1); // disregard own start
+
+                parallelCaseCounts[caseIdsByIndex.get(timedCaseEvent.getCaseId())] = parallelCases;
+                numEnded++;
             } else { // is start
-                currentCases.values().forEach(ConcurrentCaseCounter::increment);
-                currentCases.put(timedCaseEvent.getCaseId(), new ConcurrentCaseCounter(currentCases.size()));
+                currentCases.put(timedCaseEvent.getCaseId(), new CaseStartStats(numStarted, numEnded));
+                numStarted++;
             }
         }
 
+        var parallelCasesColumn = new CaseColumn<>(Integer.class, parallelCaseCounts);
         resultCaseLog.put("numparallelcases", parallelCasesColumn);
     }
 
@@ -93,20 +108,22 @@ public class ParallelCaseCountTransformation implements LogTransformation {
         }
     }
 
-    private static class ConcurrentCaseCounter {
+    private static class CaseStartStats {
 
-        int concurrentCases;
+        private int numStarted;
+        private int activeAtStart;
 
-        ConcurrentCaseCounter(int initialCount) {
-            this.concurrentCases = initialCount;
+        CaseStartStats(int numStarted, int numEnded) {
+            this.numStarted = numStarted;
+            this.activeAtStart = numStarted - numEnded;
         }
 
-        void increment() {
-            concurrentCases++;
+        int getNumStarted() {
+            return numStarted;
         }
 
-        int getCount() {
-            return concurrentCases;
+        int getActiveAtStart() {
+            return activeAtStart;
         }
     }
 }

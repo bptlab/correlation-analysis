@@ -7,6 +7,7 @@ public class Schema extends LinkedHashMap<String, ColumnDefinition<?>> {
     private String caseIdName;
     private String activityName;
     private String timestampName;
+    private String resourceName;
 
     public <T> void addColumnDefinition(String name, Class<T> type) {
         var columnDefinition = new ColumnDefinition<>(this.size(), name, type);
@@ -35,5 +36,13 @@ public class Schema extends LinkedHashMap<String, ColumnDefinition<?>> {
 
     public void setTimestampName(String timestampName) {
         this.timestampName = timestampName;
+    }
+
+    public String getResourceName() {
+        return resourceName;
+    }
+
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
     }
 }

@@ -1,6 +1,6 @@
 package de.hpi.bpt.modelanalysis.analysis;
 
-import de.hpi.bpt.BpmnModelInstanceBuilder;
+import de.hpi.bpt.modelanalysis.BpmnModelInstanceBuilder;
 import de.hpi.bpt.modelanalysis.feature.AnalysisResult;
 import de.hpi.bpt.modelanalysis.feature.AnalysisResultType;
 import de.hpi.bpt.modelanalysis.feature.XorSplitFollowsFeature;

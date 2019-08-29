@@ -1,4 +1,4 @@
-package de.hpi.bpt.logtransform.transformation;
+package de.hpi.bpt;
 
 import java.util.Collection;
 import java.util.Map;
@@ -16,14 +16,14 @@ public class ActivityMapping {
             "Re-open ticket", "Ticket Reopened",
             "Escalate ticket to another department", "Ticket Escalated",
             "Assign Ticket to Group", "Ticket Assigned to Group",
-            "Notify collaborator", "Recipient notified",
+            "Notify collaborator", "Recipient Notified",
             "Close the ticket (by the new Group)", "Processing ended",
             "Assign Ticket to Employee", "Ticket Assigned to Employee"
     );
 
     public static Map<String, String> get() {
-//        return MACIF_ACTIVITY_MAPPING;
-        return new IdentityMap();
+        return MACIF_ACTIVITY_MAPPING;
+//        return new IdentityMap();
     }
 
     static class IdentityMap implements Map<String, String> {

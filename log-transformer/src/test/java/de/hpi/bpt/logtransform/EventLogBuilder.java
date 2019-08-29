@@ -29,6 +29,12 @@ public class EventLogBuilder {
             schema.setActivityName("activity");
         }
 
+        public SchemaBuilder withResourceColumn() {
+            schema.addColumnDefinition("resource", String.class);
+            schema.setResourceName("resource");
+            return this;
+        }
+
         public SchemaBuilder column(String name, Class<?> type) {
             schema.addColumnDefinition(name, type);
             return this;

@@ -7,5 +7,6 @@ public enum AnalysisResultType {
     REPEATING_ACTIVITY,
     OPTIONAL_ACTIVITY,
     PARALLEL_ACTIVITY_ORDER,
+    ACTIVITY_TO_LANE,
 
 }

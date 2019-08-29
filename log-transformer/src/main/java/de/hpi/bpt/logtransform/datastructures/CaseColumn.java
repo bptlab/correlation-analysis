@@ -20,6 +20,11 @@ public class CaseColumn<T> {
         values = new ArrayList<>(Arrays.asList((T[]) Array.newInstance(type, numCases)));
     }
 
+    public CaseColumn(Class<T> type, T[] values) {
+        this.type = type;
+        this.values = new ArrayList<>(Arrays.asList(values));
+    }
+
     public List<T> getValues() {
         return values;
     }

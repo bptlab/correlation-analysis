@@ -19,6 +19,7 @@ public class CsvLogReader {
     private String caseIdName = "caseid";
     private String timestampName = "timestamp";
     private String activityName = "activity";
+    private String resourceName = null;
 
     CsvMapReader read(File file) throws FileNotFoundException {
         var csvPreference = new CsvPreference.Builder('"', separator, "\r\n").build();
@@ -53,6 +54,7 @@ public class CsvLogReader {
         schema.setCaseIdName(caseIdName);
         schema.setActivityName(activityName);
         schema.setTimestampName(timestampName);
+        schema.setResourceName(resourceName);
         return schema;
     }
 
@@ -111,6 +113,11 @@ public class CsvLogReader {
 
     public CsvLogReader activityName(String activityName) {
         this.activityName = activityName;
+        return this;
+    }
+
+    public CsvLogReader resourceName(String resourceName) {
+        this.resourceName = resourceName;
         return this;
     }
 

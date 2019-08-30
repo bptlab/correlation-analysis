@@ -77,9 +77,9 @@ public class CsvLogReader {
     private CellProcessor typeProcessorFor(Class<?> value) {
         CellProcessor typeProcessor;
         if (Integer.class.equals(value)) {
-            typeProcessor = new Optional(new ParseInt());
+            typeProcessor = new NanOptional(new ParseInt());
         } else if (Double.class.equals(value)) {
-            typeProcessor = new Optional(new ParseDouble());
+            typeProcessor = new NanOptional(new ParseDouble());
         } else if (Date.class.equals(value)) {
             typeProcessor = new Optional(new ParseDate(dateFormat));
         } else if (Boolean.class.equals(value)) {
@@ -131,5 +131,16 @@ public class CsvLogReader {
 
     String getCaseIdName() {
         return caseIdName;
+    }
+
+    public class NanOptional extends Optional {
+        public NanOptional() {
+            super(new Token("nan", null));
+        }
+
+
+        public NanOptional(final CellProcessor next) {
+            super(new Token("nan", null, next));
+        }
     }
 }

@@ -21,9 +21,10 @@ public class ActivityMapping {
             "Assign Ticket to Employee", "Ticket Assigned to Employee"
     );
 
+
     public static Map<String, String> get() {
-        return MACIF_ACTIVITY_MAPPING;
-//        return new IdentityMap();
+//        return MACIF_ACTIVITY_MAPPING;
+        return new IdentityMap();
     }
 
     static class IdentityMap implements Map<String, String> {

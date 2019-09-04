@@ -1,31 +1,65 @@
 package de.hpi.bpt.evaluation;
 
-import weka.attributeSelection.ReliefFAttributeEval;
+import de.hpi.bpt.FeatureEvaluationRunner;
+import weka.attributeSelection.*;
 import weka.core.Instances;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Remove;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.joining;
 
 public class FeatureEvaluator {
 
-    private static final int SAMPLE_SIZE = 1000;
-
-    public Map<Integer, Double> calculateFeatureScores(Instances data) {
+    /**
+     * Performs CfsSubsetEvaluation and retains the selected attributes
+     */
+    public Instances retainImportantFeatures(Instances data) {
         try {
-            var evaluator = new ReliefFAttributeEval();
-            if (data.size() > SAMPLE_SIZE) {
-                evaluator.setSampleSize(SAMPLE_SIZE);
-            }
-            evaluator.buildEvaluator(data);
+            var attributeSelection = new AttributeSelection();
+            var evaluator = new CfsSubsetEval();
+            var search = new BestFirst();
+            attributeSelection.setEvaluator(evaluator);
+            attributeSelection.setSearch(search);
 
-            var attributeScore = new HashMap<Integer, Double>();
-            for (int i = 0; i < data.numAttributes(); i++) {
-                attributeScore.put(
-                        i,
-                        evaluator.evaluateAttribute(i)
-                );
-            }
-            return attributeScore;
+            attributeSelection.SelectAttributes(data);
+
+            return attributeSelection.reduceDimensionality(data);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Removes attributes that correlate directly with the class attribute.
+     * Prints their names as String, separated by newlines.
+     */
+    public Instances findAndRemoveDirectDependencies(Instances data) {
+        try {
+            var attributeSelection = new AttributeSelection();
+            var ranker = new Ranker();
+            var evaluator = new SymmetricalUncertAttributeEval();
+            attributeSelection.setEvaluator(evaluator);
+            attributeSelection.setSearch(ranker);
+
+            attributeSelection.SelectAttributes(data);
+            var rankedAttributes = attributeSelection.rankedAttributes();
+            var attributeIndices = IntStream.range(0, rankedAttributes.length)
+                    .filter(i -> rankedAttributes[i][0] == 1.0)
+                    .toArray();
+
+            FeatureEvaluationRunner.writeToFile(
+                    Arrays.stream(attributeIndices).mapToObj(index -> data.attribute(index).name()).collect(joining("\n")),
+                    FeatureEvaluationRunner.FOLDER_PATH + FeatureEvaluationRunner.DIRECT_DEPENDENCIES_OUTPUT_FILE
+            );
+
+            var remove = new Remove();
+            remove.setAttributeIndicesArray(attributeIndices);
+            remove.setInputFormat(data);
+            return Filter.useFilter(data, remove);
+
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

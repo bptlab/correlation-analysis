@@ -1,9 +1,6 @@
 package de.hpi.bpt.evaluation.decisiontree;
 
-import guru.nidi.graphviz.engine.Format;
-import guru.nidi.graphviz.engine.Graphviz;
 import weka.classifiers.CostMatrix;
-import weka.classifiers.Evaluation;
 import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.meta.CostSensitiveClassifier;
 import weka.classifiers.rules.PART;
@@ -11,29 +8,24 @@ import weka.classifiers.trees.J48;
 import weka.classifiers.trees.REPTree;
 import weka.core.Instances;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Random;
-
 public class DecisionTreeClassifier {
 
-    public String buildJ48Tree(Instances data) {
+    public J48 buildJ48Tree(Instances data) {
         try {
             var classifier = new J48();
-//            classifier.setConfidenceFactor(0.5f);
             classifier.buildClassifier(data);
 
-            return classifier.graph();
+            return classifier;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    public String buildPARTRules(Instances data) {
+    public PART buildPARTRules(Instances data) {
         try {
             var classifier = new PART();
             classifier.buildClassifier(data);
-            return classifier.toString();
+            return classifier;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -64,14 +56,6 @@ public class DecisionTreeClassifier {
             costSensitive.buildClassifier(data);
             return costSensitive.graph();
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private void writeToFile(String graph, String name) {
-        try {
-            Graphviz.fromString(graph).render(Format.SVG).toFile(new File("/home/jonas/Data/Macif/incidents/" + name + "_" + "tree.svg"));
-        } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

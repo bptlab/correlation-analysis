@@ -4,6 +4,7 @@ import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
+import weka.filters.unsupervised.attribute.RemoveUseless;
 import weka.filters.unsupervised.attribute.StringToNominal;
 
 import java.io.ByteArrayInputStream;
@@ -50,7 +51,8 @@ public class DataLoader {
 
     private Instances applyFilters(Instances data) throws Exception {
         var nominal = Filter.useFilter(data, stringToNominalFilter(data));
-        return Filter.useFilter(nominal, removeEmptyAttributesFilter(nominal));
+        var removeUseless = Filter.useFilter(nominal, removeUselessFilter(nominal));
+        return Filter.useFilter(removeUseless, removeEmptyAttributesFilter(removeUseless));
     }
 
     private StringToNominal stringToNominalFilter(Instances data) throws Exception {
@@ -58,6 +60,13 @@ public class DataLoader {
         stringToNominal.setAttributeRange("first-last");
         stringToNominal.setInputFormat(data);
         return stringToNominal;
+    }
+
+    private RemoveUseless removeUselessFilter(Instances data) throws Exception {
+        var removeUseless = new RemoveUseless();
+        removeUseless.setMaximumVariancePercentageAllowed(100.0);
+        removeUseless.setInputFormat(data);
+        return removeUseless;
     }
 
     private Remove removeEmptyAttributesFilter(final Instances data) throws Exception {

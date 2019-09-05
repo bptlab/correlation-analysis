@@ -5,10 +5,7 @@ import de.hpi.bpt.logtransform.datastructures.ColumnCaseLog;
 import de.hpi.bpt.logtransform.datastructures.ColumnEventLog;
 import de.hpi.bpt.logtransform.datastructures.LogColumn;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class ExistingAttributeTransformation implements LogTransformation {
 
@@ -29,8 +26,10 @@ public class ExistingAttributeTransformation implements LogTransformation {
 
             var startColumnName = sourceColumnName + "_start";
             var endColumnName = sourceColumnName + "_end";
+            var uniqueColumnName = sourceColumnName + "_unique";
             targetSchema.addColumnDefinition(startColumnName, sourceColumnType);
             targetSchema.addColumnDefinition(endColumnName, sourceColumnType);
+            targetSchema.addColumnDefinition(uniqueColumnName, Integer.class);
 
             if (Integer.class.equals(sourceColumn.getType())) {
                 targetSchema.addColumnDefinition(sourceColumnName + "_max", Integer.class);
@@ -52,6 +51,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
         var result = new LinkedHashMap<String, CaseColumn<?>>();
         var startColumn = new CaseColumn<>(Integer.class);
         var endColumn = new CaseColumn<>(Integer.class);
+        var uniqueColumn = new CaseColumn<>(Integer.class);
         var maxColumn = new CaseColumn<>(Integer.class);
         var minColumn = new CaseColumn<>(Integer.class);
         var avgColumn = new CaseColumn<>(Double.class);
@@ -60,6 +60,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
             var firstValue = traceColumn.get(0);
             startColumn.addValue(firstValue);
             endColumn.addValue(traceColumn.get(traceColumn.size() - 1));
+            uniqueColumn.addValue(new HashSet<>(traceColumn).size());
             var stats = traceColumn.stream().filter(Objects::nonNull).mapToInt(e -> e).summaryStatistics();
             maxColumn.addValue(stats.getMax());
             minColumn.addValue(stats.getMin());
@@ -68,6 +69,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
 
         result.put(sourceColumnName + "_start", startColumn);
         result.put(sourceColumnName + "_end", endColumn);
+        result.put(sourceColumnName + "_unique", uniqueColumn);
         result.put(sourceColumnName + "_max", maxColumn);
         result.put(sourceColumnName + "_min", minColumn);
         result.put(sourceColumnName + "_avg", avgColumn);
@@ -78,6 +80,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
         var result = new LinkedHashMap<String, CaseColumn<?>>();
         var startColumn = new CaseColumn<>(Double.class);
         var endColumn = new CaseColumn<>(Double.class);
+        var uniqueColumn = new CaseColumn<>(Integer.class);
         var maxColumn = new CaseColumn<>(Double.class);
         var minColumn = new CaseColumn<>(Double.class);
         var avgColumn = new CaseColumn<>(Double.class);
@@ -86,6 +89,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
             var firstValue = traceColumn.get(0);
             startColumn.addValue(firstValue);
             endColumn.addValue(traceColumn.get(traceColumn.size() - 1));
+            uniqueColumn.addValue(new HashSet<>(traceColumn).size());
             var stats = traceColumn.stream().filter(Objects::nonNull).mapToDouble(e -> e).summaryStatistics();
             maxColumn.addValue(stats.getMax());
             minColumn.addValue(stats.getMin());
@@ -94,24 +98,28 @@ public class ExistingAttributeTransformation implements LogTransformation {
 
         result.put(sourceColumnName + "_start", startColumn);
         result.put(sourceColumnName + "_end", endColumn);
+        result.put(sourceColumnName + "_unique", uniqueColumn);
         result.put(sourceColumnName + "_max", maxColumn);
         result.put(sourceColumnName + "_min", minColumn);
         result.put(sourceColumnName + "_avg", avgColumn);
         return result;
     }
 
-    private <T> Map<String, CaseColumn<T>> transformColumn(LogColumn<T> logColumn, String sourceColumnName) {
-        var result = new LinkedHashMap<String, CaseColumn<T>>();
+    private <T> Map<String, CaseColumn<?>> transformColumn(LogColumn<T> logColumn, String sourceColumnName) {
+        var result = new LinkedHashMap<String, CaseColumn<?>>();
         var startColumn = new CaseColumn<>(logColumn.getType());
         var endColumn = new CaseColumn<>(logColumn.getType());
+        var uniqueColumn = new CaseColumn<>(Integer.class);
 
         for (List<T> traceColumn : logColumn.getTraces()) {
             startColumn.addValue(traceColumn.get(0));
             endColumn.addValue(traceColumn.get(traceColumn.size() - 1));
+            uniqueColumn.addValue(new HashSet<>(traceColumn).size());
         }
 
         result.put(sourceColumnName + "_start", startColumn);
         result.put(sourceColumnName + "_end", endColumn);
+        result.put(sourceColumnName + "_unique", uniqueColumn);
         return result;
     }
 }

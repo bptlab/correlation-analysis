@@ -8,5 +8,6 @@ public enum AnalysisResultType {
     OPTIONAL_ACTIVITY,
     PARALLEL_ACTIVITY_ORDER,
     ACTIVITY_TO_LANE,
+    SUBPROCESS,
 
 }

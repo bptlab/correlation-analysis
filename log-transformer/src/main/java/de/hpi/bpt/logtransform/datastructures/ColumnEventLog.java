@@ -1,5 +1,6 @@
 package de.hpi.bpt.logtransform.datastructures;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -24,5 +25,13 @@ public class ColumnEventLog extends LinkedHashMap<String, LogColumn<?>> {
 
     public String getName() {
         return name;
+    }
+
+    public LogColumn<String> getActivityColumn() {
+        return getTyped(schema.getActivityName(), String.class);
+    }
+
+    public LogColumn<Date> getTimestampColumn() {
+        return getTyped(schema.getTimestampName(), Date.class);
     }
 }

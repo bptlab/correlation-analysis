@@ -34,6 +34,7 @@ class LaneAnalysisTest {
         assertThat(((ActivityToLaneFeature) result).getActivityToLane()).containsExactly(
                 entry("A1", "Lane1"),
                 entry("A2", "Lane2"),
+                entry("EmptySub", "Lane2"),
                 entry("A3", "Lane1"),
                 entry("A4", "Lane2")
         );
@@ -41,11 +42,11 @@ class LaneAnalysisTest {
 
 
     /*
-    Start --> A1 --\                  /-> A3 --> X --> End
-                    \                /          /
-     -------------------------------------------------------------
-                      \            /          /
-                       \-> A2 --> X --> A4 --/
+    Start --> A1 --\                                 /-> A3 --> X --> End
+                    \                               /          /
+     ----------------------------------------------------------------------------
+                      \                           /          /
+                       \-> Sub(A2) --> Sub() --> X --> A4 --/
 
     */
     private BpmnModelInstance aModelInstance() {
@@ -68,17 +69,22 @@ class LaneAnalysisTest {
         builder.addFlowNodeRefFor(start, taskA1, taskA3, join, end);
 
         builder.workIn(builder.getProcess());
-        var taskA2 = builder.createElement("A2", Task.class);
+        var sub = builder.createElement("Sub", SubProcess.class);
+        var emptySub = builder.createElement("EmptySub", SubProcess.class);
         var split = builder.createElement("Split", ExclusiveGateway.class);
         var taskA4 = builder.createElement("A4", Task.class);
 
+        builder.workIn(sub);
+        builder.createElement("A2", Task.class);
+
         builder.workIn(lane2);
-        builder.addFlowNodeRefFor(taskA2, split, taskA4);
+        builder.addFlowNodeRefFor(sub, emptySub, split, taskA4);
 
         builder.workIn(builder.getProcess());
         builder.connect(start, taskA1);
-        builder.connect(taskA1, taskA2);
-        builder.connect(taskA2, split);
+        builder.connect(taskA1, sub);
+        builder.connect(sub, emptySub);
+        builder.connect(emptySub, split);
         builder.connect(split, taskA3);
         builder.connect(split, taskA4);
         builder.connect(taskA3, join);

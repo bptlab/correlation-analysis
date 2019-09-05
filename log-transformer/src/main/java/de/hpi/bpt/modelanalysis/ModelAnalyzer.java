@@ -14,11 +14,12 @@ public class ModelAnalyzer {
 
     private static final List<? extends Analysis> analyses = List.of(
             new OutgoingGatewayAnalysis(),
-            new LaneSwitchAnalysis(),
+//            new LaneSwitchAnalysis(),
             new LoopActivityAnalysis(),
 //            new OptionalActivityAnalysis()
 //            new ParallelActivityOrderAnalysis()
-            new LaneAnalysis()
+            new LaneAnalysis(),
+            new SubProcessAnalysis()
     );
 
     public Set<AnalysisResult> analyzeModel(String fileName) {

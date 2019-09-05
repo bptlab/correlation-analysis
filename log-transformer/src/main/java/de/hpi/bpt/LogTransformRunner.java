@@ -10,10 +10,7 @@ import de.hpi.bpt.logtransform.transformation.LogTransformer;
 import de.hpi.bpt.logtransform.transformation.controlflow.ActivityExecutionTransformation;
 import de.hpi.bpt.logtransform.transformation.custom.BPIC2018TargetTransformation;
 import de.hpi.bpt.logtransform.transformation.posthoc.MissingOrPresentValuesTransformation;
-import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedHandoverCountTransformation;
-import de.hpi.bpt.logtransform.transformation.resource.HandoverCountTransformation;
-import de.hpi.bpt.logtransform.transformation.resource.NumberOfResourcesInvolvedTransformation;
-import de.hpi.bpt.logtransform.transformation.resource.PingPongOccurrenceTransformation;
+import de.hpi.bpt.logtransform.transformation.resource.*;
 import de.hpi.bpt.logtransform.transformation.time.CaseDurationTransformation;
 import de.hpi.bpt.logtransform.transformation.time.CaseStartEndTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.time.LongestExecutionTimeTransformation;
@@ -86,14 +83,21 @@ public class LogTransformRunner {
                 // control flow
                 .with(new ActivityExecutionTransformation()) // all activities
 
-                // resource
-                .with(new HandoverCountTransformation())
-                .with(new ActivityBasedHandoverCountTransformation())
-                .with(new PingPongOccurrenceTransformation())
-                .with(new NumberOfResourcesInvolvedTransformation())
-
                 // model analysis
                 .withAnalysisResults(analysisResults);
+
+        // TODO improve, remove duplication
+        if (RESOURCE_NAME != null) {
+            // resource
+            transformer
+                    .with(new HandoverCountTransformation())
+                    .with(new PingPongOccurrenceTransformation())
+                    .with(new NumberOfResourcesInvolvedTransformation());
+        } else {
+            transformer
+                    .with(new ActivityBasedHandoverCountTransformation())
+                    .with(new ActivityBasedPingPongOccurrenceTransformation());
+        }
 
         var attributesLogs = ATTRIBUTES_FILES.stream()
                 .map(file -> TimeTracker.runTimed(() -> new CsvCaseLogReader(csvLogReader).readToRowCaseLog(new File(FOLDER + file), file.replace(".csv", "")), "Reading attributes log"))

@@ -7,7 +7,9 @@ import de.hpi.bpt.logtransform.logmanipulation.CaseLogConverter;
 import de.hpi.bpt.logtransform.logmanipulation.RowCaseLogJoiner;
 import de.hpi.bpt.modelanalysis.feature.AnalysisResult;
 
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 public class LogTransformer {
 
@@ -27,7 +29,7 @@ public class LogTransformer {
     }
 
     public LogTransformer withAnalysisResults(Set<AnalysisResult> analysisResults) {
-        var featureGenerator = new FeatureGenerator();
+        var featureGenerator = new ModelFeatureGenerator();
         analysisResults.forEach(analysisResult -> transformations.add(featureGenerator.from(analysisResult)));
         return this;
     }

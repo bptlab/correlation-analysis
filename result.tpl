@@ -8,26 +8,26 @@
 
 <body>
     <div>
-        <span>Tree</span>
+        <h3>Tree</h3>
         <img src="{{FOLDER}}/tree.png" />
     </div>
     <div>
-        <span>Rules</span>
-        <div>
-            {{RULES}}
-        </div>
+        <h3>Rules</h3>
+        <div><pre><code>
+{{RULES}}
+        </code></pre></div>
     </div>
     <div>
-        <span>Clusters</span>
-        <div>
+        <h3>Clusters</h3>
+        <div><pre><code>
             {{CLUSTERS}}
-        </div>
+        </code></pre></div>
     </div>
     <div>
-        <span>Direct Dependencies</span>
-        <div>
+        <h3>Direct Dependencies</h3>
+        <div><pre><code>
             {{DIRECT_DEPENDENCIES}}
-        </div>
+        </code></pre></div>
     </div>
 </body>
 

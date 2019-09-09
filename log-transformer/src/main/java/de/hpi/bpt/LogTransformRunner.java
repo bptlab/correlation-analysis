@@ -8,9 +8,11 @@ import de.hpi.bpt.logtransform.io.CsvLogReader;
 import de.hpi.bpt.logtransform.transformation.ExistingAttributeTransformation;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
 import de.hpi.bpt.logtransform.transformation.controlflow.ActivityExecutionTransformation;
-import de.hpi.bpt.logtransform.transformation.custom.BPIC2018TargetTransformation;
+import de.hpi.bpt.logtransform.transformation.controlflow.NumberOfTotalActivitiesTransformation;
 import de.hpi.bpt.logtransform.transformation.posthoc.MissingOrPresentValuesTransformation;
-import de.hpi.bpt.logtransform.transformation.resource.*;
+import de.hpi.bpt.logtransform.transformation.resource.HandoverCountTransformation;
+import de.hpi.bpt.logtransform.transformation.resource.NumberOfResourcesInvolvedTransformation;
+import de.hpi.bpt.logtransform.transformation.resource.PingPongOccurrenceTransformation;
 import de.hpi.bpt.logtransform.transformation.time.CaseDurationTransformation;
 import de.hpi.bpt.logtransform.transformation.time.CaseStartEndTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.time.LongestExecutionTimeTransformation;
@@ -27,19 +29,19 @@ import static java.util.stream.Collectors.toList;
 
 public class LogTransformRunner {
 
-    private static final String FOLDER = "/home/jonas/Data/BPIC2018/";
+    private static final String FOLDER = "/home/jonas/Data/Solvay/";
     private static final String MODEL_FILE = "model.bpmn";
-    private static final String EVENTS_FILE = "events_sorted.csv";
-    private static final List<String> ATTRIBUTES_FILES = List.of("caseattributes.csv");
+    private static final String EVENTS_FILE = "p2p-events_sorted.csv";
+    private static final List<String> ATTRIBUTES_FILES = List.of("p2p-caseattributes.csv");
     private static final String CASES_FILE = "cases.arff";
 
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ssX";
-    private static final char SEPARATOR = ',';
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final char SEPARATOR = ';';
 
     private static final String CASE_ID_NAME = "caseid";
     private static final String TIMESTAMP_NAME = "timestamp";
     private static final String ACTIVITY_NAME = "name";
-    private static final String RESOURCE_NAME = "resource";
+    private static final String RESOURCE_NAME = null;
 
     public static void main(String[] args) {
 
@@ -69,7 +71,7 @@ public class LogTransformRunner {
         var eventLog = TimeTracker.runTimed(() -> new CsvEventLogReader(csvLogReader).read(new File(FOLDER + EVENTS_FILE)), "Reading event log");
 
         var transformer = new LogTransformer(eventLog)
-                .with(new BPIC2018TargetTransformation())
+//                .with(new BPIC2018TargetTransformation())
 
                 // existing attributes
                 .with(new ExistingAttributeTransformation())
@@ -82,6 +84,7 @@ public class LogTransformRunner {
 
                 // control flow
                 .with(new ActivityExecutionTransformation()) // all activities
+                .with(new NumberOfTotalActivitiesTransformation())
 
                 // model analysis
                 .withAnalysisResults(analysisResults);
@@ -93,10 +96,6 @@ public class LogTransformRunner {
                     .with(new HandoverCountTransformation())
                     .with(new PingPongOccurrenceTransformation())
                     .with(new NumberOfResourcesInvolvedTransformation());
-        } else {
-            transformer
-                    .with(new ActivityBasedHandoverCountTransformation())
-                    .with(new ActivityBasedPingPongOccurrenceTransformation());
         }
 
         var attributesLogs = ATTRIBUTES_FILES.stream()

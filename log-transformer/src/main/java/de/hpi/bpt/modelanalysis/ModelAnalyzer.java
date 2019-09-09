@@ -1,6 +1,7 @@
 package de.hpi.bpt.modelanalysis;
 
-import de.hpi.bpt.modelanalysis.analysis.*;
+import de.hpi.bpt.modelanalysis.analysis.Analysis;
+import de.hpi.bpt.modelanalysis.analysis.SubProcessAnalysis;
 import de.hpi.bpt.modelanalysis.feature.AnalysisResult;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
@@ -13,12 +14,12 @@ import java.util.Set;
 public class ModelAnalyzer {
 
     private static final List<? extends Analysis> analyses = List.of(
-            new OutgoingGatewayAnalysis(),
+//            new OutgoingGatewayAnalysis(),
 //            new LaneSwitchAnalysis(),
-            new LoopActivityAnalysis(),
+//            new LoopActivityAnalysis(),
 //            new OptionalActivityAnalysis()
 //            new ParallelActivityOrderAnalysis()
-            new LaneAnalysis(),
+//            new LaneAnalysis(),
             new SubProcessAnalysis()
     );
 

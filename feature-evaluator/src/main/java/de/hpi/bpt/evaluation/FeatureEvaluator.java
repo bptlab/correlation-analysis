@@ -19,13 +19,21 @@ public class FeatureEvaluator {
     public Instances retainImportantFeatures(Instances data) {
         try {
             var attributeSelection = new AttributeSelection();
-            var evaluator = new CfsSubsetEval();
-            var search = new BestFirst();
-            attributeSelection.setEvaluator(evaluator);
-            attributeSelection.setSearch(search);
 
-            attributeSelection.SelectAttributes(data);
+            try {
+                var evaluator = new CfsSubsetEval();
+                var search = new BestFirst();
+                attributeSelection.setEvaluator(evaluator);
+                attributeSelection.setSearch(search);
 
+                attributeSelection.SelectAttributes(data);
+            } catch (OutOfMemoryError e) {
+                var evaluator = new SymmetricalUncertAttributeEval();
+                var search = new Ranker();
+                attributeSelection.setEvaluator(evaluator);
+                attributeSelection.setSearch(search);
+                attributeSelection.SelectAttributes(data);
+            }
             return attributeSelection.reduceDimensionality(data);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -47,7 +55,8 @@ public class FeatureEvaluator {
             attributeSelection.SelectAttributes(data);
             var rankedAttributes = attributeSelection.rankedAttributes();
             var attributeIndices = IntStream.range(0, rankedAttributes.length)
-                    .filter(i -> rankedAttributes[i][0] == 1.0)
+                    .filter(i -> rankedAttributes[i][1] == 1.0)
+                    .map(i -> (int) rankedAttributes[i][0])
                     .toArray();
 
             FeatureEvaluationRunner.writeToFile(

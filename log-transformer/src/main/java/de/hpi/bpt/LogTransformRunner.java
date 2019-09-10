@@ -9,6 +9,7 @@ import de.hpi.bpt.logtransform.transformation.ExistingAttributeTransformation;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
 import de.hpi.bpt.logtransform.transformation.controlflow.ActivityExecutionTransformation;
 import de.hpi.bpt.logtransform.transformation.controlflow.NumberOfTotalActivitiesTransformation;
+import de.hpi.bpt.logtransform.transformation.controlflow.SimpleNumberOfActivityExecutionsTransformation;
 import de.hpi.bpt.logtransform.transformation.posthoc.MissingOrPresentValuesTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.HandoverCountTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.NumberOfResourcesInvolvedTransformation;
@@ -71,6 +72,7 @@ public class LogTransformRunner {
 
                 // control flow
                 .with(new ActivityExecutionTransformation()) // all activities
+                .with(new SimpleNumberOfActivityExecutionsTransformation()) // all activities
                 .with(new NumberOfTotalActivitiesTransformation())
 
                 // model analysis

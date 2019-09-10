@@ -37,9 +37,9 @@ class ActivityBasedHandoverCountTransformationTest {
                 .build();
 
         var transformation = new ActivityBasedHandoverCountTransformation()
-                .with("A1", "A3")
-                .with("A1", "A2")
-                .with("A2", "A3");
+                .with("A1", "L1")
+                .with("A2", "L1")
+                .with("A3", "L2");
 
         // Act
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
@@ -51,8 +51,8 @@ class ActivityBasedHandoverCountTransformationTest {
         var row2 = afterTransformation.get("2");
         var row3 = afterTransformation.get("3");
 
-        assertThat(row1).containsExactly("1", 2);
-        assertThat(row2).containsExactly("2", 2);
+        assertThat(row1).containsExactly("1", 1);
+        assertThat(row2).containsExactly("2", 3);
         assertThat(row3).containsExactly("3", 3);
     }
 }

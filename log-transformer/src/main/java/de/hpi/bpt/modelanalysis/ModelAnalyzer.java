@@ -13,10 +13,9 @@ import java.util.Set;
 public class ModelAnalyzer {
 
     private static final List<? extends Analysis> analyses = List.of(
-            new OutgoingGatewayAnalysis(),
-//            new LaneSwitchAnalysis(),
-            new LoopActivityAnalysis(),
+//            new LoopActivityAnalysis(),
 //            new OptionalActivityAnalysis()
+            new OutgoingGatewayAnalysis(),
             new ParallelActivityOrderAnalysis(),
             new LaneAnalysis(),
             new SubProcessAnalysis()

@@ -3,31 +3,24 @@ package de.hpi.bpt.logtransform.transformation.resource;
 import de.hpi.bpt.logtransform.datastructures.ColumnCaseLog;
 import de.hpi.bpt.logtransform.datastructures.ColumnEventLog;
 import de.hpi.bpt.logtransform.transformation.LogTransformation;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import java.util.Map;
 
 public class ActivityBasedHandoverCountTransformation implements LogTransformation {
 
-    private Set<Pair<String, String>> activityNamePairs = new HashSet<>();
+    private Map<String, String> activityToLane = new HashMap<>();
 
     public ActivityBasedHandoverCountTransformation() {
     }
 
-    public ActivityBasedHandoverCountTransformation(Collection<Pair<String, String>> activityNames) {
-        this.activityNamePairs.addAll(activityNames);
+    public ActivityBasedHandoverCountTransformation(Map<String, String> activityToLane) {
+        this.activityToLane.putAll(activityToLane);
     }
 
-    public ActivityBasedHandoverCountTransformation with(String activity1, String activity2) {
-        activityNamePairs.add(ImmutablePair.of(activity1, activity2));
+    public ActivityBasedHandoverCountTransformation with(String activity, String lane) {
+        activityToLane.put(activity, lane);
         return this;
     }
 
@@ -37,22 +30,16 @@ public class ActivityBasedHandoverCountTransformation implements LogTransformati
         var activityColumn = sourceEventLog.getTyped(sourceSchema.getActivityName(), String.class);
 
         var handoverCountColumn = resultCaseLog.addColumn("activityhandovercount", Integer.class);
-        var followingHandovers = activityNamePairs.stream().collect(
-                toMap(
-                        Pair::getLeft,
-                        pair -> Set.of(pair.getRight()),
-                        (oldValue, newValue) -> Stream.concat(oldValue.stream(), newValue.stream()).collect(toSet())
-                ));
 
         for (List<String> trace : activityColumn.getTraces()) {
             var count = 0;
             for (int i = 0; i < trace.size() - 1; i++) {
-                if (followingHandovers.containsKey(trace.get(i))
-                        && followingHandovers.get(trace.get(i)).contains(trace.get(i + 1))) {
+                var lane1 = activityToLane.getOrDefault(trace.get(i), "NONE");
+                var lane2 = activityToLane.getOrDefault(trace.get(i + 1), "NONE");
+                if (!lane1.equals(lane2)) {
                     count++;
                 }
             }
-
             handoverCountColumn.addValue(count);
         }
 

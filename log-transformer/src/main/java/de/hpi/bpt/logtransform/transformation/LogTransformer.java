@@ -9,6 +9,7 @@ import de.hpi.bpt.modelanalysis.feature.AnalysisResult;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class LogTransformer {
@@ -28,8 +29,8 @@ public class LogTransformer {
         return this;
     }
 
-    public LogTransformer withAnalysisResults(Set<AnalysisResult> analysisResults) {
-        var featureGenerator = new ModelFeatureGenerator();
+    public LogTransformer withAnalysisResults(Set<AnalysisResult> analysisResults, Map<String, String> activityMapping) {
+        var featureGenerator = new ModelFeatureGenerator(activityMapping);
         analysisResults.forEach(analysisResult -> transformations.add(featureGenerator.from(analysisResult)));
         return this;
     }

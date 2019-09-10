@@ -1,6 +1,5 @@
 package de.hpi.bpt.logtransform.transformation;
 
-import de.hpi.bpt.ActivityMapping;
 import de.hpi.bpt.logtransform.transformation.controlflow.*;
 import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedHandoverCountTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedPingPongOccurrenceTransformation;
@@ -15,6 +14,12 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
 class ModelFeatureGenerator {
+
+    private final Map<String, String> activityMapping;
+
+    public ModelFeatureGenerator(Map<String, String> activityMapping) {
+        this.activityMapping = activityMapping;
+    }
 
     LogTransformation from(AnalysisResult analysisResult) {
         switch (analysisResult.getType()) {
@@ -62,9 +67,9 @@ class ModelFeatureGenerator {
     private LogTransformation from(ActivityToLaneFeature feature) {
         return new ActivityBasedPingPongOccurrenceTransformation(
                 feature.getActivityToLane().entrySet().stream()
-                        .filter(entry -> ActivityMapping.get().containsKey(entry.getKey()))
+                        .filter(entry -> activityMapping.containsKey(entry.getKey()))
                         .collect(toMap(
-                                entry -> ActivityMapping.get().get(entry.getKey()),
+                                entry -> activityMapping.get(entry.getKey()),
                                 Map.Entry::getValue
                         ))
         );
@@ -74,22 +79,22 @@ class ModelFeatureGenerator {
         return new SubProcessTransformation(
                 feature.getSubProcessNames(),
                 feature.getActivityToSubProcess().entrySet().stream()
-                        .filter(entry -> ActivityMapping.get().containsKey(entry.getValue()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, e -> ActivityMapping.get().get(e.getValue())))
+                        .filter(entry -> activityMapping.containsKey(entry.getValue()))
+                        .collect(Collectors.toMap(Map.Entry::getKey, e -> activityMapping.get(e.getValue())))
         );
     }
 
     private Set<String> mapNames(AbstractActivityFeature feature) {
         return feature.getActivityNames().stream()
-                .filter(ActivityMapping.get()::containsKey)
-                .map(ActivityMapping.get()::get)
+                .filter(activityMapping::containsKey)
+                .map(activityMapping::get)
                 .collect(toSet());
     }
 
     private Set<Pair<String, String>> mapNames(AbstractActivityPairFeature feature) {
         return feature.getActivityPairs().stream()
-                .filter(pair -> ActivityMapping.get().containsKey(pair.getLeft()) && ActivityMapping.get().containsKey(pair.getRight()))
-                .map(pair -> Pair.of(ActivityMapping.get().get(pair.getLeft()), ActivityMapping.get().get(pair.getRight())))
+                .filter(pair -> activityMapping.containsKey(pair.getLeft()) && activityMapping.containsKey(pair.getRight()))
+                .map(pair -> Pair.of(activityMapping.get(pair.getLeft()), activityMapping.get(pair.getRight())))
                 .collect(toSet());
     }
 }

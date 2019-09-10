@@ -35,6 +35,10 @@ public class SubProcessTransformation implements LogTransformation {
 
     @Override
     public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
+        if (subProcesses.isEmpty()) {
+            return;
+        }
+
         var activityColumn = sourceEventLog.getActivityColumn();
         var timestampColumn = sourceEventLog.getTimestampColumn();
         var columnMap = new HashMap<String, CaseColumn<Integer>>();

@@ -22,26 +22,13 @@ import de.hpi.bpt.modelanalysis.feature.AnalysisResult;
 
 import java.io.File;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
 public class LogTransformRunner {
 
-    private static final String FOLDER = "/home/jonas/Data/Solvay/";
-    private static final String MODEL_FILE = "model.bpmn";
-    private static final String EVENTS_FILE = "p2p-events_sorted.csv";
-    private static final List<String> ATTRIBUTES_FILES = List.of("p2p-caseattributes.csv");
-    private static final String CASES_FILE = "cases.arff";
-
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-    private static final char SEPARATOR = ';';
-
-    private static final String CASE_ID_NAME = "caseid";
-    private static final String TIMESTAMP_NAME = "timestamp";
-    private static final String ACTIVITY_NAME = "name";
-    private static final String RESOURCE_NAME = null;
+    private static final Project PROJECT = Project.MACIF;
 
     public static void main(String[] args) {
 
@@ -49,26 +36,26 @@ public class LogTransformRunner {
 
         var rowCaseLog = retrieveCaseLog(analysisResults);
 
-        TimeTracker.runTimed(() -> new ArffCaseLogWriter().writeToFile(rowCaseLog, FOLDER + CASES_FILE), "Writing case log...");
+        TimeTracker.runTimed(() -> new ArffCaseLogWriter().writeToFile(rowCaseLog, PROJECT.folder + PROJECT.caseFile), "Writing case log...");
     }
 
     private static Set<AnalysisResult> analyzeModel() {
-        if (!new File(FOLDER + MODEL_FILE).isFile()) {
+        if (!new File(PROJECT.folder + PROJECT.modelFile).isFile()) {
             return Collections.emptySet();
         }
-        return TimeTracker.runTimed(() -> new ModelAnalyzer().analyzeModel(FOLDER + MODEL_FILE), "Analyzing model");
+        return TimeTracker.runTimed(() -> new ModelAnalyzer().analyzeModel(PROJECT.folder + PROJECT.modelFile), "Analyzing model");
     }
 
     private static RowCaseLog retrieveCaseLog(Set<AnalysisResult> analysisResults) {
         var csvLogReader = new CsvLogReader()
-                .separator(SEPARATOR)
-                .dateFormat(DATE_FORMAT)
-                .caseIdName(CASE_ID_NAME)
-                .timestampName(TIMESTAMP_NAME)
-                .activityName(ACTIVITY_NAME)
-                .resourceName(RESOURCE_NAME);
+                .separator(PROJECT.separator)
+                .dateFormat(PROJECT.dateFormat)
+                .caseIdName(PROJECT.caseIdName)
+                .timestampName(PROJECT.timestampName)
+                .activityName(PROJECT.activityName)
+                .resourceName(PROJECT.resourceName);
 
-        var eventLog = TimeTracker.runTimed(() -> new CsvEventLogReader(csvLogReader).read(new File(FOLDER + EVENTS_FILE)), "Reading event log");
+        var eventLog = TimeTracker.runTimed(() -> new CsvEventLogReader(csvLogReader).read(new File(PROJECT.folder + PROJECT.eventFile)), "Reading event log");
 
         var transformer = new LogTransformer(eventLog)
 //                .with(new BPIC2018TargetTransformation())
@@ -87,10 +74,9 @@ public class LogTransformRunner {
                 .with(new NumberOfTotalActivitiesTransformation())
 
                 // model analysis
-                .withAnalysisResults(analysisResults);
+                .withAnalysisResults(analysisResults, PROJECT.activityMapping);
 
-        // TODO improve, remove duplication
-        if (RESOURCE_NAME != null) {
+        if (PROJECT.resourceName != null) {
             // resource
             transformer
                     .with(new HandoverCountTransformation())
@@ -98,8 +84,8 @@ public class LogTransformRunner {
                     .with(new NumberOfResourcesInvolvedTransformation());
         }
 
-        var attributesLogs = ATTRIBUTES_FILES.stream()
-                .map(file -> TimeTracker.runTimed(() -> new CsvCaseLogReader(csvLogReader).readToRowCaseLog(new File(FOLDER + file), file.replace(".csv", "")), "Reading attributes log"))
+        var attributesLogs = PROJECT.attributesFile.stream()
+                .map(file -> TimeTracker.runTimed(() -> new CsvCaseLogReader(csvLogReader).readToRowCaseLog(new File(PROJECT.folder + file), file.replace(".csv", "")), "Reading attributes log"))
                 .collect(toList());
 
         var rowCaseLog = TimeTracker.runTimed(() -> transformer.transformJoining(attributesLogs), "Transforming attributes");

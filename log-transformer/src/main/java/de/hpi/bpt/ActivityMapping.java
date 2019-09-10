@@ -8,7 +8,7 @@ import static java.util.Collections.emptySet;
 
 public class ActivityMapping {
 
-    private static final Map<String, String> MACIF_ACTIVITY_MAPPING = Map.of(
+    public static final Map<String, String> MACIF = Map.of(
             "Close ticket", "Ticket Closed",
             "Create Ticket in EasyVista", "Ticket Created",
             "Assign Ticket to Another Group", "Ticket Group Changed",
@@ -21,13 +21,9 @@ public class ActivityMapping {
             "Assign Ticket to Employee", "Ticket Assigned to Employee"
     );
 
+    public static final Map<String, String> IDENTITY_MAP = new IdentityMap();
 
-    public static Map<String, String> get() {
-//        return MACIF_ACTIVITY_MAPPING;
-        return new IdentityMap();
-    }
-
-    static class IdentityMap implements Map<String, String> {
+    public static class IdentityMap implements Map<String, String> {
 
         @Override
         public int size() {

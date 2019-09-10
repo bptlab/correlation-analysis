@@ -38,7 +38,7 @@ public class ActivityBasedPingPongOccurrenceTransformation implements LogTransfo
             for (int i = 0; i < trace.size() - 1; i++) {
                 var lane1 = activityToLane.get(trace.get(i));
                 var lane2 = activityToLane.get(trace.get(i + 1));
-                if (!lane1.equals(lane2)) {
+                if (lane1 != null && lane2 != null && !lane1.equals(lane2)) {
                     if (seenLanes.contains(lane2)) {
                         pingPong = true;
                         break;

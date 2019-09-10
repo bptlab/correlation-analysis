@@ -1,6 +1,6 @@
 package de.hpi.bpt.evaluation;
 
-import de.hpi.bpt.FeatureEvaluationRunner;
+import org.apache.commons.lang3.tuple.Pair;
 import weka.attributeSelection.*;
 import weka.core.Instances;
 import weka.filters.Filter;
@@ -44,7 +44,7 @@ public class FeatureEvaluator {
      * Removes attributes that correlate directly with the class attribute.
      * Prints their names as String, separated by newlines.
      */
-    public Instances findAndRemoveDirectDependencies(Instances data) {
+    public Pair<String, Instances> findAndRemoveDirectDependencies(Instances data) {
         try {
             var attributeSelection = new AttributeSelection();
             var ranker = new Ranker();
@@ -59,15 +59,13 @@ public class FeatureEvaluator {
                     .map(i -> (int) rankedAttributes[i][0])
                     .toArray();
 
-            FeatureEvaluationRunner.writeToFile(
-                    Arrays.stream(attributeIndices).mapToObj(index -> data.attribute(index).name()).collect(joining("\n")),
-                    FeatureEvaluationRunner.FOLDER_PATH + FeatureEvaluationRunner.DIRECT_DEPENDENCIES_OUTPUT_FILE
-            );
-
             var remove = new Remove();
             remove.setAttributeIndicesArray(attributeIndices);
             remove.setInputFormat(data);
-            return Filter.useFilter(data, remove);
+            return Pair.of(
+                    Arrays.stream(attributeIndices).mapToObj(index -> data.attribute(index).name()).collect(joining("\n")),
+                    Filter.useFilter(data, remove)
+            );
 
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);

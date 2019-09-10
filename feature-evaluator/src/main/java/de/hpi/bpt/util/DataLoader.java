@@ -2,6 +2,7 @@ package de.hpi.bpt.util;
 
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
+import weka.core.converters.ArffSaver;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.RemoveUseless;
@@ -9,6 +10,7 @@ import weka.filters.unsupervised.attribute.StringToNominal;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -31,7 +33,9 @@ public class DataLoader {
     }
 
     public Instances prepareDataFromFile(String filePath, String classAttributeName) {
-        return process(loadDataFromFile(filePath), classAttributeName);
+        var processedData = process(loadDataFromFile(filePath), classAttributeName);
+        writeDataToFile(processedData, filePath.replace(".arff", "_processed.arff"));
+        return processedData;
     }
 
     private Instances process(Instances data, String classAttributeName) {
@@ -97,6 +101,17 @@ public class DataLoader {
             var arffLoader = new ArffLoader();
             arffLoader.setSource(inputStream);
             return arffLoader.getDataSet();
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    private void writeDataToFile(Instances data, String filePath) {
+        try (var outputStream = new FileOutputStream(filePath)) {
+            var arffSaver = new ArffSaver();
+            arffSaver.setDestination(outputStream);
+            arffSaver.setInstances(data);
+            arffSaver.writeBatch();
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }

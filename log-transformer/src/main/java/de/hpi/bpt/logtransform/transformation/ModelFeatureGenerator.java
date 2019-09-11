@@ -1,5 +1,6 @@
 package de.hpi.bpt.logtransform.transformation;
 
+import de.hpi.bpt.logtransform.transformation.compliance.NonCompliantLogMovesTransformation;
 import de.hpi.bpt.logtransform.transformation.controlflow.*;
 import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedHandoverCountTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedPingPongOccurrenceTransformation;
@@ -11,8 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toMap;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
 class ModelFeatureGenerator {
 
@@ -36,6 +36,8 @@ class ModelFeatureGenerator {
                 return from((ActivityToLaneFeature) analysisResult);
             case SUBPROCESS:
                 return from((SubProcessFeature) analysisResult);
+            case COMPLIANT_FLOWS:
+                return from((CompliantFlowsFeature) analysisResult);
             default:
                 throw new RuntimeException("Unknown type of AnalysisResult: '" + analysisResult.getType().name() + "'");
         }
@@ -77,6 +79,20 @@ class ModelFeatureGenerator {
                         .filter(entry -> activityMapping.containsKey(entry.getValue()))
                         .collect(Collectors.toMap(Map.Entry::getKey, e -> activityMapping.get(e.getValue())))
         ));
+    }
+
+    private List<LogTransformation> from(CompliantFlowsFeature feature) {
+        return List.of(
+                new NonCompliantLogMovesTransformation(
+                        feature.getCompliantFlows().entrySet().stream()
+                                .filter(entry -> activityMapping.containsKey(entry.getKey()))
+                                .collect(Collectors.toMap(
+                                        entry -> activityMapping.get(entry.getKey()),
+                                        entry -> entry.getValue().stream()
+                                                .filter(activityMapping::containsKey)
+                                                .map(activityMapping::get)
+                                                .collect(toList()))))
+        );
     }
 
     private Set<String> mapNames(AbstractActivityFeature feature) {

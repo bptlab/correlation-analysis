@@ -9,5 +9,6 @@ public enum AnalysisResultType {
     PARALLEL_ACTIVITY_ORDER,
     ACTIVITY_TO_LANE,
     SUBPROCESS,
+    COMPLIANT_FLOWS,
 
 }

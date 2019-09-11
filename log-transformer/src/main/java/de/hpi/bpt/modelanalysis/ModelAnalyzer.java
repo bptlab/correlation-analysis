@@ -18,7 +18,8 @@ public class ModelAnalyzer {
             new OutgoingGatewayAnalysis(),
             new ParallelActivityOrderAnalysis(),
             new LaneAnalysis(),
-            new SubProcessAnalysis()
+            new SubProcessAnalysis(),
+            new CompliantFlowAnalysis()
     );
 
     public Set<AnalysisResult> analyzeModel(String fileName) {

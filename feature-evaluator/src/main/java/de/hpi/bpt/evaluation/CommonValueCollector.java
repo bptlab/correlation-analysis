@@ -32,21 +32,27 @@ public class CommonValueCollector {
             var maxAttribute = Collections.max(counts.entrySet(), Comparator.comparingInt(Map.Entry::getValue));
 
             if (maxAttribute.getValue() > (numValues * 0.85)) {
-                commonValues.add(new CommonValue(attribute.name(), maxAttribute.getKey(), (double) maxAttribute.getValue() / (double) numValues));
+                commonValues.add(new CommonValue(attributeIndex, attribute.name(), maxAttribute.getKey(), (double) maxAttribute.getValue() / (double) numValues));
             }
         }
         return commonValues;
     }
 
     public static class CommonValue {
+        private int attributeIndex;
         private String attributeName;
         private Object value;
         private double percentage;
 
-        public CommonValue(String attributeName, Object value, double percentage) {
+        public CommonValue(int attributeIndex, String attributeName, Object value, double percentage) {
+            this.attributeIndex = attributeIndex;
             this.attributeName = attributeName;
             this.value = value;
             this.percentage = percentage;
+        }
+
+        public int getAttributeIndex() {
+            return attributeIndex;
         }
 
         public String getAttributeName() {

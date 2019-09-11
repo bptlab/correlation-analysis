@@ -26,9 +26,9 @@ import static java.util.stream.Collectors.joining;
 public class FeatureEvaluationRunner {
 
 
-    public static final String TARGET_VALUE = "true";
-    private static final String TARGET_VARIABLE = "activitypingpong";
-    private static final String PROJECT_FOLDER = "Macif/incidents";
+    public static final String TARGET_VALUE = "false";
+    private static final String TARGET_VARIABLE = "Receive Goods_wasexecuted";
+    private static final String PROJECT_FOLDER = "Solvay";
     private static final String DATA_FOLDER = "/home/jonas/Data/";
     public static final String FOLDER_PATH = DATA_FOLDER + PROJECT_FOLDER + "/";
 
@@ -37,7 +37,7 @@ public class FeatureEvaluationRunner {
 
 
     public static void main(String[] args) throws Exception {
-        var dataLoader = new DataLoader();
+        var dataLoader = new DataLoader().ignoring("Receive Goods_snumexecutions");
         var featureEvaluator = new FeatureEvaluator();
         var classifier = new DecisionTreeClassifier();
         var clusterer = new Clusterer();
@@ -47,9 +47,13 @@ public class FeatureEvaluationRunner {
 
         var initialData = runTimed(() -> dataLoader.prepareDataFromFile(FOLDER_PATH + CASES_FILE, TARGET_VARIABLE), "Preparing data");
 
-        Pair<String, Instances> directDependencyResult = runTimed(() -> featureEvaluator.findAndRemoveDirectDependencies(initialData), "Removing direct dependencies");
-        var dataWithAllFeatures = directDependencyResult.getRight();
-        var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(dataWithAllFeatures), "Calculating feature scores");
+        var commonValues = runTimed(() -> commonValueCollector.collectCommonValues(dataSplitter.removeInstancesWithWrongClass(initialData)), "Collecting common values");
+        var dataWithCommonValueFeatures = featureEvaluator.retainFeaturesWithCommonValues(initialData, commonValues.stream().mapToInt(CommonValueCollector.CommonValue::getAttributeIndex).toArray());
+
+        Pair<String, Instances> directDependencyResult = runTimed(() -> featureEvaluator.findAndRemoveDirectDependencies(dataWithCommonValueFeatures), "Removing direct dependencies");
+        var dataWithoutDirectDependencies = directDependencyResult.getRight();
+
+        var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(dataWithoutDirectDependencies), "Calculating feature scores");
 
         var tree = runTimed(() -> classifier.buildJ48Tree(dataWithSelectedFeatures), "Building decision tree");
         Graphviz.fromString(tree.graph()).render(Format.PNG).toFile(new File(FOLDER_PATH + GRAPH_OUTPUT_FILE));
@@ -64,8 +68,6 @@ public class FeatureEvaluationRunner {
         if (evaluation.truePositiveRate(dataWithSelectedFeatures.classAttribute().indexOfValue(TARGET_VALUE)) <= 1) { // TODO ratio
             centroids = runTimed(() -> clusterer.clusterPositiveInstances(dataSplitter.removeInstancesWithWrongClass(dataWithSelectedFeatures)), "Clustering");
         }
-
-        var commonValues = runTimed(() -> commonValueCollector.collectCommonValues(dataSplitter.removeInstancesWithWrongClass(dataWithAllFeatures)), "Collecting common values");
 
         writeAll(
                 positiveRules,

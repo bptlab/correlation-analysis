@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
 
 public class FeatureEvaluator {
 
@@ -35,6 +36,27 @@ public class FeatureEvaluator {
                 attributeSelection.SelectAttributes(data);
             }
             return attributeSelection.reduceDimensionality(data);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    public Instances retainFeaturesWithCommonValues(Instances data, int[] attributeIndices) {
+        try {
+            var toRetain = Arrays.stream(attributeIndices).boxed().collect(toSet());
+
+            for (int i = 0; i < data.numAttributes(); i++) {
+                var attribute = data.attribute(i);
+                if (attribute.numValues() != 2) {
+                    toRetain.add(i);
+                }
+            }
+
+            var remove = new Remove();
+            remove.setAttributeIndicesArray(toRetain.stream().mapToInt(i -> i).toArray());
+            remove.setInvertSelection(true);
+            remove.setInputFormat(data);
+            return Filter.useFilter(data, remove);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

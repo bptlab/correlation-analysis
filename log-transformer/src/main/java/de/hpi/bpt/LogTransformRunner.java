@@ -29,7 +29,7 @@ import static java.util.stream.Collectors.toList;
 
 public class LogTransformRunner {
 
-    private static final Project PROJECT = Project.MACIF;
+    private static final Project PROJECT = Project.SOLVAY;
 
     public static void main(String[] args) {
 
@@ -60,6 +60,7 @@ public class LogTransformRunner {
 
         var transformer = new LogTransformer(eventLog)
 //                .with(new BPIC2018TargetTransformation())
+
 
                 // existing attributes
                 .with(new ExistingAttributeTransformation())
@@ -92,7 +93,7 @@ public class LogTransformRunner {
 
         var rowCaseLog = TimeTracker.runTimed(() -> transformer.transformJoining(attributesLogs), "Transforming attributes");
 
-//        new DateBeforeTransformation("caseend", "SLA").transform(rowCaseLog);
+//        new DateBeforeTransformation("caseend", "duedate").transform(rowCaseLog);
         new MissingOrPresentValuesTransformation().transform(rowCaseLog);
         return rowCaseLog;
     }

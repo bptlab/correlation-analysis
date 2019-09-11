@@ -18,6 +18,51 @@ public enum Project {
             "name",
             null,
             ActivityMapping.MACIF
+    ),
+
+    MCKESSON(
+            "/home/jonas/Data/McKesson/",
+            "model.bpmn",
+            "event_sorted.csv",
+            List.of("case_attribute.csv"),
+            "cases.arff",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            ';',
+            "caseid",
+            "timestamp",
+            "name",
+            null,
+            ActivityMapping.IDENTITY_MAP
+    ),
+
+    GETLINK(
+            "/home/jonas/Data/GetLink/",
+            "model.bpmn",
+            "events_sorted_onlyactivities.csv",
+            List.of("caseattributes.csv", "caseattributes_duedates.csv"),
+            "cases.arff",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            ';',
+            "caseid",
+            "timestamp",
+            "name",
+            null,
+            ActivityMapping.GETLINK
+    ),
+
+    SOLVAY(
+            "/home/jonas/Data/Solvay/",
+            "NONE",
+            "p2p-events_sorted.csv",
+            List.of("p2p-caseattributes.csv"),
+            "cases.arff",
+            "yyyy-MM-dd'T'HH:mm:ss",
+            ';',
+            "caseid",
+            "timestamp",
+            "name",
+            null,
+            ActivityMapping.IDENTITY_MAP
     );
 
     public final String folder;

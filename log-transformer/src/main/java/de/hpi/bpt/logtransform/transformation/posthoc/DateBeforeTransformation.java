@@ -1,7 +1,6 @@
 package de.hpi.bpt.logtransform.transformation.posthoc;
 
 import de.hpi.bpt.logtransform.datastructures.RowCaseLog;
-import de.hpi.bpt.logtransform.datastructures.Schema;
 
 import java.util.Date;
 
@@ -22,15 +21,14 @@ public class DateBeforeTransformation {
             throw new RuntimeException(String.format("One of [%s, %s] is not of type date", firstAttributeName, secondAttributeName));
         }
 
+        caseLog.getSchema().addColumnDefinition(String.format("%s_before_%s", firstAttributeName, secondAttributeName), Boolean.class);
+
         var firstAttributeIndex = schema.get(firstAttributeName).getId();
         var secondAttributeIndex = schema.get(secondAttributeName).getId();
 
         caseLog.forEach((caseId, row) -> {
             var firstDate = (Date) row.get(firstAttributeIndex);
             var secondDate = (Date) row.get(secondAttributeIndex);
-
-            row.remove(firstDate);
-            row.remove(secondDate);
 
             if (firstDate == null || secondDate == null) {
                 row.add(null);
@@ -39,14 +37,5 @@ public class DateBeforeTransformation {
             }
 
         });
-
-        var newSchema = new Schema();
-        schema.forEach((name, columnDefinition) -> {
-            if (!name.equals(firstAttributeName) && !name.equals(secondAttributeName)) {
-                newSchema.addColumnDefinition(name, columnDefinition.getType());
-            }
-        });
-        newSchema.addColumnDefinition(String.format("%s_before_%s", firstAttributeName, secondAttributeName), Boolean.class);
-        caseLog.setSchema(newSchema);
     }
 }

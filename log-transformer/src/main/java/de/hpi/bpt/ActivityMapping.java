@@ -21,9 +21,23 @@ public class ActivityMapping {
             "Assign Ticket to Employee", "Ticket Assigned to Employee"
     );
 
+    public static final Map<String, String> GETLINK = Map.of(
+            "Create PR", "PR Item Created",
+            "Approve PR", "PR Item Released",
+            "Create PO", "PO Item Created",
+            "Create Vendor", "Vendor Created",
+            "Receive Goods", "Goods Received",
+            "Receive Services", "Consumption (Subcontracting) Received",
+            "Submit Invoice to ESKER", "Invoice Submitted to ESKER",
+            "Post invoice", "Invoice Posted in SAP",
+            "Pay Invoice", "Invoice Paid"
+    );
+
     public static final Map<String, String> IDENTITY_MAP = new IdentityMap();
 
+
     public static class IdentityMap implements Map<String, String> {
+
 
         @Override
         public int size() {

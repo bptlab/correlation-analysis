@@ -7,7 +7,6 @@ import de.hpi.bpt.logtransform.io.CsvEventLogReader;
 import de.hpi.bpt.logtransform.io.CsvLogReader;
 import de.hpi.bpt.logtransform.transformation.ExistingAttributeTransformation;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
-import de.hpi.bpt.logtransform.transformation.controlflow.ActivityExecutionTransformation;
 import de.hpi.bpt.logtransform.transformation.controlflow.NumberOfTotalActivitiesTransformation;
 import de.hpi.bpt.logtransform.transformation.controlflow.SimpleNumberOfActivityExecutionsTransformation;
 import de.hpi.bpt.logtransform.transformation.posthoc.MissingOrPresentValuesTransformation;
@@ -72,7 +71,7 @@ public class LogTransformRunner {
                 .with(new LongestExecutionTimeTransformation())
 
                 // control flow
-                .with(new ActivityExecutionTransformation()) // all activities
+//                .with(new ActivityExecutionTransformation()) // all activities
                 .with(new SimpleNumberOfActivityExecutionsTransformation()) // all activities
                 .with(new NumberOfTotalActivitiesTransformation())
 

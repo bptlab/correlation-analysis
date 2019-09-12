@@ -8,7 +8,7 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class NonCompliantLogMovesTransformationTest {
+class NonCompliantLogTransitionsTransformationTest {
 
     @Test
     void transform() {
@@ -45,7 +45,7 @@ class NonCompliantLogMovesTransformationTest {
                 .build()
                 .build();
 
-        var transformation = new NonCompliantLogMovesTransformation()
+        var transformation = new NonCompliantLogTransitionsTransformation()
                 .with("A1", "A2", "A3")
                 .with("A2", "A4")
                 .with("A3", "A4")

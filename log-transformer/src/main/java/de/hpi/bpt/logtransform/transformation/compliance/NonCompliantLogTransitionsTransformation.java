@@ -9,18 +9,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NonCompliantLogMovesTransformation implements LogTransformation {
+public class NonCompliantLogTransitionsTransformation implements LogTransformation {
 
     private final Map<String, List<String>> compliantFlows = new HashMap<>();
 
-    public NonCompliantLogMovesTransformation() {
+    public NonCompliantLogTransitionsTransformation() {
     }
 
-    public NonCompliantLogMovesTransformation(Map<String, List<String>> compliantFlows) {
+    public NonCompliantLogTransitionsTransformation(Map<String, List<String>> compliantFlows) {
         this.compliantFlows.putAll(compliantFlows);
     }
 
-    public NonCompliantLogMovesTransformation with(String activity, String... compliantFollowers) {
+    public NonCompliantLogTransitionsTransformation with(String activity, String... compliantFollowers) {
         compliantFlows.put(activity, Arrays.asList(compliantFollowers));
         return this;
     }

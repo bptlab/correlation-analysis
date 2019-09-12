@@ -59,14 +59,14 @@ public class SubProcessTransformation implements LogTransformation {
             var timesEntered = new HashMap<String, Integer>();
 
             var firstActivity = activityTrace.get(0);
-            var lastSubProcess = activityToSubProcess.get(firstActivity);
+            var lastSubProcess = activityToSubProcess.getOrDefault(firstActivity, "NONE");
             numEvents.merge(lastSubProcess, 1, Integer::sum);
             timesEntered.merge(lastSubProcess, 1, Integer::sum);
             var lastActivityStart = timestampTrace.get(0);
 
             for (int activityIndex = 1; activityIndex < activityTrace.size(); activityIndex++) {
                 var activity = activityTrace.get(activityIndex);
-                var currentSubProcess = activityToSubProcess.get(activity);
+                var currentSubProcess = activityToSubProcess.getOrDefault(activity, "NONE");
 
                 numEvents.merge(currentSubProcess, 1, Integer::sum);
 

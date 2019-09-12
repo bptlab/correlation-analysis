@@ -1,9 +1,28 @@
 package de.hpi.bpt;
 
+import de.hpi.bpt.logtransform.transformation.LogTransformation;
+import de.hpi.bpt.logtransform.transformation.time.BetweenEventsDurationThresholdTransformation;
+
 import java.util.List;
 import java.util.Map;
 
 public enum Project {
+
+    BPIC19(
+            "/home/jonas/Data/BPIC2019/",
+            "model_subprocesses.bpmn",
+            "finished_events.csv",
+            List.of("caseattributes.csv"),
+            "cases.arff",
+            "yyyy-MM-dd HH:mm:ssX",
+            ',',
+            "caseid",
+            "timestamp",
+            "name",
+            "resource",
+            ActivityMapping.IDENTITY_MAP,
+            List.of(BetweenEventsDurationThresholdTransformation.days(60, "Vendor creates invoice", "Clear Invoice"))
+    ),
 
     MACIF(
             "/home/jonas/Data/Macif/incidents/",
@@ -17,7 +36,8 @@ public enum Project {
             "timestamp",
             "name",
             null,
-            ActivityMapping.MACIF
+            ActivityMapping.MACIF,
+            List.of()
     ),
 
     MCKESSON(
@@ -32,7 +52,8 @@ public enum Project {
             "timestamp",
             "name",
             null,
-            ActivityMapping.IDENTITY_MAP
+            ActivityMapping.IDENTITY_MAP,
+            List.of()
     ),
 
     GETLINK(
@@ -47,7 +68,8 @@ public enum Project {
             "timestamp",
             "name",
             null,
-            ActivityMapping.GETLINK
+            ActivityMapping.GETLINK,
+            List.of()
     ),
 
     SOLVAY(
@@ -62,7 +84,8 @@ public enum Project {
             "timestamp",
             "name",
             null,
-            ActivityMapping.IDENTITY_MAP
+            ActivityMapping.IDENTITY_MAP,
+            List.of()
     );
 
     public final String folder;
@@ -77,8 +100,9 @@ public enum Project {
     public final String activityName;
     public final String resourceName;
     public final Map<String, String> activityMapping;
+    public List<LogTransformation> customTransformations;
 
-    Project(String folder, String modelFile, String eventFile, List<String> attributesFile, String caseFile, String dateFormat, char separator, String caseIdName, String timestampName, String activityName, String resourceName, Map<String, String> activityMapping) {
+    Project(String folder, String modelFile, String eventFile, List<String> attributesFile, String caseFile, String dateFormat, char separator, String caseIdName, String timestampName, String activityName, String resourceName, Map<String, String> activityMapping, List<LogTransformation> customTransformations) {
         this.folder = folder;
         this.modelFile = modelFile;
         this.eventFile = eventFile;
@@ -91,5 +115,6 @@ public enum Project {
         this.activityName = activityName;
         this.resourceName = resourceName;
         this.activityMapping = activityMapping;
+        this.customTransformations = customTransformations;
     }
 }

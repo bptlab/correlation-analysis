@@ -35,7 +35,7 @@ public class BetweenEventsDurationTransformation implements LogTransformation {
                 var timestampTrace = timestampColumn.get(i);
                 var duration = Duration.between(
                         timestampTrace.get(eventTrace.indexOf(first)).toInstant(),
-                        timestampTrace.get(eventTrace.indexOf(last)).toInstant());
+                        timestampTrace.get(eventTrace.lastIndexOf(last)).toInstant());
                 column.addValue((int) duration.getSeconds());
             }
         }

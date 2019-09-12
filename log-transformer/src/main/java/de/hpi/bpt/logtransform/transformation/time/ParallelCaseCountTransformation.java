@@ -42,7 +42,7 @@ public class ParallelCaseCountTransformation implements LogTransformation {
         var numEnded = 0;
         var parallelCaseCounts = new Integer[caseIds.size()];
         for (TimedCaseEvent timedCaseEvent : timedCases) {
-            if (timedCases.indexOf(timedCaseEvent) % 10000 == 0) {
+            if (timedCases.indexOf(timedCaseEvent) % (timedCases.size() / 20) == 0) {
                 System.out.print(".");
             }
             if (timedCaseEvent.isEnd()) {
@@ -59,6 +59,7 @@ public class ParallelCaseCountTransformation implements LogTransformation {
                 numStarted++;
             }
         }
+        System.out.println();
 
         var parallelCasesColumn = new CaseColumn<>(Integer.class, parallelCaseCounts);
         resultCaseLog.put("numparallelcases", parallelCasesColumn);

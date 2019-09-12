@@ -1,8 +1,9 @@
 package de.hpi.bpt.logtransform.transformation;
 
-import de.hpi.bpt.logtransform.transformation.compliance.NonCompliantLogMovesTransformation;
+import de.hpi.bpt.logtransform.transformation.compliance.NonCompliantLogTransitionsTransformation;
 import de.hpi.bpt.logtransform.transformation.controlflow.*;
 import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedHandoverCountTransformation;
+import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedNumberOfResourcesInvolvedTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedPingPongOccurrenceTransformation;
 import de.hpi.bpt.modelanalysis.feature.*;
 import org.apache.commons.lang3.tuple.Pair;
@@ -18,7 +19,7 @@ class ModelFeatureGenerator {
 
     private final Map<String, String> activityMapping;
 
-    public ModelFeatureGenerator(Map<String, String> activityMapping) {
+    ModelFeatureGenerator(Map<String, String> activityMapping) {
         this.activityMapping = activityMapping;
     }
 
@@ -68,7 +69,8 @@ class ModelFeatureGenerator {
                 ));
         return List.of(
                 new ActivityBasedPingPongOccurrenceTransformation(activityToLane),
-                new ActivityBasedHandoverCountTransformation(activityToLane)
+                new ActivityBasedHandoverCountTransformation(activityToLane),
+                new ActivityBasedNumberOfResourcesInvolvedTransformation(activityToLane)
         );
     }
 
@@ -83,7 +85,7 @@ class ModelFeatureGenerator {
 
     private List<LogTransformation> from(CompliantFlowsFeature feature) {
         return List.of(
-                new NonCompliantLogMovesTransformation(
+                new NonCompliantLogTransitionsTransformation(
                         feature.getCompliantFlows().entrySet().stream()
                                 .filter(entry -> activityMapping.containsKey(entry.getKey()))
                                 .collect(Collectors.toMap(

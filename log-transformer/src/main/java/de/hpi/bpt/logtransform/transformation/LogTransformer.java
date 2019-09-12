@@ -40,6 +40,7 @@ public class LogTransformer {
         resultCaseLog.setName(sourceEventLog.getName() + "_case");
 
         for (var transformation : transformations) {
+            System.out.println(transformation.getClass().getSimpleName());
             transformation.transform(sourceEventLog, resultCaseLog);
         }
 
@@ -49,5 +50,10 @@ public class LogTransformer {
     public RowCaseLog transformJoining(List<RowCaseLog> attributeLogs) {
         var joiner = new RowCaseLogJoiner();
         return attributeLogs.stream().reduce(transform(), joiner::join);
+    }
+
+    public LogTransformer with(List<LogTransformation> transformations) {
+        this.transformations.addAll(transformations);
+        return this;
     }
 }

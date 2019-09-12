@@ -4,19 +4,17 @@ import weka.core.Instances;
 import weka.core.converters.ArffLoader;
 import weka.core.converters.ArffSaver;
 import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.Remove;
-import weka.filters.unsupervised.attribute.RemoveUseless;
-import weka.filters.unsupervised.attribute.StringToNominal;
+import weka.filters.unsupervised.attribute.*;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
+import java.util.zip.GZIPInputStream;
 
 public class DataLoader {
 
@@ -27,26 +25,47 @@ public class DataLoader {
         return this;
     }
 
-    public Instances prepareDataFromString(String dataAsArff, String classAttributeName) {
-        return process(loadDataFromString(dataAsArff), classAttributeName);
+    public Instances prepareDataFromFile(String filePath, String classAttributeName) {
+        var processedFilePath = filePath.replace(".arff", "_processed.arff.gz");
+        Instances processedData;
+        if (new File(processedFilePath).isFile()) {
+            processedData = loadCompressedDataFromFile(processedFilePath);
+        } else {
+            processedData = process(loadDataFromFile(filePath), classAttributeName);
+            writeDataToFile(processedData, processedFilePath);
+        }
 
+        return removeSelectedAttributes(processedData);
     }
 
-    public Instances prepareDataFromFile(String filePath, String classAttributeName) {
-        var processedData = process(loadDataFromFile(filePath), classAttributeName);
-        writeDataToFile(processedData, filePath.replace(".arff", "_processed.arff"));
-        return processedData;
+    private Instances removeSelectedAttributes(Instances data) {
+        var indicesToRemove = IntStream.range(0, data.numAttributes()).filter(i -> {
+            for (String attributeToIgnore : attributesToIgnore) {
+                var name = data.attribute(i).name();
+                if (name.contains(attributeToIgnore)) {
+                    System.out.println("Removing attribute '" + name + "'");
+                    return true;
+                }
+            }
+            return false;
+        }).toArray();
+
+        var remove = new Remove();
+        remove.setAttributeIndicesArray(indicesToRemove);
+
+        try {
+            remove.setInputFormat(data);
+            return Filter.useFilter(data, remove);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     private Instances process(Instances data, String classAttributeName) {
         try {
-            attributesToIgnore.forEach(attribute -> data.deleteAttributeAt(data.attribute(attribute).index()));
-
-            var preprocessedData = applyFilters(data);
-
-            preprocessedData.setClass(preprocessedData.attribute(classAttributeName));
-            preprocessedData.deleteWithMissingClass();
-            return preprocessedData;
+            data.setClass(data.attribute(classAttributeName));
+            data.deleteWithMissingClass();
+            return applyFilters(data);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -54,26 +73,61 @@ public class DataLoader {
     }
 
     private Instances applyFilters(Instances data) throws Exception {
-        var nominal = Filter.useFilter(data, stringToNominalFilter(data));
-        var removeUseless = Filter.useFilter(nominal, removeUselessFilter(nominal));
-        return Filter.useFilter(removeUseless, removeEmptyAttributesFilter(removeUseless));
+        var nominal = stringToNominal(data);
+        var discrete = numericToNominal(nominal);
+        var removeUseless = removeUseless(discrete);
+        var nonEmpty = removeEmptyAttributes(removeUseless);
+        var merged = mergeInfrequentNominalValues(nonEmpty);
+        return nominalToBinary(merged);
     }
 
-    private StringToNominal stringToNominalFilter(Instances data) throws Exception {
+    private Instances mergeInfrequentNominalValues(Instances data) throws Exception {
+        var mergeInfrequentNominalValues = new MergeInfrequentNominalValues();
+        mergeInfrequentNominalValues.setMinimumFrequency(100);
+        mergeInfrequentNominalValues.setAttributeIndices("first-last");
+        mergeInfrequentNominalValues.setInputFormat(data);
+        return Filter.useFilter(data, mergeInfrequentNominalValues);
+    }
+
+    private Instances stringToNominal(Instances data) throws Exception {
         var stringToNominal = new StringToNominal();
         stringToNominal.setAttributeRange("first-last");
         stringToNominal.setInputFormat(data);
-        return stringToNominal;
+        return Filter.useFilter(data, stringToNominal);
     }
 
-    private RemoveUseless removeUselessFilter(Instances data) throws Exception {
+    private Instances discretize(Instances data) throws Exception {
+        var discretize = new Discretize();
+        discretize.setAttributeIndices("first-last");
+        discretize.setFindNumBins(true);
+        discretize.setMakeBinary(true);
+        discretize.setInputFormat(data);
+        return Filter.useFilter(data, discretize);
+    }
+
+    private Instances numericToNominal(Instances data) throws Exception {
+        var numericToNominal = new NumericToNominal();
+        numericToNominal.setAttributeIndices("first-last");
+        numericToNominal.setInputFormat(data);
+        return Filter.useFilter(data, numericToNominal);
+    }
+
+    private Instances nominalToBinary(Instances data) throws Exception {
+        var nominalToBinary = new NominalToBinary();
+        nominalToBinary.setBinaryAttributesNominal(true);
+        nominalToBinary.setAttributeIndices("first-last");
+        nominalToBinary.setInputFormat(data);
+        return Filter.useFilter(data, nominalToBinary);
+    }
+
+    private Instances removeUseless(Instances data) throws Exception {
         var removeUseless = new RemoveUseless();
-        removeUseless.setMaximumVariancePercentageAllowed(100.0);
+        removeUseless.setMaximumVariancePercentageAllowed(20.0);
         removeUseless.setInputFormat(data);
-        return removeUseless;
+        return Filter.useFilter(data, removeUseless);
     }
 
-    private Remove removeEmptyAttributesFilter(final Instances data) throws Exception {
+    private Instances removeEmptyAttributes(final Instances data) throws Exception {
         var toRemove = IntStream.range(0, data.numAttributes())
                 .filter(i -> {
                     var attribute = data.attribute(i);
@@ -83,17 +137,7 @@ public class DataLoader {
         var remove = new Remove();
         remove.setAttributeIndicesArray(toRemove);
         remove.setInputFormat(data);
-        return remove;
-    }
-
-    private Instances loadDataFromString(String dataAsArff) {
-        try (var inputStream = new ByteArrayInputStream(dataAsArff.getBytes(StandardCharsets.UTF_8))) {
-            var arffLoader = new ArffLoader();
-            arffLoader.setSource(inputStream);
-            return arffLoader.getDataSet();
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+        return Filter.useFilter(data, remove);
     }
 
     private Instances loadDataFromFile(String filePath) {
@@ -106,11 +150,23 @@ public class DataLoader {
         }
     }
 
+    private Instances loadCompressedDataFromFile(String filePath) {
+        try (var fileInputStream = new FileInputStream(filePath);
+             var gzipStream = new GZIPInputStream(fileInputStream)) {
+            var arffLoader = new ArffLoader();
+            arffLoader.setSource(gzipStream);
+            return arffLoader.getDataSet();
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
     private void writeDataToFile(Instances data, String filePath) {
         try (var outputStream = new FileOutputStream(filePath)) {
             var arffSaver = new ArffSaver();
             arffSaver.setDestination(outputStream);
             arffSaver.setInstances(data);
+            arffSaver.setCompressOutput(true);
             arffSaver.writeBatch();
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);

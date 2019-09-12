@@ -76,16 +76,21 @@ public class FeatureEvaluator {
 
             attributeSelection.SelectAttributes(data);
             var rankedAttributes = attributeSelection.rankedAttributes();
-            var attributeIndices = IntStream.range(0, rankedAttributes.length)
+            var directDependencyAttributeIndices = IntStream.range(0, rankedAttributes.length)
                     .filter(i -> rankedAttributes[i][1] == 1.0)
                     .map(i -> (int) rankedAttributes[i][0])
                     .toArray();
 
+            var almostNoDependencyAttributeIndices = IntStream.range(0, rankedAttributes.length)
+                    .filter(i -> rankedAttributes[i][1] < 0.01)
+                    .map(i -> (int) rankedAttributes[i][0])
+                    .toArray();
+
             var remove = new Remove();
-            remove.setAttributeIndicesArray(attributeIndices);
+            remove.setAttributeIndicesArray(IntStream.concat(Arrays.stream(directDependencyAttributeIndices), Arrays.stream(almostNoDependencyAttributeIndices)).toArray());
             remove.setInputFormat(data);
             return Pair.of(
-                    Arrays.stream(attributeIndices).mapToObj(index -> data.attribute(index).name()).collect(joining("\n")),
+                    Arrays.stream(directDependencyAttributeIndices).mapToObj(index -> data.attribute(index).name()).collect(joining("\n")),
                     Filter.useFilter(data, remove)
             );
 

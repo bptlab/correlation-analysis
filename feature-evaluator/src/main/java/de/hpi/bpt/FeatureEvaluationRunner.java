@@ -27,8 +27,8 @@ public class FeatureEvaluationRunner {
 
 
     public static final String TARGET_VALUE = "false";
-    private static final String TARGET_VARIABLE = "Receive Goods_wasexecuted";
-    private static final String PROJECT_FOLDER = "Solvay";
+    private static final String TARGET_VARIABLE = "Vendor creates invoice_Clear Invoice_duration_below_threshold";
+    private static final String PROJECT_FOLDER = "BPIC2019";
     private static final String DATA_FOLDER = "/home/jonas/Data/";
     public static final String FOLDER_PATH = DATA_FOLDER + PROJECT_FOLDER + "/";
 
@@ -37,7 +37,7 @@ public class FeatureEvaluationRunner {
 
 
     public static void main(String[] args) throws Exception {
-        var dataLoader = new DataLoader().ignoring("Receive Goods_snumexecutions");
+        var dataLoader = new DataLoader().ignoring("spendclassification");
         var featureEvaluator = new FeatureEvaluator();
         var classifier = new DecisionTreeClassifier();
         var clusterer = new Clusterer();
@@ -47,10 +47,10 @@ public class FeatureEvaluationRunner {
 
         var initialData = runTimed(() -> dataLoader.prepareDataFromFile(FOLDER_PATH + CASES_FILE, TARGET_VARIABLE), "Preparing data");
 
-        var commonValues = runTimed(() -> commonValueCollector.collectCommonValues(dataSplitter.removeInstancesWithWrongClass(initialData)), "Collecting common values");
-        var dataWithCommonValueFeatures = featureEvaluator.retainFeaturesWithCommonValues(initialData, commonValues.stream().mapToInt(CommonValueCollector.CommonValue::getAttributeIndex).toArray());
+//        var commonValues = runTimed(() -> commonValueCollector.collectCommonValues(dataSplitter.removeInstancesWithWrongClass(initialData)), "Collecting common values");
+//        var dataWithCommonValueFeatures = featureEvaluator.retainFeaturesWithCommonValues(initialData, commonValues.stream().mapToInt(CommonValueCollector.CommonValue::getAttributeIndex).toArray());
 
-        Pair<String, Instances> directDependencyResult = runTimed(() -> featureEvaluator.findAndRemoveDirectDependencies(dataWithCommonValueFeatures), "Removing direct dependencies");
+        Pair<String, Instances> directDependencyResult = runTimed(() -> featureEvaluator.findAndRemoveDirectDependencies(initialData), "Removing direct dependencies");
         var dataWithoutDirectDependencies = directDependencyResult.getRight();
 
         var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(dataWithoutDirectDependencies), "Calculating feature scores");
@@ -72,19 +72,13 @@ public class FeatureEvaluationRunner {
         writeAll(
                 positiveRules,
                 evaluation.toClassDetailsString(),
-                commonValues.stream().map(CommonValueCollector.CommonValue::toString).collect(joining("\n")),
+                "",//commonValues.stream().map(CommonValueCollector.CommonValue::toString).collect(joining("\n")),
                 centroids,
                 directDependencyResult.getLeft()
         );
 
     }
 
-
-    public static void writeToFile(String result, String filePath) throws IOException {
-        try (var fileWriter = new FileWriter(filePath)) {
-            fileWriter.write(result);
-        }
-    }
 
     private static void writeAll(
             String rules,
@@ -102,6 +96,9 @@ public class FeatureEvaluationRunner {
                 .replace("{{COMMON_VALUES}}", commonValues)
                 .replace("{{CLUSTERS}}", clusters)
                 .replace("{{DIRECT_DEPENDENCIES}}", directDependencies);
-        writeToFile(result, FOLDER_PATH + "result.html");
+
+        try (var fileWriter = new FileWriter(FOLDER_PATH + "result.html")) {
+            fileWriter.write(result);
+        }
     }
 }

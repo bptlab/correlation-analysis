@@ -9,6 +9,22 @@ import java.util.Map;
 
 public enum Project {
 
+    SIGNAVIO_SALESFORCE_OPPS(
+            "/home/jonas/Data/Signavio Salesforce Opportunities/",
+            "model.bpmn",
+            "events_sorted.csv",
+            List.of("caseattributes.csv"),
+            "cases.arff",
+            "yyyy-MM-dd'T'HH:mm:ss'Z'",
+            ',',
+            "caseid",
+            "timestamp",
+            "name",
+            null,
+            ActivityMapping.IDENTITY_MAP,
+            List.of()
+    ),
+
     BPIC2018(
             "/home/jonas/Data/BPIC2018/",
             "model.bpmn",

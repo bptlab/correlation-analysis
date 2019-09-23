@@ -1,6 +1,7 @@
 package de.hpi.bpt;
 
 import de.hpi.bpt.logtransform.transformation.LogTransformation;
+import de.hpi.bpt.logtransform.transformation.custom.BPIC2018TargetTransformation;
 import de.hpi.bpt.logtransform.transformation.time.BetweenEventsDurationThresholdTransformation;
 
 import java.util.List;
@@ -8,7 +9,23 @@ import java.util.Map;
 
 public enum Project {
 
-    BPIC19(
+    BPIC2018(
+            "/home/jonas/Data/BPIC2018/",
+            "model.bpmn",
+            "events_sorted.csv",
+            List.of("caseattributes.csv"),
+            "cases.arff",
+            "yyyy-MM-dd HH:mm:ssX",
+            ',',
+            "caseid",
+            "timestamp",
+            "name",
+            "resource",
+            ActivityMapping.IDENTITY_MAP,
+            List.of(new BPIC2018TargetTransformation())
+    ),
+
+    BPIC2019(
             "/home/jonas/Data/BPIC2019/",
             "model_subprocesses.bpmn",
             "finished_events.csv",
@@ -21,7 +38,7 @@ public enum Project {
             "name",
             "resource",
             ActivityMapping.IDENTITY_MAP,
-            List.of(BetweenEventsDurationThresholdTransformation.days(60, "Vendor creates invoice", "Clear Invoice"))
+            List.of(BetweenEventsDurationThresholdTransformation.days(90, "Vendor creates invoice", "Clear Invoice"))
     ),
 
     MACIF(

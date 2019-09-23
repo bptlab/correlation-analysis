@@ -2,13 +2,9 @@ package de.hpi.bpt.logtransform.transformation.controlflow;
 
 import de.hpi.bpt.logtransform.datastructures.ColumnCaseLog;
 import de.hpi.bpt.logtransform.datastructures.ColumnEventLog;
-import de.hpi.bpt.logtransform.datastructures.LogColumn;
 import de.hpi.bpt.logtransform.transformation.LogTransformation;
 
 import java.util.List;
-import java.util.Set;
-
-import static java.util.stream.Collectors.toSet;
 
 public class SimpleNumberOfActivityExecutionsTransformation implements LogTransformation {
 
@@ -17,7 +13,7 @@ public class SimpleNumberOfActivityExecutionsTransformation implements LogTransf
         var sourceSchema = sourceEventLog.getSchema();
         var activityColumn = sourceEventLog.getTyped(sourceSchema.getActivityName(), String.class);
 
-        for (String activityName : uniqueActivityNames(activityColumn)) {
+        for (String activityName : sourceEventLog.getUniqueActivityNames()) {
             var numExecutionsColumn = resultCaseLog.addColumn(activityName + "_snumexecutions", String.class);
 
             for (List<String> trace : activityColumn.getTraces()) {
@@ -31,10 +27,5 @@ public class SimpleNumberOfActivityExecutionsTransformation implements LogTransf
                 }
             }
         }
-    }
-
-
-    private Set<String> uniqueActivityNames(LogColumn<String> activityColumn) {
-        return activityColumn.getTraces().stream().flatMap(List::stream).collect(toSet());
     }
 }

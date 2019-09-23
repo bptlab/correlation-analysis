@@ -28,7 +28,7 @@ import static java.util.stream.Collectors.toList;
 
 public class LogTransformRunner {
 
-    private static final Project PROJECT = Project.BPIC19;
+    private static final Project PROJECT = Project.BPIC2019;
 
     public static void main(String[] args) {
 
@@ -37,7 +37,6 @@ public class LogTransformRunner {
         var rowCaseLog = retrieveCaseLog(analysisResults);
 
         TimeTracker.runTimed(() -> new ArffCaseLogWriter().writeToFile(rowCaseLog, PROJECT.folder + PROJECT.caseFile), "Writing case log...");
-        new File(PROJECT.folder + PROJECT.caseFile.replace(".arff", "_processed.arff.gz")).delete();
     }
 
     private static Set<AnalysisResult> analyzeModel() {
@@ -60,7 +59,6 @@ public class LogTransformRunner {
 
         var transformer = new LogTransformer(eventLog)
                 .with(PROJECT.customTransformations)
-//                .with(new BPIC2018TargetTransformation())
 
                 // existing attributes
                 .with(new ExistingAttributeTransformation())

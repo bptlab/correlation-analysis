@@ -30,7 +30,7 @@ class ActivityExecutionTransformationTest {
                 .build()
                 .build();
 
-        var transformation = new ActivityExecutionTransformation("A1", "A2", "A3");
+        var transformation = new ActivityExecutionTransformation();
 
         // Act
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();

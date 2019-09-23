@@ -1,7 +1,10 @@
 package de.hpi.bpt.logtransform.transformation;
 
 import de.hpi.bpt.logtransform.transformation.compliance.NonCompliantLogTransitionsTransformation;
-import de.hpi.bpt.logtransform.transformation.controlflow.*;
+import de.hpi.bpt.logtransform.transformation.controlflow.ActivityExecutionDirectFlowTransformation;
+import de.hpi.bpt.logtransform.transformation.controlflow.NumberOfActivityExecutionsTransformation;
+import de.hpi.bpt.logtransform.transformation.controlflow.ParallelActivityWhosFirstTransformation;
+import de.hpi.bpt.logtransform.transformation.controlflow.SubProcessTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedHandoverCountTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedNumberOfResourcesInvolvedTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedPingPongOccurrenceTransformation;
@@ -29,8 +32,6 @@ class ModelFeatureGenerator {
                 return from((XorSplitFollowsFeature) analysisResult);
             case REPEATING_ACTIVITY:
                 return from((RepeatingActivityFeature) analysisResult);
-            case OPTIONAL_ACTIVITY:
-                return from((OptionalActivityFeature) analysisResult);
             case PARALLEL_ACTIVITY_ORDER:
                 return from((ParallelActivityOrderFeature) analysisResult);
             case ACTIVITY_TO_LANE:
@@ -50,10 +51,6 @@ class ModelFeatureGenerator {
 
     private List<LogTransformation> from(RepeatingActivityFeature feature) {
         return List.of(new NumberOfActivityExecutionsTransformation(mapNames(feature)));
-    }
-
-    private List<LogTransformation> from(OptionalActivityFeature feature) {
-        return List.of(new ActivityExecutionTransformation(mapNames(feature)));
     }
 
     private List<LogTransformation> from(ParallelActivityOrderFeature feature) {

@@ -12,7 +12,7 @@ public class DataSplitter {
             var removeWithValues = new RemoveWithValues();
             removeWithValues.setAttributeIndex("" + (data.classIndex() + 1));
             if (data.classAttribute().isNominal()) {
-                removeWithValues.setNominalIndicesArr(new int[]{data.classAttribute().indexOfValue(FeatureEvaluationRunner.TARGET_VALUE)});
+                removeWithValues.setNominalIndicesArr(new int[]{data.classAttribute().indexOfValue(FeatureEvaluationRunner.PROJECT.getTargetValue())});
             } else {
                 throw new RuntimeException("Clustering for numeric target not yet supported");
             }

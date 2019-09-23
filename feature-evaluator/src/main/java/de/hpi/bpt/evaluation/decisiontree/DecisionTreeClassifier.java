@@ -31,6 +31,16 @@ public class DecisionTreeClassifier {
         }
     }
 
+    public REPTree buildREPTree(Instances data) {
+        try {
+            var classifier = new REPTree();
+            classifier.buildClassifier(data);
+            return classifier;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
     public String buildBoostedJ48Tree(Instances data) {
         try {
             var classifier = new J48();

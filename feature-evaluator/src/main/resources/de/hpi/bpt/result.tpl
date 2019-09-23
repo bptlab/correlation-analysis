@@ -1,49 +1,72 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html lang="en">
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{PROJECT}}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  </head>
+  <body>
 
-<head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Results</title>
-</head>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">{{TARGET_VARIABLE}}</h1>
+        </div>
+    </section>
 
-<body>
-    <div>
-        <h3>{{TARGET_VARIABLE}}</h3>
-    </div>
-    <div>
-        <h3>Tree</h3>
-        <img src="{{FOLDER}}tree.png" />
-    </div>
-    <div>
-        <h3>Rules</h3>
-        <div><pre><code>
+    <section class="section">
+        <div class="container">
+            <p class="subtitle">Selected Attributes</p>
+            <div><pre><code>
+{{SELECTED_ATTRIBUTES}}
+            </code></pre></div>
+        </div>
+    </section>
+
+
+    <section class="section">
+        <div class="container">
+            <p class="subtitle">Tree</p>
+            <img src="{{FOLDER}}tree.png" />
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <p class="subtitle">Rules</p>
+            <div><pre><code>
 {{RULES}}
-        </code></pre></div>
-    </div>
-    <div>
-        <h3>Evaluation</h3>
-        <div><pre><code>
-{{EVALUATION}}
-        </code></pre></div>
-    </div>
-    <div>
-        <h3>Common Values</h3>
-        <div><pre><code>
-{{COMMON_VALUES}}
-        </code></pre></div>
-    </div>
-    <div>
-        <h3>Clusters</h3>
-        <div><pre><code>
-{{CLUSTERS}}
-        </code></pre></div>
-    </div>
-    <div>
-        <h3>Direct Dependencies</h3>
-        <div><pre><code>
-{{DIRECT_DEPENDENCIES}}
-        </code></pre></div>
-    </div>
-</body>
+            </code></pre></div>
+        </div>
+    </section>
 
+    <section class="section">
+        <div class="container">
+            <p class="subtitle">Evaluation</p>
+            <div><pre><code>
+{{EVALUATION}}
+            </code></pre></div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <p class="subtitle">Common values between cluster centroids</p>
+            <div><pre><code>
+{{CLUSTERS}}
+            </code></pre></div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <p class="subtitle">Direct Dependencies</p>
+            <div><pre><code>
+{{DIRECT_DEPENDENCIES}}
+            </code></pre></div>
+        </div>
+    </section>
+
+  </body>
 </html>

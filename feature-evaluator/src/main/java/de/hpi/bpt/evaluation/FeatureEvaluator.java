@@ -1,6 +1,5 @@
 package de.hpi.bpt.evaluation;
 
-import org.apache.commons.lang3.tuple.Pair;
 import weka.attributeSelection.*;
 import weka.core.Instances;
 import weka.filters.Filter;
@@ -62,11 +61,8 @@ public class FeatureEvaluator {
         }
     }
 
-    /**
-     * Removes attributes that correlate directly with the class attribute.
-     * Prints their names as String, separated by newlines.
-     */
-    public Pair<String, Instances> findAndRemoveDirectDependencies(Instances data) {
+
+    public AttributeSelection selectAttributes(Instances data) {
         try {
             var attributeSelection = new AttributeSelection();
             var ranker = new Ranker();
@@ -75,6 +71,42 @@ public class FeatureEvaluator {
             attributeSelection.setSearch(ranker);
 
             attributeSelection.SelectAttributes(data);
+            return attributeSelection;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    public String findDirectDependencies(Instances data, AttributeSelection attributeSelection) {
+        try {
+            var rankedAttributes = attributeSelection.rankedAttributes();
+            var directDependencyAttributeIndices = IntStream.range(0, rankedAttributes.length)
+                    .filter(i -> rankedAttributes[i][1] == 1.0)
+                    .map(i -> (int) rankedAttributes[i][0])
+                    .toArray();
+
+            return Arrays.stream(directDependencyAttributeIndices).mapToObj(index -> data.attribute(index).name()).collect(joining("\n"));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    public String findHighlyCorrelatedAttributes(Instances data, AttributeSelection attributeSelection) {
+        try {
+            var rankedAttributes = attributeSelection.rankedAttributes();
+            var directDependencyAttributeIndices = IntStream.range(0, rankedAttributes.length)
+                    .filter(i -> rankedAttributes[i][1] > 0.9 && rankedAttributes[i][1] != 1.0)
+                    .map(i -> (int) rankedAttributes[i][0])
+                    .toArray();
+
+            return Arrays.stream(directDependencyAttributeIndices).mapToObj(index -> data.attribute(index).name()).collect(joining("\n"));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    public Instances removeNonInterestingAttributes(Instances data, AttributeSelection attributeSelection) {
+        try {
             var rankedAttributes = attributeSelection.rankedAttributes();
             var directDependencyAttributeIndices = IntStream.range(0, rankedAttributes.length)
                     .filter(i -> rankedAttributes[i][1] == 1.0)
@@ -89,13 +121,10 @@ public class FeatureEvaluator {
             var remove = new Remove();
             remove.setAttributeIndicesArray(IntStream.concat(Arrays.stream(directDependencyAttributeIndices), Arrays.stream(almostNoDependencyAttributeIndices)).toArray());
             remove.setInputFormat(data);
-            return Pair.of(
-                    Arrays.stream(directDependencyAttributeIndices).mapToObj(index -> data.attribute(index).name()).collect(joining("\n")),
-                    Filter.useFilter(data, remove)
-            );
-
+            return Filter.useFilter(data, remove);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+
     }
 }

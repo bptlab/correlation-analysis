@@ -1,75 +1,56 @@
 package de.hpi.bpt.evaluation;
 
+import weka.core.Attribute;
 import weka.core.Instances;
 
-import java.util.*;
-import java.util.function.DoubleFunction;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.IntStream;
+
+import static java.util.stream.Collectors.joining;
 
 public class CommonValueCollector {
 
-    public ArrayList<CommonValue> collectCommonValues(Instances singleClassData) {
+    public String collectCommonValues(Instances singleClassData) {
+        var result = new HashMap<String, Map<String, Integer>>();
+
         var numAttributes = singleClassData.numAttributes();
+        IntStream.range(0, numAttributes)
+                .mapToObj(i -> singleClassData.attribute(i).name())
+                .forEach(attribute -> result.put(attribute, new HashMap<>()));
+
         var numValues = singleClassData.size();
-        var commonValues = new ArrayList<CommonValue>();
-        for (int attributeIndex = 0; attributeIndex < numAttributes; attributeIndex++) {
-            var attribute = singleClassData.attribute(attributeIndex);
+        var instances = singleClassData.enumerateInstances();
 
-            DoubleFunction<Object> valueMapper;
-            if (attribute.isNumeric()) {
-                valueMapper = d -> d;
-            } else if (attribute.isDate()) {
-                valueMapper = d -> new Date((long) d);
-            } else {
-                valueMapper = d -> Double.isNaN(d) ? "NULL" : attribute.value((int) d);
-            }
-
-            var counts = new HashMap<Object, Integer>();
-            for (int valueIndex = 0; valueIndex < numValues; valueIndex++) {
-                var value = valueMapper.apply(singleClassData.instance(valueIndex).value(attributeIndex));
-                counts.merge(value, 1, Integer::sum);
-            }
-
-            var maxAttribute = Collections.max(counts.entrySet(), Comparator.comparingInt(Map.Entry::getValue));
-
-            if (maxAttribute.getValue() > (numValues * 0.85)) {
-                commonValues.add(new CommonValue(attributeIndex, attribute.name(), maxAttribute.getKey(), (double) maxAttribute.getValue() / (double) numValues));
+        while (instances.hasMoreElements()) {
+            var instance = instances.nextElement();
+            var attributes = instance.enumerateAttributes();
+            while (attributes.hasMoreElements()) {
+                var attribute = attributes.nextElement();
+                result.get(attribute.name()).merge(readableValue(attribute, instance.value(attribute)), 1, Integer::sum);
             }
         }
-        return commonValues;
+
+        return result.entrySet().stream()
+                .map(attributeEntry -> attributeEntry.getKey() + ": " + attributeEntry.getValue().entrySet().stream()
+                        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                        .limit(3)
+                        .map(valueEntry -> valueEntry.getKey() + " (" + valueEntry.getValue() + ")")
+                        .collect(joining(" | "))
+                ).collect(joining("\n"));
+
     }
 
-    public static class CommonValue {
-        private int attributeIndex;
-        private String attributeName;
-        private Object value;
-        private double percentage;
-
-        public CommonValue(int attributeIndex, String attributeName, Object value, double percentage) {
-            this.attributeIndex = attributeIndex;
-            this.attributeName = attributeName;
-            this.value = value;
-            this.percentage = percentage;
-        }
-
-        public int getAttributeIndex() {
-            return attributeIndex;
-        }
-
-        public String getAttributeName() {
-            return attributeName;
-        }
-
-        public Object getValue() {
-            return value;
-        }
-
-        public double getPercentage() {
-            return percentage;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("%s = %s: %.2f%%", attributeName, value.toString(), percentage * 100.0);
+    private String readableValue(Attribute attribute, double value) {
+        if (attribute.isNumeric()) {
+            return String.valueOf(value);
+        } else if (attribute.isDate()) {
+            return Instant.ofEpochMilli((long) value).atZone(ZoneId.systemDefault()).toString();
+        } else {
+            return Double.isNaN(value) ? "NULL" : attribute.value((int) value);
         }
     }
 }

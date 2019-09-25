@@ -17,24 +17,48 @@
 
     <section class="section">
         <div class="container">
-            <p class="subtitle">Selected Attributes</p>
+            <p class="title is-4">Direct Dependencies</p>
+            <div><pre><code>
+{{DIRECT_DEPENDENCIES}}
+            </code></pre></div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <p class="title is-4">Highly Correlated Attributes</p>
+            <div><pre><code>
+{{CORRELATED_ATTRIBUTES}}
+            </code></pre></div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <p class="title is-4">Selected Attributes</p>
             <div><pre><code>
 {{SELECTED_ATTRIBUTES}}
             </code></pre></div>
         </div>
     </section>
 
+    <section class="section">
+        <div class="container">
+            <p class="title is-4">Correlation Assumptions</p>
+            {{ASSUMPTION_TREES}}
+        </div>
+    </section>
 
     <section class="section">
         <div class="container">
-            <p class="subtitle">Tree</p>
+            <p class="title is-4">Tree</p>
             <img src="{{FOLDER}}tree.png" />
         </div>
     </section>
 
     <section class="section">
         <div class="container">
-            <p class="subtitle">Rules</p>
+            <p class="title is-4">Rules</p>
             <div><pre><code>
 {{RULES}}
             </code></pre></div>
@@ -43,7 +67,7 @@
 
     <section class="section">
         <div class="container">
-            <p class="subtitle">Evaluation</p>
+            <p class="title is-4">Evaluation</p>
             <div><pre><code>
 {{EVALUATION}}
             </code></pre></div>
@@ -52,18 +76,18 @@
 
     <section class="section">
         <div class="container">
-            <p class="subtitle">Common values between cluster centroids</p>
+            <p class="title is-4">Top 3 Common Values Between Instances</p>
             <div><pre><code>
-{{CLUSTERS}}
+{{COMMON_VALUES}}
             </code></pre></div>
         </div>
     </section>
 
     <section class="section">
         <div class="container">
-            <p class="subtitle">Direct Dependencies</p>
+            <p class="title is-4">Cluster Centroids</p>
             <div><pre><code>
-{{DIRECT_DEPENDENCIES}}
+{{CLUSTERS}}
             </code></pre></div>
         </div>
     </section>

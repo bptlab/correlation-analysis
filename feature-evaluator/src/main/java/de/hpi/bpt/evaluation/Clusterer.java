@@ -25,11 +25,12 @@ public class Clusterer {
             dateToNumeric.setInputFormat(singleClassData);
             singleClassData = Filter.useFilter(singleClassData, dateToNumeric);
 
-            var simpleKMeans = new SimpleKMeans();
+            var simpleKMeans = new SimpleKMeans(); // TODO better clustering algo?
             simpleKMeans.setNumClusters(3);
             simpleKMeans.buildClusterer(singleClassData);
 
-            return filterCommonValuesBetweenCentroids(singleClassData.enumerateAttributes(), simpleKMeans.getClusterCentroids());
+//            return filterCommonValuesBetweenCentroids(singleClassData.enumerateAttributes(), simpleKMeans.getClusterCentroids());
+            return simpleKMeans.toString();
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

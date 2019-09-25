@@ -81,7 +81,7 @@ public class DataLoader {
         var indicesToRemove = IntStream.range(0, data.numAttributes()).filter(i -> {
             for (String attributeToIgnore : attributesToIgnore) {
                 var name = data.attribute(i).name();
-                if (name.startsWith(attributeToIgnore) && !name.equals(selectedClassAttribute)) {
+                if (name.contains(attributeToIgnore) && !name.equals(selectedClassAttribute)) {
                     System.out.println("Removing attribute '" + name + "'");
                     return true;
                 }
@@ -103,11 +103,18 @@ public class DataLoader {
     private Instances mergeInfrequentNominalValues(Instances data) {
         try {
             var mergeInfrequentNominalValues = new MergeInfrequentNominalValues();
-            mergeInfrequentNominalValues.setMinimumFrequency(100);
+            mergeInfrequentNominalValues.setMinimumFrequency(10);
             mergeInfrequentNominalValues.setUseShortIDs(true);
             mergeInfrequentNominalValues.setAttributeIndices("first-last");
             mergeInfrequentNominalValues.setInputFormat(data);
-            return Filter.useFilter(data, mergeInfrequentNominalValues);
+            var merged = Filter.useFilter(data, mergeInfrequentNominalValues);
+
+            var renameAttribute = new RenameAttribute();
+            renameAttribute.setAttributeIndices("first-last");
+            renameAttribute.setFind("_merged_infrequent_values");
+            renameAttribute.setReplace("");
+            renameAttribute.setInputFormat(merged);
+            return Filter.useFilter(merged, renameAttribute);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

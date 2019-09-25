@@ -20,20 +20,12 @@ public class FeatureEvaluator {
         try {
             var attributeSelection = new AttributeSelection();
 
-            try {
-                var evaluator = new CfsSubsetEval();
-                var search = new BestFirst();
-                attributeSelection.setEvaluator(evaluator);
-                attributeSelection.setSearch(search);
+            var evaluator = new CfsSubsetEval();
+            var search = new BestFirst();
+            attributeSelection.setEvaluator(evaluator);
+            attributeSelection.setSearch(search);
 
-                attributeSelection.SelectAttributes(data);
-            } catch (OutOfMemoryError e) {
-                var evaluator = new SymmetricalUncertAttributeEval();
-                var search = new Ranker();
-                attributeSelection.setEvaluator(evaluator);
-                attributeSelection.setSearch(search);
-                attributeSelection.SelectAttributes(data);
-            }
+            attributeSelection.SelectAttributes(data);
             return attributeSelection.reduceDimensionality(data);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -66,7 +58,8 @@ public class FeatureEvaluator {
         try {
             var attributeSelection = new AttributeSelection();
             var ranker = new Ranker();
-            var evaluator = new SymmetricalUncertAttributeEval();
+//            var evaluator = new SymmetricalUncertAttributeEval();
+            var evaluator = new CorrelationAttributeEval();
             attributeSelection.setEvaluator(evaluator);
             attributeSelection.setSearch(ranker);
 

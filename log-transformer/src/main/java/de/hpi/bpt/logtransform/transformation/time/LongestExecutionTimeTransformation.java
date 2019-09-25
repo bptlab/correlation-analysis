@@ -16,7 +16,6 @@ public class LongestExecutionTimeTransformation implements LogTransformation {
         var timestampColumn = sourceEventLog.getTyped(sourceSchema.getTimestampName(), Date.class);
         var activityColumn = sourceEventLog.getTyped(sourceSchema.getActivityName(), String.class);
 
-        var timeColumn = resultCaseLog.addColumn("longestexecutiontime", Integer.class);
         var nameColumn = resultCaseLog.addColumn("longestexecutingactivity", String.class);
 
         List<List<Date>> timestampTraces = timestampColumn.getTraces();
@@ -31,7 +30,6 @@ public class LongestExecutionTimeTransformation implements LogTransformation {
                     activityName = activityColumn.get(traceIndex).get(eventIndex);
                 }
             }
-            timeColumn.addValue((int) maxExecutionTime);
             nameColumn.addValue(activityName);
         }
     }

@@ -1,30 +1,32 @@
 package de.hpi.bpt.util;
 
 import weka.core.Instances;
-import weka.core.converters.ArffLoader;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.*;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
 
 import static de.hpi.bpt.util.TimeTracker.runTimed;
 
-public class DataLoader {
+public class DataPreprocessor {
 
     private Set<String> attributesToIgnore = new HashSet<>();
 
-    public DataLoader ignoring(String... attributeNames) {
+    public DataPreprocessor ignoring(List<String> attributesToIgnore) {
+        this.attributesToIgnore.addAll(attributesToIgnore);
+        return this;
+    }
+
+    public DataPreprocessor ignoring(String... attributeNames) {
         attributesToIgnore.addAll(Arrays.asList(attributeNames));
         return this;
     }
 
-    public Instances prepareDataFromFileNominalKeepingNumeric(String filePath, String classAttributeName) {
-        var data = loadDataFromFile(filePath);
+    public Instances prepareDataNominalKeepingNumeric(Instances data, String classAttributeName) {
         data.setClass(data.attribute(classAttributeName));
         data.deleteWithMissingClass();
 
@@ -35,8 +37,7 @@ public class DataLoader {
         return removeSelectedAttributes(processedData);
     }
 
-    public Instances prepareDataFromFileNominal(String filePath, String classAttributeName) {
-        var data = loadDataFromFile(filePath);
+    public Instances prepareDataAllNominal(Instances data, String classAttributeName) {
         data.setClass(data.attribute(classAttributeName));
         data.deleteWithMissingClass();
 
@@ -48,8 +49,7 @@ public class DataLoader {
         return removeSelectedAttributes(processedData);
     }
 
-    public Instances prepareDataFromFileBinaryKeepingNumeric(String filePath, String classAttributeName) {
-        var data = loadDataFromFile(filePath);
+    public Instances prepareDataBinaryKeepingNumeric(Instances data, String classAttributeName) {
         data.setClass(data.attribute(classAttributeName));
         data.deleteWithMissingClass();
 
@@ -61,8 +61,7 @@ public class DataLoader {
         return removeSelectedAttributes(processedData);
     }
 
-    public Instances prepareDataFromFileAllBinary(String filePath, String classAttributeName) {
-        var data = loadDataFromFile(filePath);
+    public Instances prepareDataAllBinary(Instances data, String classAttributeName) {
         data.setClass(data.attribute(classAttributeName));
         data.deleteWithMissingClass();
 
@@ -163,16 +162,6 @@ public class DataLoader {
             removeUseless.setInputFormat(data);
             return Filter.useFilter(data, removeUseless);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private Instances loadDataFromFile(String filePath) {
-        try (var inputStream = new FileInputStream(filePath)) {
-            var arffLoader = new ArffLoader();
-            arffLoader.setSource(inputStream);
-            return arffLoader.getDataSet();
-        } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

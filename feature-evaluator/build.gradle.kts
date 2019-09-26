@@ -19,6 +19,9 @@ dependencies {
 
     implementation("guru.nidi:graphviz-java:0.8.10")
 
+    compile("ro.pippo:pippo-core:1.12.0")
+    compile("ro.pippo:pippo-freemarker:1.12.0")
+    compile("ro.pippo:pippo-jetty:1.12.0")
 }
 
 repositories {

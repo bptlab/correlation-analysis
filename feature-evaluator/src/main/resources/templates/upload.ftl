@@ -25,7 +25,7 @@
 
                 <div class="field">
                   <div class="control">
-                    <input type="submit" value="Submit" class="button is-link">
+                      <input type="submit" value="Submit" class="button is-primary">
                   </div>
                 </div>
             </form>

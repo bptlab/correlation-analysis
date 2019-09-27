@@ -6,45 +6,36 @@ import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
-import static java.util.stream.Collectors.toSet;
 
 public class FeatureEvaluator {
 
     /**
      * Performs CfsSubsetEvaluation and retains the selected attributes
      */
-    public Instances retainImportantFeatures(Instances data) {
+    public Instances retainImportantFeatures(Instances data, Set<Integer> suspectedDependencies) {
         try {
             var attributeSelection = new AttributeSelection();
 
             var evaluator = new CfsSubsetEval();
+            evaluator.setMissingSeparate(true);
+            evaluator.setPoolSize(4);
+            evaluator.setNumThreads(4);
             var search = new BestFirst();
             attributeSelection.setEvaluator(evaluator);
             attributeSelection.setSearch(search);
 
             attributeSelection.SelectAttributes(data);
-            return attributeSelection.reduceDimensionality(data);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
 
-    public Instances retainFeaturesWithCommonValues(Instances data, int[] attributeIndices) {
-        try {
-            var toRetain = Arrays.stream(attributeIndices).boxed().collect(toSet());
-
-            for (int i = 0; i < data.numAttributes(); i++) {
-                var attribute = data.attribute(i);
-                if (attribute.numValues() != 2) {
-                    toRetain.add(i);
-                }
-            }
-
+            var selectedAttributes = attributeSelection.selectedAttributes();
+            var attributesToKeep = IntStream.concat(suspectedDependencies.stream().mapToInt(i -> i),
+                    Arrays.stream(selectedAttributes))
+                    .distinct().toArray();
             var remove = new Remove();
-            remove.setAttributeIndicesArray(toRetain.stream().mapToInt(i -> i).toArray());
+            remove.setAttributeIndicesArray(attributesToKeep);
             remove.setInvertSelection(true);
             remove.setInputFormat(data);
             return Filter.useFilter(data, remove);
@@ -98,7 +89,7 @@ public class FeatureEvaluator {
         }
     }
 
-    public Instances removeNonInterestingAttributes(Instances data, AttributeSelection attributeSelection) {
+    public Instances removeNonInterestingAttributes(Instances data, AttributeSelection attributeSelection, Set<Integer> attributesToKeep) {
         try {
             var rankedAttributes = attributeSelection.rankedAttributes();
             var directDependencyAttributeIndices = IntStream.range(0, rankedAttributes.length)
@@ -111,8 +102,13 @@ public class FeatureEvaluator {
                     .map(i -> (int) rankedAttributes[i][0])
                     .toArray();
 
+
             var remove = new Remove();
-            remove.setAttributeIndicesArray(IntStream.concat(Arrays.stream(directDependencyAttributeIndices), Arrays.stream(almostNoDependencyAttributeIndices)).toArray());
+            remove.setAttributeIndicesArray(
+                    IntStream.concat(
+                            Arrays.stream(directDependencyAttributeIndices),
+                            Arrays.stream(almostNoDependencyAttributeIndices))
+                            .filter(i -> !attributesToKeep.contains(i)).toArray());
             remove.setInputFormat(data);
             return Filter.useFilter(data, remove);
         } catch (Exception e) {

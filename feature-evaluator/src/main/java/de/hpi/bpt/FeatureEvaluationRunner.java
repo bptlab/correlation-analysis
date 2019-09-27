@@ -24,17 +24,11 @@ import java.util.stream.IntStream;
 
 import static de.hpi.bpt.util.TimeTracker.runTimed;
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
 
-public class FeatureEvaluationRunner {
+class FeatureEvaluationRunner {
 
-//    public static final Project PROJECT = Project.SIGNAVIO_SALESFORCE_OPPS;
-
-//    private static final String DATA_FOLDER = "/home/jonas/Data/";
-//    private static final String FOLDER_PATH = DATA_FOLDER + PROJECT.getFolderName() + "/";
-//    private static final String TREE_GRAPH_OUTPUT_FILE = "tree.png";
-//    private static final String CASES_FILE = "cases.arff";
-
-    public Map<String, Object> runEvaluation(Instances data, String targetAttribute, String targetValue, List<String> attributesToIgnore, List<String> suspectedDependencies, String preprocessingType) {
+    Map<String, Object> runEvaluation(Instances data, String targetAttribute, String targetValue, List<String> attributesToIgnore, List<String> suspectedDependencies, String preprocessingType) {
         var dataPreprocessor = new DataPreprocessor().ignoring(attributesToIgnore);
 
         Instances processedData = null;
@@ -63,12 +57,15 @@ public class FeatureEvaluationRunner {
         var validator = new CrossValidator();
         var dataSplitter = new DataSplitter();
 
+        var attributesToKeep = suspectedDependencies.stream().map(attName -> data.attribute(attName).index()).collect(toSet());
+
+
         var simpleAttributeSelection = runTimed(() -> featureEvaluator.selectAttributes(data), "Selecting attributes using pearson correlation");
         var directDependencies = featureEvaluator.findDirectDependencies(data, simpleAttributeSelection);
         var highlyCorrelatedAttributes = featureEvaluator.findHighlyCorrelatedAttributes(data, simpleAttributeSelection);
-        var dataWithoutDirectDependencies = featureEvaluator.removeNonInterestingAttributes(data, simpleAttributeSelection);
+        var reducedData = featureEvaluator.removeNonInterestingAttributes(data, simpleAttributeSelection, attributesToKeep);
 
-        var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(dataWithoutDirectDependencies), "Calculating feature scores");
+        var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(reducedData, attributesToKeep), "Calculating feature scores");
         var selectedFeatures = IntStream.range(0, dataWithSelectedFeatures.numAttributes())
                 .mapToObj(i -> dataWithSelectedFeatures.attribute(i).name())
                 .collect(joining("\n"));

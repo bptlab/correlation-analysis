@@ -7,16 +7,14 @@ import de.hpi.bpt.logtransform.io.CsvEventLogReader;
 import de.hpi.bpt.logtransform.io.CsvLogReader;
 import de.hpi.bpt.logtransform.transformation.ExistingAttributeTransformation;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
+import de.hpi.bpt.logtransform.transformation.controlflow.AllActivityPairsTransformation;
+import de.hpi.bpt.logtransform.transformation.controlflow.DistinctActivityPairsTransformation;
 import de.hpi.bpt.logtransform.transformation.controlflow.NumberOfTotalActivitiesTransformation;
 import de.hpi.bpt.logtransform.transformation.controlflow.SimpleNumberOfActivityExecutionsTransformation;
-import de.hpi.bpt.logtransform.transformation.posthoc.MissingOrPresentValuesTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.HandoverCountTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.NumberOfResourcesInvolvedTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.PingPongOccurrenceTransformation;
-import de.hpi.bpt.logtransform.transformation.time.CaseDurationTransformation;
-import de.hpi.bpt.logtransform.transformation.time.CaseStartEndTimeTransformation;
-import de.hpi.bpt.logtransform.transformation.time.LongestExecutionTimeTransformation;
-import de.hpi.bpt.logtransform.transformation.time.ParallelCaseCountTransformation;
+import de.hpi.bpt.logtransform.transformation.time.*;
 import de.hpi.bpt.modelanalysis.ModelAnalyzer;
 import de.hpi.bpt.modelanalysis.feature.AnalysisResult;
 
@@ -67,10 +65,12 @@ public class LogTransformRunner {
                 .with(new CaseDurationTransformation())
                 .with(new CaseStartEndTimeTransformation())
                 .with(new ParallelCaseCountTransformation())
-                .with(new LongestExecutionTimeTransformation())
+                .with(new ActivityExecutionDurationTransformation())
+                .with(new ActivityStartEndTimeTransformation())
 
                 // control flow
-//                .with(new ActivityExecutionTransformation()) // all activities
+                .with(new AllActivityPairsTransformation())
+                .with(new DistinctActivityPairsTransformation())
                 .with(new SimpleNumberOfActivityExecutionsTransformation()) // all activities
                 .with(new NumberOfTotalActivitiesTransformation())
 
@@ -92,7 +92,7 @@ public class LogTransformRunner {
         var rowCaseLog = TimeTracker.runTimed(() -> transformer.transformJoining(attributesLogs), "Transforming attributes");
 
 //        new DateBeforeTransformation("caseend", "duedate").transform(rowCaseLog);
-        new MissingOrPresentValuesTransformation().transform(rowCaseLog);
+//        new MissingOrPresentValuesTransformation().transform(rowCaseLog);
         return rowCaseLog;
     }
 }

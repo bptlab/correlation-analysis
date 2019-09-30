@@ -29,8 +29,8 @@ class DateBeforeTransformationTest {
         new DateBeforeTransformation("date1", "date2").transform(rowCaseLog);
 
         // Assert
-        assertThat(rowCaseLog.get("1")).containsExactly("1", true);
-        assertThat(rowCaseLog.get("2")).containsExactly("2", false);
-        assertThat(rowCaseLog.get("3")).containsExactly("3", false);
+        assertThat(rowCaseLog.get("1").get(3)).isEqualTo(true);
+        assertThat(rowCaseLog.get("2").get(3)).isEqualTo(false);
+        assertThat(rowCaseLog.get("3").get(3)).isEqualTo(false);
     }
 }

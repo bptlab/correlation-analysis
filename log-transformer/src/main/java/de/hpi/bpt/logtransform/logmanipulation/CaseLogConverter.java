@@ -11,16 +11,17 @@ public class CaseLogConverter {
     public RowCaseLog asRowCaseLog(ColumnCaseLog columnCaseLog) {
         var rowCaseLog = new RowCaseLog(columnCaseLog.getName(), columnCaseLog.getSchema());
 
-        var values = columnCaseLog.values().toArray(new CaseColumn<?>[0]);
-
+        var columns = columnCaseLog.values().toArray(new CaseColumn<?>[0]);
         var caseIds = columnCaseLog.getCaseIds();
-        for (int r = 0; r < values[0].size(); r++) {
-            var row = new ArrayList<>();
-            for (CaseColumn<?> value : values) {
-                row.add(value.get(r));
+        var numCases = columns[0].size();
+
+        for (int caseIndex = 0; caseIndex < numCases; caseIndex++) {
+            var row = new ArrayList<>(columns.length);
+            for (CaseColumn<?> column : columns) {
+                row.add(column.get(caseIndex));
             }
 
-            rowCaseLog.put(caseIds.get(r), row);
+            rowCaseLog.put(caseIds.get(caseIndex), row);
         }
 
         return rowCaseLog;

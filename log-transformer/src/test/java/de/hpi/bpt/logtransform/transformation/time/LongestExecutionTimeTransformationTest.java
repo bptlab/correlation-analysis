@@ -39,15 +39,15 @@ class LongestExecutionTimeTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "longestexecutiontime", "longestexecutingactivity");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "longestexecutingactivity");
 
         var row1 = afterTransformation.get("1");
         var row2 = afterTransformation.get("2");
         var row3 = afterTransformation.get("3");
 
-        assertThat(row1).containsExactly("1", 300, "A2");
-        assertThat(row2).containsExactly("2", 13, "A2");
-        assertThat(row3).containsExactly("3", 0, "NONE");
+        assertThat(row1).containsExactly("1", "A2");
+        assertThat(row2).containsExactly("2", "A2");
+        assertThat(row3).containsExactly("3", "NONE");
     }
 
 }

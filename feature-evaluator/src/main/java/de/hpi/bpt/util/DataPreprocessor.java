@@ -8,13 +8,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static de.hpi.bpt.util.TimeTracker.runTimed;
 
 public class DataPreprocessor {
 
     private Set<String> attributesToIgnore = new HashSet<>();
+
+    private boolean convertNumericToNominal = false;
+    private boolean replaceMissingNominalValues = false;
 
     public DataPreprocessor ignoring(List<String> attributesToIgnore) {
         this.attributesToIgnore.addAll(attributesToIgnore);
@@ -26,52 +28,33 @@ public class DataPreprocessor {
         return this;
     }
 
-    public Instances prepareDataNominalKeepingNumeric(Instances data, String classAttributeName) {
-        data.setClass(data.attribute(classAttributeName));
-        data.deleteWithMissingClass();
-
-        var nominal = runTimed(() -> stringToNominal(data), "String to nominal");
-        var merged = runTimed(() -> mergeInfrequentNominalValues(nominal), "Merge infrequent nominal values");
-        var processedData = runTimed(() -> removeUseless(merged), "Remove useless");
-
-        return removeSelectedAttributes(processedData);
+    public DataPreprocessor convertNumericToNominal() {
+        convertNumericToNominal = true;
+        return this;
     }
 
-    public Instances prepareDataAllNominal(Instances data, String classAttributeName) {
-        data.setClass(data.attribute(classAttributeName));
-        data.deleteWithMissingClass();
-
-        var nominal = runTimed(() -> stringToNominal(data), "String to nominal");
-        var discrete = runTimed(() -> numericToNominal(nominal), "Numeric to nominal");
-        var merged = runTimed(() -> mergeInfrequentNominalValues(discrete), "Merge infrequent nominal values");
-        var processedData = runTimed(() -> removeUseless(merged), "Remove useless");
-
-        return removeSelectedAttributes(processedData);
+    public DataPreprocessor replaceMissingNominalValues() {
+        replaceMissingNominalValues = true;
+        return this;
     }
 
-    public Instances prepareDataBinaryKeepingNumeric(Instances data, String classAttributeName) {
+    public Instances process(Instances data, String classAttributeName) {
         data.setClass(data.attribute(classAttributeName));
-        data.deleteWithMissingClass();
 
-        var nominal = runTimed(() -> stringToNominal(data), "String to nominal");
-        var merged = runTimed(() -> mergeInfrequentNominalValues(nominal), "Merge infrequent nominal values");
-        var removeUseless = runTimed(() -> removeUseless(merged), "Remove useless");
-        var processedData = runTimed(() -> nominalToBinary(removeUseless), "Nominal to binary");
+        var processedData = data;
+        if (replaceMissingNominalValues) {
+            processedData = replaceMissingStringValuesWithConstant(processedData);
+        }
+        processedData = stringToNominal(processedData);
+        if (convertNumericToNominal) {
+            processedData = numericToNominal(processedData);
+        }
+        processedData = mergeInfrequentNominalValues(processedData);
+        processedData = removeUseless(processedData);
+        processedData = removeSelectedAttributes(processedData);
 
-        return removeSelectedAttributes(processedData);
-    }
-
-    public Instances prepareDataAllBinary(Instances data, String classAttributeName) {
-        data.setClass(data.attribute(classAttributeName));
-        data.deleteWithMissingClass();
-
-        var nominal = runTimed(() -> stringToNominal(data), "String to nominal");
-        var discrete = runTimed(() -> numericToNominal(nominal), "Numeric to nominal");
-        var merged = runTimed(() -> mergeInfrequentNominalValues(discrete), "Merge infrequent nominal values");
-        var removeUseless = runTimed(() -> removeUseless(merged), "Remove useless");
-        var processedData = runTimed(() -> nominalToBinary(removeUseless), "Nominal to binary");
-
-        return removeSelectedAttributes(processedData);
+        processedData.deleteWithMissingClass();
+        return processedData;
     }
 
     private Instances removeSelectedAttributes(Instances data) {
@@ -142,25 +125,31 @@ public class DataPreprocessor {
         }
     }
 
-    private Instances nominalToBinary(Instances data) {
-        try {
-            var nominalToBinary = new NominalToBinary();
-            nominalToBinary.setBinaryAttributesNominal(true);
-            nominalToBinary.setAttributeIndices(String.valueOf(data.classIndex()));
-            nominalToBinary.setInvertSelection(true);
-            nominalToBinary.setInputFormat(data);
-            return Filter.useFilter(data, nominalToBinary);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
     private Instances removeUseless(Instances data) {
         try {
             var removeUseless = new RemoveUseless();
             removeUseless.setMaximumVariancePercentageAllowed(20.0);
             removeUseless.setInputFormat(data);
             return Filter.useFilter(data, removeUseless);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    private Instances replaceMissingStringValuesWithConstant(Instances data) {
+        try {
+            var nominalAttributes = IntStream.range(0, data.numAttributes())
+                    .filter(i -> data.attribute(i).isString())
+                    .mapToObj(i -> String.valueOf(i + 1))
+                    .collect(Collectors.joining(","));
+
+            var replaceMissing = new ReplaceMissingWithUserConstant();
+            replaceMissing.setNominalStringReplacementValue("<MISSING>");
+            replaceMissing.setDateFormat("YYYY");
+            replaceMissing.setDateReplacementValue("2000"); // just to make the filter work. Will only be applied to nominal values
+            replaceMissing.setAttributes(nominalAttributes);
+            replaceMissing.setInputFormat(data);
+            return Filter.useFilter(data, replaceMissing);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }

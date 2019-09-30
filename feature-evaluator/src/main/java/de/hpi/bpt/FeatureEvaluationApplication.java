@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
+
 public class FeatureEvaluationApplication extends Application {
 
     private Instances data;
@@ -38,7 +40,9 @@ public class FeatureEvaluationApplication extends Application {
                                     "TARGET_ATTRIBUTE", "",
                                     "TARGET_VALUE", "",
                                     "IGNORED_ATTRIBUTES", "",
-                                    "SUSPECTED_DEPENDENCIES", ""
+                                    "SUSPECTED_DEPENDENCIES", "",
+                                    "NUMERIC_TO_NOMINAL_CHECKED", "",
+                                    "REPLACE_MISSING_CHECKED", ""
                             )));
         });
 
@@ -47,13 +51,13 @@ public class FeatureEvaluationApplication extends Application {
             var targetValue = routeContext.getParameter("targetValue").toString();
             var ignoredAttributes = routeContext.getParameter("ignoredAttributes").toString();
             var suspectedDependencies = routeContext.getParameter("suspectedDependencies").toString();
-            var preprocessing = routeContext.getParameter("preprocessing").toString();
+            var preprocessingOptions = Arrays.asList(routeContext.getParameter("preprocessing").getValues());
 
             var runner = new FeatureEvaluationRunner();
             var results = runner.runEvaluation(data, targetAttribute, targetValue,
-                    Arrays.asList(ignoredAttributes.split(",")),
-                    Arrays.asList(suspectedDependencies.split(",")),
-                    preprocessing
+                    ignoredAttributes.isBlank() ? emptyList() : Arrays.asList(ignoredAttributes.split(",")),
+                    suspectedDependencies.isBlank() ? emptyList() : Arrays.asList(suspectedDependencies.split(",")),
+                    preprocessingOptions
             );
 
             results.put("projectName", this.projectName);
@@ -61,6 +65,8 @@ public class FeatureEvaluationApplication extends Application {
             results.put("TARGET_VALUE", targetValue);
             results.put("IGNORED_ATTRIBUTES", ignoredAttributes);
             results.put("SUSPECTED_DEPENDENCIES", suspectedDependencies);
+            results.put("NUMERIC_TO_NOMINAL_CHECKED", preprocessingOptions.contains("numeric_to_nominal") ? "checked" : "");
+            results.put("REPLACE_MISSING_CHECKED", preprocessingOptions.contains("replace_missing") ? "checked" : "");
             routeContext.render("result-page", results);
         });
     }

@@ -1,10 +1,3 @@
-<datalist id="preprocessingOptions">
-<option value="nominal_numeric">Nominal + Numeric</option>
-<option value="binary_numeric">Binary + Numeric</option>
-<option value="all_nominal">All Nominal</option>
-<option value="all_binary">All Binary</option>
-</datalist>
-
 <section class="section">
 <div class="container">
     <p class="title is-4">${projectName}</p>
@@ -40,21 +33,13 @@
 
         <div class="field">
           <div class="control">
-            <label class="radio">
-              <input type="radio" name="preprocessing" value="nominal_numeric">
-              Nominal + Numeric
+              <label class="checkbox">
+                  <input type="checkbox" name="preprocessing" value="numeric_to_nominal" ${NUMERIC_TO_NOMINAL_CHECKED}>
+                  Convert Numeric to Nominal
             </label>
-            <label class="radio">
-              <input type="radio" name="preprocessing" value="binary_numeric">
-              Binary + Numeric
-            </label>
-            <label class="radio">
-              <input type="radio" name="preprocessing" value="all_nominal">
-              All Nominal
-            </label>
-            <label class="radio">
-              <input type="radio" name="preprocessing" value="all_binary">
-              All Binary
+              <label class="checkbox">
+                  <input type="checkbox" name="preprocessing" value="replace_missing" ${REPLACE_MISSING_CHECKED}>
+                  Replace Missing Nominal Values with Constant
             </label>
           </div>
         </div>

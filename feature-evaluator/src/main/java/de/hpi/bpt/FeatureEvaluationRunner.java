@@ -28,19 +28,16 @@ import static java.util.stream.Collectors.toSet;
 
 class FeatureEvaluationRunner {
 
-    Map<String, Object> runEvaluation(Instances data, String targetAttribute, String targetValue, List<String> attributesToIgnore, List<String> suspectedDependencies, String preprocessingType) {
+    Map<String, Object> runEvaluation(Instances data, String targetAttribute, String targetValue, List<String> attributesToIgnore, List<String> suspectedDependencies, List<String> preprocessingOptions) {
         var dataPreprocessor = new DataPreprocessor().ignoring(attributesToIgnore);
 
-        Instances processedData = null;
-        if ("nominal_numeric".equals(preprocessingType)) {
-            processedData = runTimed(() -> dataPreprocessor.prepareDataNominalKeepingNumeric(data, targetAttribute), "Preparing data");
-        } else if ("binary_numeric".equals(preprocessingType)) {
-            processedData = runTimed(() -> dataPreprocessor.prepareDataBinaryKeepingNumeric(data, targetAttribute), "Preparing data");
-        } else if ("all_nominal".equals(preprocessingType)) {
-            processedData = runTimed(() -> dataPreprocessor.prepareDataAllNominal(data, targetAttribute), "Preparing data");
-        } else if ("all_binary".equals(preprocessingType)) {
-            processedData = runTimed(() -> dataPreprocessor.prepareDataAllBinary(data, targetAttribute), "Preparing data");
+        if (preprocessingOptions.contains("numeric_to_nominal")) {
+            dataPreprocessor.convertNumericToNominal();
         }
+        if (preprocessingOptions.contains("replace_missing")) {
+            dataPreprocessor.replaceMissingNominalValues();
+        }
+        Instances processedData = runTimed(() -> dataPreprocessor.process(data, targetAttribute), "Preparing data");
 
         try {
             return runEvaluation(processedData, targetValue, suspectedDependencies);

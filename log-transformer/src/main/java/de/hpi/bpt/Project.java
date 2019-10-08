@@ -2,7 +2,7 @@ package de.hpi.bpt;
 
 import de.hpi.bpt.logtransform.transformation.LogTransformation;
 import de.hpi.bpt.logtransform.transformation.custom.BPIC2018TargetTransformation;
-import de.hpi.bpt.logtransform.transformation.time.BetweenEventsDurationThresholdTransformation;
+import de.hpi.bpt.logtransform.transformation.custom.BPIC2019TargetTransformation;
 
 import java.util.List;
 import java.util.Map;
@@ -70,7 +70,7 @@ public enum Project {
             "name",
             "resource",
             ActivityMapping.IDENTITY_MAP,
-            List.of(BetweenEventsDurationThresholdTransformation.days(90, "Vendor creates invoice", "Clear Invoice"))
+            List.of(new BPIC2019TargetTransformation())
     ),
 
     MACIF(

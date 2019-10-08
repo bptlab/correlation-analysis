@@ -51,7 +51,7 @@ class PingPongOccurrenceTransformationTest {
 
         assertThat(row1).containsExactly("1", false);
         assertThat(row2).containsExactly("2", true);
-        assertThat(row3).containsExactly("3", true);
+        assertThat(row3).containsExactly("3", false);
     }
 
 }

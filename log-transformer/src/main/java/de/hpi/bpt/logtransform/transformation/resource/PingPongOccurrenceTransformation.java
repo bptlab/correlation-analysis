@@ -4,7 +4,6 @@ import de.hpi.bpt.logtransform.datastructures.ColumnCaseLog;
 import de.hpi.bpt.logtransform.datastructures.ColumnEventLog;
 import de.hpi.bpt.logtransform.transformation.LogTransformation;
 
-import java.util.HashSet;
 import java.util.List;
 
 public class PingPongOccurrenceTransformation implements LogTransformation {
@@ -19,15 +18,15 @@ public class PingPongOccurrenceTransformation implements LogTransformation {
         var pingPongColumn = resultCaseLog.addColumn("pingpong", Boolean.class);
 
         for (List<String> trace : resourceColumn.getTraces()) {
-            var seenResources = new HashSet<String>();
+            var resourceBefore = trace.get(0);
             var pingPong = false;
-            for (int i = 0; i < trace.size() - 1; i++) {
-                if (!trace.get(i).equals(trace.get(i + 1))) {
-                    if (seenResources.contains(trace.get(i + 1))) {
+            for (int i = 1; i < trace.size(); i++) {
+                if (!trace.get(i).equals(trace.get(i - 1))) {
+                    if (resourceBefore.equals(trace.get(i))) {
                         pingPong = true;
                         break;
                     }
-                    seenResources.add(trace.get(i));
+                    resourceBefore = trace.get(i - 1);
                 }
             }
             pingPongColumn.addValue(pingPong);

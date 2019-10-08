@@ -7,8 +7,6 @@ import de.hpi.bpt.logtransform.io.CsvEventLogReader;
 import de.hpi.bpt.logtransform.io.CsvLogReader;
 import de.hpi.bpt.logtransform.transformation.ExistingAttributeTransformation;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
-import de.hpi.bpt.logtransform.transformation.controlflow.AllActivityPairsTransformation;
-import de.hpi.bpt.logtransform.transformation.controlflow.DistinctActivityPairsTransformation;
 import de.hpi.bpt.logtransform.transformation.controlflow.NumberOfTotalActivitiesTransformation;
 import de.hpi.bpt.logtransform.transformation.controlflow.SimpleNumberOfActivityExecutionsTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.HandoverCountTransformation;
@@ -26,7 +24,7 @@ import static java.util.stream.Collectors.toList;
 
 public class LogTransformRunner {
 
-    private static final Project PROJECT = Project.SIGNAVIO_SALESFORCE_OPPS;
+    private static final Project PROJECT = Project.BPIC2019;
 
     public static void main(String[] args) {
 
@@ -69,8 +67,8 @@ public class LogTransformRunner {
                 .with(new ActivityStartEndTimeTransformation())
 
                 // control flow
-                .with(new AllActivityPairsTransformation())
-                .with(new DistinctActivityPairsTransformation())
+//                .with(new AllActivityPairsTransformation())
+//                .with(new DistinctActivityPairsTransformation())
                 .with(new SimpleNumberOfActivityExecutionsTransformation()) // all activities
                 .with(new NumberOfTotalActivitiesTransformation())
 

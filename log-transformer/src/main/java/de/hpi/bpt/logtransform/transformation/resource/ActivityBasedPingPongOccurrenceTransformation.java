@@ -5,7 +5,6 @@ import de.hpi.bpt.logtransform.datastructures.ColumnEventLog;
 import de.hpi.bpt.logtransform.transformation.LogTransformation;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -33,17 +32,17 @@ public class ActivityBasedPingPongOccurrenceTransformation implements LogTransfo
         var pingPongColumn = resultCaseLog.addColumn("activitypingpong", Boolean.class);
 
         for (List<String> trace : activityColumn.getTraces()) {
-            var seenLanes = new HashSet<String>();
+            var laneBefore = activityToLane.get(trace.get(0));
             var pingPong = false;
-            for (int i = 0; i < trace.size() - 1; i++) {
-                var lane1 = activityToLane.get(trace.get(i));
-                var lane2 = activityToLane.get(trace.get(i + 1));
-                if (lane1 != null && lane2 != null && !lane1.equals(lane2)) {
-                    if (seenLanes.contains(lane2)) {
+            for (int i = 1; i < trace.size(); i++) {
+                var thisLane = activityToLane.get(trace.get(i));
+                var previousLane = activityToLane.get(trace.get(i - 1));
+                if (thisLane != null && previousLane != null && !thisLane.equals(previousLane)) {
+                    if (laneBefore.equals(thisLane)) {
                         pingPong = true;
                         break;
                     }
-                    seenLanes.add(lane1);
+                    laneBefore = previousLane;
                 }
             }
             pingPongColumn.addValue(pingPong);

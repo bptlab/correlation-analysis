@@ -5,7 +5,7 @@
 
   <body>
 
-  <#include "select.ftl">
+  <#include "remove.ftl">
   <#include "result.ftl">
 
   </body>

@@ -1,47 +1,23 @@
 <section class="section">
 <div class="container">
     <p class="title is-4">${projectName}</p>
+    <p class="title is-4">Target Attribute: ${TARGET_ATTRIBUTE}</p>
+
     <form action="${contextPath}/select" method="post" enctype="multipart/form-data">
 
         <div class="field">
-          <label class="label">Target Attribute</label>
-          <div class="control">
-            <input class="input" type="text" name="targetAttribute" placeholder="Target Attribute" value="${TARGET_ATTRIBUTE}">
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="label">Target Value</label>
-          <div class="control">
-            <input class="input" type="text" name="targetValue" placeholder="Target Value" value="${TARGET_VALUE}">
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="label">Ignore Attributes</label>
-          <div class="control">
-            <input class="input" type="text" name="ignoredAttributes" placeholder="Ignored Attributes" value="${IGNORED_ATTRIBUTES}">
-          </div>
-        </div>
-
-        <div class="field">
-          <label class="label">Suspected Dependencies</label>
-          <div class="control">
-            <input class="input" type="text" name="suspectedDependencies" placeholder="Suspected Dependencies" value="${SUSPECTED_DEPENDENCIES}">
-          </div>
-        </div>
-
-        <div class="field">
-          <div class="control">
-              <label class="checkbox">
-                  <input type="checkbox" name="preprocessing" value="numeric_to_nominal" ${NUMERIC_TO_NOMINAL_CHECKED}>
-                  Convert Numeric to Nominal
-            </label>
-              <label class="checkbox">
-                  <input type="checkbox" name="preprocessing" value="replace_missing" ${REPLACE_MISSING_CHECKED}>
-                  Replace Missing Nominal Values with Constant
-            </label>
-          </div>
+            <label class="label">Ignore Attributes</label>
+            <div class="box" style="max-height:15em; overflow:auto">
+                <div class="control">
+                    <#list attributes as attribute>
+                        <label class="checkbox">
+                            <input type="checkbox" name="ignoredAttributes" value="${attribute}">
+                            ${attribute}
+                        </label>
+                        <br/>
+                    </#list>
+                </div>
+            </div>
         </div>
 
         <div class="field">

@@ -1,30 +1,26 @@
 package de.hpi.bpt.evaluation.decisiontree;
 
-import weka.classifiers.CostMatrix;
-import weka.classifiers.meta.AdaBoostM1;
-import weka.classifiers.meta.CostSensitiveClassifier;
-import weka.classifiers.rules.PART;
+import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.REPTree;
+import weka.core.Drawable;
 import weka.core.Instances;
+import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.Remove;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Set;
 
 public class DecisionTreeClassifier {
 
     public J48 buildJ48Tree(Instances data) {
         try {
             var classifier = new J48();
+            classifier.setBinarySplits(true);
             classifier.buildClassifier(data);
 
-            return classifier;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    public PART buildPARTRules(Instances data) {
-        try {
-            var classifier = new PART();
-            classifier.buildClassifier(data);
             return classifier;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -41,11 +37,20 @@ public class DecisionTreeClassifier {
         }
     }
 
-    public J48 buildStumpForAttribute(Instances data) {
+    private J48 buildStumpForAttribute(Instances data) {
         try {
             var classifier = new J48();
-            classifier.setUnpruned(true);
-            classifier.setCollapseTree(false);
+            classifier.setMinNumObj(Math.min(100, data.size() / 100));
+
+            if (data.classAttribute().numValues() > 5) {
+                // many different values: we hope to find relevant ones via binary splits and drop irrelevant ones via pruning
+                classifier.setBinarySplits(true);
+            } else {
+                // small number of different values: print value distribution for each value
+                classifier.setUnpruned(true);
+                classifier.setCollapseTree(false);
+            }
+
             classifier.buildClassifier(data);
 
             return classifier;
@@ -54,32 +59,30 @@ public class DecisionTreeClassifier {
         }
     }
 
-    public String buildBoostedJ48Tree(Instances data) {
+    public String buildStumpsForAttributes(Instances data, Set<String> suspectedDependencies) {
         try {
-            var classifier = new J48();
-            var boost = new AdaBoostM1();
-            boost.setClassifier(classifier);
-            boost.buildClassifier(data);
-            return ((J48) boost.getClassifier()).graph();
+            var result = "";
+            for (String attributeName : suspectedDependencies) {
+                if (data.attribute(attributeName) == null) {
+                    continue;
+                }
+                var remove = new Remove();
+                remove.setAttributeIndicesArray(new int[]{data.classIndex(), data.attribute(attributeName).index()});
+                remove.setInvertSelection(true);
+                remove.setInputFormat(data);
+                var removed = Filter.useFilter(data, remove);
+                var stump = buildStumpForAttribute(removed);
+
+                result += getTreeImageTag(stump) + "\n";
+            }
+            return result;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    public String buildCostSensitiveREPTree(Instances data) {
-        try {
-            var classifier = new REPTree();
-            var costSensitive = new CostSensitiveClassifier();
-            costSensitive.setClassifier(classifier);
-            var costMatrix = new CostMatrix(2);
-            costMatrix.setElement(0, 1, 10d);
-            costSensitive.setCostMatrix(costMatrix);
-//            var eval = new Evaluation(data);
-//            eval.crossValidateModel(costSensitive, data, 10, new Random());
-            costSensitive.buildClassifier(data);
-            return costSensitive.graph();
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
+    private String getTreeImageTag(Drawable tree) throws Exception {
+        var treeBase64 = Base64.getEncoder().encodeToString(Graphviz.fromString(tree.graph()).render(Format.SVG).toString().getBytes(StandardCharsets.UTF_8));
+        return "<img src=\"data:image/svg+xml;utf8;base64, " + treeBase64 + "\"/>";
     }
 }

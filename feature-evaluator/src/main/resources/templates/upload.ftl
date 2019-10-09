@@ -9,6 +9,21 @@
                   </div>
                 </div>
 
+                <div class="field">
+                    <label class="label">Target Attribute</label>
+                    <div class="control">
+                        <input class="input" type="text" name="targetAttribute" placeholder="Target Attribute">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">Suspected Dependencies</label>
+                    <div class="control">
+                        <input class="input" type="text" name="suspectedDependencies"
+                               placeholder="Suspected Dependencies">
+                    </div>
+                </div>
+
                 <div id="file-upload" class="field file">
                   <label class="file-label">
                     <input class="file-input" type="file" name="caseLog">
@@ -25,7 +40,7 @@
 
                 <div class="field">
                   <div class="control">
-                      <input type="submit" value="Submit" class="button is-primary">
+                      <input type="submit" value="Upload" class="button is-primary">
                   </div>
                 </div>
             </form>

@@ -1,3 +1,4 @@
+<#if DIRECT_DEPENDENCIES??>
     <section class="section">
         <div class="container">
             <p class="title is-4">Direct Dependencies</p>
@@ -6,7 +7,9 @@ ${DIRECT_DEPENDENCIES}
             </code></pre></div>
         </div>
     </section>
+</#if>
 
+<#if CORRELATED_ATTRIBUTES??>
     <section class="section">
         <div class="container">
             <p class="title is-4">Highly Correlated Attributes</p>
@@ -15,7 +18,9 @@ ${CORRELATED_ATTRIBUTES}
             </code></pre></div>
         </div>
     </section>
+</#if>
 
+<#if SELECTED_ATTRIBUTES??>
     <section class="section">
         <div class="container">
             <p class="title is-4">Selected Attributes</p>
@@ -24,21 +29,27 @@ ${SELECTED_ATTRIBUTES}
             </code></pre></div>
         </div>
     </section>
+</#if>
 
+<#if ASSUMPTION_TREES??>
     <section class="section">
         <div class="container">
             <p class="title is-4">Correlation Assumptions</p>
             ${ASSUMPTION_TREES}
         </div>
     </section>
+</#if>
 
+<#if TREE??>
     <section class="section">
         <div class="container">
             <p class="title is-4">Tree</p>
             ${TREE}
         </div>
     </section>
+</#if>
 
+<#if RULES??>
     <section class="section">
         <div class="container">
             <p class="title is-4">Rules</p>
@@ -47,7 +58,9 @@ ${RULES}
             </code></pre></div>
         </div>
     </section>
+</#if>
 
+<#if EVALUATION??>
     <section class="section">
         <div class="container">
             <p class="title is-4">Evaluation</p>
@@ -56,21 +69,4 @@ ${EVALUATION}
             </code></pre></div>
         </div>
     </section>
-
-    <section class="section">
-        <div class="container">
-            <p class="title is-4">Top 3 Common Values Between Instances</p>
-            <div><pre><code>
-${COMMON_VALUES}
-            </code></pre></div>
-        </div>
-    </section>
-
-    <section class="section">
-        <div class="container">
-            <p class="title is-4">Cluster Centroids</p>
-            <div><pre><code>
-${CLUSTERS}
-            </code></pre></div>
-        </div>
-    </section>
+</#if>

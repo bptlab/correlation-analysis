@@ -10,20 +10,22 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
+import static java.util.stream.Collectors.toSet;
 
 public class FeatureEvaluator {
 
     /**
      * Performs CfsSubsetEvaluation and retains the selected attributes
      */
-    public Instances retainImportantFeatures(Instances data, Set<Integer> suspectedDependencies) {
+    public Instances retainImportantFeatures(Instances data, Set<String> suspectedDependencies) {
         try {
+            var attributesToKeep = suspectedDependencies.stream().map(attName -> data.attribute(attName).index()).collect(toSet());
             var attributeSelection = new AttributeSelection();
 
             var evaluator = new CfsSubsetEval();
-            evaluator.setMissingSeparate(true);
-            evaluator.setPoolSize(4);
-            evaluator.setNumThreads(4);
+//            evaluator.setMissingSeparate(true);
+//            evaluator.setPoolSize(4);
+//            evaluator.setNumThreads(4);
             var search = new BestFirst();
             attributeSelection.setEvaluator(evaluator);
             attributeSelection.setSearch(search);
@@ -31,11 +33,11 @@ public class FeatureEvaluator {
             attributeSelection.SelectAttributes(data);
 
             var selectedAttributes = attributeSelection.selectedAttributes();
-            var attributesToKeep = IntStream.concat(suspectedDependencies.stream().mapToInt(i -> i),
+            var attributesToKeepCombined = IntStream.concat(attributesToKeep.stream().mapToInt(i -> i),
                     Arrays.stream(selectedAttributes))
                     .distinct().toArray();
             var remove = new Remove();
-            remove.setAttributeIndicesArray(attributesToKeep);
+            remove.setAttributeIndicesArray(attributesToKeepCombined);
             remove.setInvertSelection(true);
             remove.setInputFormat(data);
             return Filter.useFilter(data, remove);
@@ -49,8 +51,9 @@ public class FeatureEvaluator {
         try {
             var attributeSelection = new AttributeSelection();
             var ranker = new Ranker();
-//            var evaluator = new SymmetricalUncertAttributeEval();
-            var evaluator = new CorrelationAttributeEval();
+            var evaluator = new SymmetricalUncertAttributeEval();
+//            var evaluator = new CorrelationAttributeEval();
+//            var evaluator = new GainRatioAttributeEval();
             attributeSelection.setEvaluator(evaluator);
             attributeSelection.setSearch(ranker);
 
@@ -89,8 +92,9 @@ public class FeatureEvaluator {
         }
     }
 
-    public Instances removeNonInterestingAttributes(Instances data, AttributeSelection attributeSelection, Set<Integer> attributesToKeep) {
+    public Instances removeNonInterestingAttributes(Instances data, AttributeSelection attributeSelection, Set<String> suspectedDependencies) {
         try {
+            var attributesToKeep = suspectedDependencies.stream().map(attName -> data.attribute(attName).index()).collect(toSet());
             var rankedAttributes = attributeSelection.rankedAttributes();
             var directDependencyAttributeIndices = IntStream.range(0, rankedAttributes.length)
                     .filter(i -> rankedAttributes[i][1] == 1.0)
@@ -98,7 +102,7 @@ public class FeatureEvaluator {
                     .toArray();
 
             var almostNoDependencyAttributeIndices = IntStream.range(0, rankedAttributes.length)
-                    .filter(i -> rankedAttributes[i][1] < 0.01)
+                    .filter(i -> i > 50 || rankedAttributes[i][1] < 0.01)
                     .map(i -> (int) rankedAttributes[i][0])
                     .toArray();
 
@@ -109,6 +113,31 @@ public class FeatureEvaluator {
                             Arrays.stream(directDependencyAttributeIndices),
                             Arrays.stream(almostNoDependencyAttributeIndices))
                             .filter(i -> !attributesToKeep.contains(i)).toArray());
+            remove.setInputFormat(data);
+            return Filter.useFilter(data, remove);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+
+    }
+
+    public Instances retainTop50Attributes(Instances data, AttributeSelection attributeSelection, Set<String> suspectedDependencies) {
+        try {
+            var rankedAttributes = attributeSelection.rankedAttributes();
+
+            var attributesToKeep = IntStream.concat(
+                    IntStream.concat(
+                            suspectedDependencies.stream().mapToInt(attName -> data.attribute(attName).index()),
+                            IntStream.range(0, 50)
+                                    .filter(i -> rankedAttributes[i][1] > 0.01)
+                                    .map(i -> (int) rankedAttributes[i][0])),
+                    IntStream.of(data.classIndex()))
+                    .sorted()
+                    .toArray();
+
+            var remove = new Remove();
+            remove.setAttributeIndicesArray(attributesToKeep);
+            remove.setInvertSelection(true);
             remove.setInputFormat(data);
             return Filter.useFilter(data, remove);
         } catch (Exception e) {

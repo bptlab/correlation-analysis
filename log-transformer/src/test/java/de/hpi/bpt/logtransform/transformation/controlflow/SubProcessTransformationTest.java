@@ -45,9 +45,9 @@ class SubProcessTransformationTest {
 
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId",
-                "Sub1_numevents", "Sub1_timespent", "Sub1_timesentered",
-                "Sub2_numevents", "Sub2_timespent", "Sub2_timesentered",
-                "Sub3_numevents", "Sub3_timespent", "Sub3_timesentered"
+                "Number of Events in 'Sub1'", "Time spent in 'Sub1' in minutes", "Times entered into 'Sub1'",
+                "Number of Events in 'Sub2'", "Time spent in 'Sub2' in minutes", "Times entered into 'Sub2'",
+                "Number of Events in 'Sub3'", "Time spent in 'Sub3' in minutes", "Times entered into 'Sub3'"
         );
 
         var row1 = afterTransformation.get("1");

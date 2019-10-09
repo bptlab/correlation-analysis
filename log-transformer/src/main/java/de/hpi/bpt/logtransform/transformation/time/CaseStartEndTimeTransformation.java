@@ -16,7 +16,6 @@ public class CaseStartEndTimeTransformation implements LogTransformation {
 
         var timestampColumn = sourceEventLog.getTyped(sourceSchema.getTimestampName(), Date.class);
 
-        var caseStartColumn = resultCaseLog.addColumn("casestart", Date.class);
         var caseStartHourColumn = resultCaseLog.addColumn("casestart_hour", Integer.class);
         var caseStartDayOfWeekColumn = resultCaseLog.addColumn("casestart_day_of_week", String.class);
         var caseStartDayOfMonthColumn = resultCaseLog.addColumn("casestart_day_of_month", Integer.class);
@@ -24,7 +23,6 @@ public class CaseStartEndTimeTransformation implements LogTransformation {
         var caseStartMonthColumn = resultCaseLog.addColumn("casestart_month", String.class);
         var caseStartYearColumn = resultCaseLog.addColumn("casestart_year", Integer.class);
 
-        var caseEndColumn = resultCaseLog.addColumn("caseend", Date.class);
         var caseEndHourColumn = resultCaseLog.addColumn("caseend_hour", Integer.class);
         var caseEndDayOfWeekColumn = resultCaseLog.addColumn("caseend_day_of_week", String.class);
         var caseEndDayOfMonthColumn = resultCaseLog.addColumn("caseend_day_of_month", Integer.class);
@@ -36,14 +34,13 @@ public class CaseStartEndTimeTransformation implements LogTransformation {
             var startDate = trace.get(0);
             var endDate = trace.get(trace.size() - 1);
 
-            addAll(startDate, caseStartColumn, caseStartHourColumn, caseStartDayOfWeekColumn, caseStartDayOfMonthColumn, caseStartDayOfYearColumn, caseStartMonthColumn, caseStartYearColumn);
-            addAll(endDate, caseEndColumn, caseEndHourColumn, caseEndDayOfWeekColumn, caseEndDayOfMonthColumn, caseEndDayOfYearColumn, caseEndMonthColumn, caseEndYearColumn);
+            addAll(startDate, caseStartHourColumn, caseStartDayOfWeekColumn, caseStartDayOfMonthColumn, caseStartDayOfYearColumn, caseStartMonthColumn, caseStartYearColumn);
+            addAll(endDate, caseEndHourColumn, caseEndDayOfWeekColumn, caseEndDayOfMonthColumn, caseEndDayOfYearColumn, caseEndMonthColumn, caseEndYearColumn);
         }
     }
 
-    private void addAll(Date date, CaseColumn<Date> absoluteColumn, CaseColumn<Integer> hourColumn, CaseColumn<String> dayOfWeekColumn, CaseColumn<Integer> dayOfMonthColumn, CaseColumn<Integer> dayOfYearColumn, CaseColumn<String> monthColumn, CaseColumn<Integer> yearColumn) {
+    private void addAll(Date date, CaseColumn<Integer> hourColumn, CaseColumn<String> dayOfWeekColumn, CaseColumn<Integer> dayOfMonthColumn, CaseColumn<Integer> dayOfYearColumn, CaseColumn<String> monthColumn, CaseColumn<Integer> yearColumn) {
         var offsetDateTime = date.toInstant().atZone(ZoneId.systemDefault());
-        absoluteColumn.addValue(date);
         hourColumn.addValue(offsetDateTime.getHour());
         dayOfWeekColumn.addValue(offsetDateTime.getDayOfWeek().toString());
         dayOfMonthColumn.addValue(offsetDateTime.getDayOfMonth());

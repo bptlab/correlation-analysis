@@ -43,9 +43,12 @@ public class SubProcessTransformation implements LogTransformation {
         var timestampColumn = sourceEventLog.getTimestampColumn();
         var columnMap = new HashMap<String, CaseColumn<Integer>>();
         for (String subProcess : subProcesses) {
-            columnMap.put(subProcess + "_numevents", resultCaseLog.addColumn(subProcess + "_numevents", Integer.class));
-            columnMap.put(subProcess + "_timespent", resultCaseLog.addColumn(subProcess + "_timespent", Integer.class));
-            columnMap.put(subProcess + "_timesentered", resultCaseLog.addColumn(subProcess + "_timesentered", Integer.class));
+            var numEventsName = String.format("Number of Events in '%s'", subProcess);
+            var timeSpentName = String.format("Time spent in '%s' in minutes", subProcess);
+            var timesEnteredName = String.format("Times entered into '%s'", subProcess);
+            columnMap.put(numEventsName, resultCaseLog.addColumn(numEventsName, Integer.class));
+            columnMap.put(timeSpentName, resultCaseLog.addColumn(timeSpentName, Integer.class));
+            columnMap.put(timesEnteredName, resultCaseLog.addColumn(timesEnteredName, Integer.class));
         }
 
 
@@ -73,7 +76,7 @@ public class SubProcessTransformation implements LogTransformation {
                 if (!lastSubProcess.equals(currentSubProcess)) {
                     timesEntered.merge(currentSubProcess, 1, Integer::sum);
 
-                    timeSpent.merge(lastSubProcess, Duration.between(lastActivityStart.toInstant(), timestampTrace.get(activityIndex).toInstant()).toSeconds(), Long::sum);
+                    timeSpent.merge(lastSubProcess, Duration.between(lastActivityStart.toInstant(), timestampTrace.get(activityIndex).toInstant()).toMinutes(), Long::sum);
 
                     lastSubProcess = currentSubProcess;
                     lastActivityStart = timestampTrace.get(activityIndex);
@@ -82,9 +85,9 @@ public class SubProcessTransformation implements LogTransformation {
             timeSpent.merge(lastSubProcess, Duration.between(lastActivityStart.toInstant(), timestampTrace.get(timestampTrace.size() - 1).toInstant()).toSeconds(), Long::sum);
 
             for (String subProcess : subProcesses) {
-                columnMap.get(subProcess + "_numevents").addValue(numEvents.getOrDefault(subProcess, 0));
-                columnMap.get(subProcess + "_timespent").addValue(timeSpent.getOrDefault(subProcess, 0L).intValue());
-                columnMap.get(subProcess + "_timesentered").addValue(timesEntered.getOrDefault(subProcess, 0));
+                columnMap.get(String.format("Number of Events in '%s'", subProcess)).addValue(numEvents.getOrDefault(subProcess, 0));
+                columnMap.get(String.format("Time spent in '%s' in minutes", subProcess)).addValue(timeSpent.getOrDefault(subProcess, 0L).intValue());
+                columnMap.get(String.format("Times entered into '%s'", subProcess)).addValue(timesEntered.getOrDefault(subProcess, 0));
             }
         }
     }

@@ -24,7 +24,7 @@ import static java.util.stream.Collectors.toList;
 
 public class LogTransformRunner {
 
-    private static final Project PROJECT = Project.BPIC2019;
+    private static final Project PROJECT = Project.SIGNAVIO_SALESFORCE_OPPS;
 
     public static void main(String[] args) {
 

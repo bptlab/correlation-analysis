@@ -42,7 +42,7 @@ class SimpleNumberOfActivityExecutionsTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "A1_snumexecutions", "A2_snumexecutions", "A3_snumexecutions", "A4_snumexecutions");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "#Executions of 'A1'", "#Executions of 'A2'", "#Executions of 'A3'", "#Executions of 'A4'");
 
         var row1 = afterTransformation.get("1");
         var row2 = afterTransformation.get("2");

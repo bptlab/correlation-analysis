@@ -1,6 +1,7 @@
 package de.hpi.bpt.logtransform.transformation;
 
 import de.hpi.bpt.logtransform.transformation.compliance.NonCompliantLogTransitionsTransformation;
+import de.hpi.bpt.logtransform.transformation.controlflow.ActivityExecutionPathSelectionTransformation;
 import de.hpi.bpt.logtransform.transformation.controlflow.SubProcessTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedHandoverCountTransformation;
 import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedNumberOfResourcesInvolvedTransformation;
@@ -43,7 +44,7 @@ class ModelFeatureGenerator {
     }
 
     private List<LogTransformation> from(XorSplitFollowsFeature feature) {
-        return List.of();
+        return List.of(new ActivityExecutionPathSelectionTransformation(mapNames(feature)));
     }
 
     private List<LogTransformation> from(RepeatingActivityFeature feature) {

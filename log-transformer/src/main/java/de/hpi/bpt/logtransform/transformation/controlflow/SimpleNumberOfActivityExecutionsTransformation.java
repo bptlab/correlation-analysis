@@ -14,7 +14,7 @@ public class SimpleNumberOfActivityExecutionsTransformation implements LogTransf
         var activityColumn = sourceEventLog.getTyped(sourceSchema.getActivityName(), String.class);
 
         for (String activityName : sourceEventLog.getUniqueActivityNames()) {
-            var numExecutionsColumn = resultCaseLog.addColumn(activityName + "_snumexecutions", String.class);
+            var numExecutionsColumn = resultCaseLog.addColumn(String.format("#Executions of '%s'", activityName), String.class);
 
             for (List<String> trace : activityColumn.getTraces()) {
                 var count = trace.stream().filter(traceActivityName -> traceActivityName.equals(activityName)).count();

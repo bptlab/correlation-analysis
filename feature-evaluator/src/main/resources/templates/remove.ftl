@@ -1,7 +1,7 @@
 <section class="section">
     <div class="container">
         <p class="title is-4">${projectName}</p>
-        <p class="title is-4">Target Attribute: ${TARGET_ATTRIBUTE}</p>
+        <p class="title is-4">Target Attribute: ${targetAttribute}</p>
 
         <form action="${contextPath}/ignore" method="post" enctype="multipart/form-data">
 
@@ -35,24 +35,28 @@
             </div>
         </form>
 
-        <section class="section">
-            <div class="container">
-                <p class="title is-4">Ignored Attributes</p>
-                <div><pre><code>
-${IGNORED_ATTRIBUTES}
+        <#if ignoredAttributes??>
+            <section class="section">
+                <div class="container">
+                    <p class="title is-4">Ignored Attributes</p>
+                    <div><pre><code>
+${ignoredAttributes}
             </code></pre>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </#if>
 
-        <section class="section">
-            <div class="container">
-                <p class="title is-4">Suspected Dependencies</p>
-                <div><pre><code>
-${SUSPECTED_DEPENDENCIES}
+        <#if suspectedDependencies??>
+            <section class="section">
+                <div class="container">
+                    <p class="title is-4">Suspected Dependencies</p>
+                    <div><pre><code>
+${suspectedDependencies}
             </code></pre>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </#if>
     </div>
 </section>

@@ -31,11 +31,11 @@ ${SELECTED_ATTRIBUTES}
     </section>
 </#if>
 
-<#if ASSUMPTION_TREES??>
+<#if assumptionStumps??>
     <section class="section">
         <div class="container">
             <p class="title is-4">Correlation Assumptions</p>
-            ${ASSUMPTION_TREES}
+            ${assumptionStumps}
         </div>
     </section>
 </#if>

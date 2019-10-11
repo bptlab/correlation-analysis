@@ -23,9 +23,8 @@ public class FeatureEvaluator {
             var attributeSelection = new AttributeSelection();
 
             var evaluator = new CfsSubsetEval();
-//            evaluator.setMissingSeparate(true);
-//            evaluator.setPoolSize(4);
-//            evaluator.setNumThreads(4);
+            evaluator.setPoolSize(4);
+            evaluator.setNumThreads(4);
             var search = new BestFirst();
             attributeSelection.setEvaluator(evaluator);
             attributeSelection.setSearch(search);

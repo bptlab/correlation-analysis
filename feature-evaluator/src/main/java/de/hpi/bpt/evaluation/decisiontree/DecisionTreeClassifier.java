@@ -4,6 +4,7 @@ import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.REPTree;
+import weka.core.Attribute;
 import weka.core.Drawable;
 import weka.core.Instances;
 import weka.filters.Filter;
@@ -18,6 +19,7 @@ public class DecisionTreeClassifier {
     public J48 buildJ48Tree(Instances data) {
         try {
             var classifier = new J48();
+            classifier.setMinNumObj(Math.min(100, data.size() / 100));
             classifier.setBinarySplits(true);
             classifier.buildClassifier(data);
 
@@ -37,12 +39,12 @@ public class DecisionTreeClassifier {
         }
     }
 
-    private J48 buildStumpForAttribute(Instances data) {
+    private J48 buildStumpForAttribute(Instances data, Attribute attribute) {
         try {
             var classifier = new J48();
             classifier.setMinNumObj(Math.min(100, data.size() / 100));
 
-            if (data.classAttribute().numValues() > 5) {
+            if (attribute.numValues() > 5) {
                 // many different values: we hope to find relevant ones via binary splits and drop irrelevant ones via pruning
                 classifier.setBinarySplits(true);
             } else {
@@ -71,7 +73,7 @@ public class DecisionTreeClassifier {
                 remove.setInvertSelection(true);
                 remove.setInputFormat(data);
                 var removed = Filter.useFilter(data, remove);
-                var stump = buildStumpForAttribute(removed);
+                var stump = buildStumpForAttribute(removed, removed.attribute(attributeName));
 
                 result += getTreeImageTag(stump) + "\n";
             }

@@ -74,10 +74,9 @@ class FeatureEvaluationRunner {
 
         var preprocessedData = runTimed(() -> dataPreprocessor.simplePreprocess(data), "Preparing data");
         var attributeSelection = runTimed(() -> featureEvaluator.selectAttributes(preprocessedData), "Selecting attributes");
-        var processedData = featureEvaluator.retainTop50Attributes(preprocessedData, attributeSelection, suspectedDependencies);
         var directDependencies = featureEvaluator.findDirectDependencies(data, attributeSelection);
         var highlyCorrelatedAttributes = featureEvaluator.findHighlyCorrelatedAttributes(data, attributeSelection);
-        var reducedData = featureEvaluator.removeNonInterestingAttributes(processedData, attributeSelection, suspectedDependencies);
+        var reducedData = featureEvaluator.retainTop50Attributes(preprocessedData, attributeSelection, suspectedDependencies);
         this.processedData = dataPreprocessor.replaceMissingStringValuesWithConstant(reducedData);
 
         var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(processedData, suspectedDependencies), "Calculating feature scores");
@@ -127,14 +126,14 @@ class FeatureEvaluationRunner {
         Classifier tree = runTimed(() -> treeClassifier.buildJ48Tree(dataWithSelectedFeatures), "Building J48 tree");
         var treeImage = getTreeImageTag((Drawable) tree);
 
-        var rules = runTimed(() -> rulesClassifier.buildPARTRules(dataWithSelectedFeatures), "Building decision rules");
+//        var rules = runTimed(() -> rulesClassifier.buildPARTRules(dataWithSelectedFeatures), "Building decision rules");
 
 //        var crossValidation = runTimed(() -> validator.validate(rules, dataWithSelectedFeatures), "Cross-validating tree");
 
         var result = getFixedValues();
         result.put("SELECTED_ATTRIBUTES", selectedFeatures);
         result.put("TREE", treeImage);
-        result.put("RULES", rules.toString());
+//        result.put("RULES", rules.toString());
 //        result.put("EVALUATION", crossValidation.toClassDetailsString());
         if (!directDependencies.isEmpty()) {
             result.put("DIRECT_DEPENDENCIES", directDependencies);

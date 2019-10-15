@@ -7,8 +7,10 @@ import weka.core.converters.ArffLoader;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 import static de.hpi.bpt.util.TimeTracker.runTimed;
+import static java.util.Collections.emptyList;
 
 public class FeatureEvaluationApplication extends Application {
 
@@ -28,7 +30,7 @@ public class FeatureEvaluationApplication extends Application {
             var projectName = routeContext.getParameter("projectName").toString();
             var targetAttribute = routeContext.getParameter("targetAttribute").toString();
             var suspectedDependenciesParam = routeContext.getParameter("suspectedDependencies").toString();
-            var suspectedDependencies = Arrays.asList(suspectedDependenciesParam.split(","));
+            List<String> suspectedDependencies = suspectedDependenciesParam.isEmpty() ? emptyList() : Arrays.asList(suspectedDependenciesParam.split(","));
 
             var data = runTimed(() -> loadDataFromFile(fileItem), "Loading data from file");
             var results = runner

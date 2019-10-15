@@ -53,12 +53,10 @@ public class DataPreprocessor {
     }
 
     public Instances remove(List<String> attributesToIgnore, Instances data) {
-        var selectedClassAttribute = data.classAttribute().name();
-        attributesToIgnore.add(selectedClassAttribute);
         var indicesToRemove = IntStream.range(0, data.numAttributes()).filter(i -> {
             for (String attributeToIgnore : attributesToIgnore) {
                 var name = data.attribute(i).name();
-                if (name.contains(attributeToIgnore) && !name.equals(selectedClassAttribute)) {
+                if (name.equals(attributeToIgnore)) {
                     System.out.println("Removing attribute '" + name + "'");
                     return true;
                 }

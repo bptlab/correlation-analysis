@@ -111,7 +111,8 @@ public class FeatureEvaluator {
                     IntStream.concat(
                             Arrays.stream(directDependencyAttributeIndices),
                             Arrays.stream(almostNoDependencyAttributeIndices))
-                            .filter(i -> !attributesToKeep.contains(i)).toArray());
+                            .filter(i -> !attributesToKeep.contains(i))
+                            .distinct().sorted().toArray());
             remove.setInputFormat(data);
             return Filter.useFilter(data, remove);
         } catch (Exception e) {
@@ -128,9 +129,10 @@ public class FeatureEvaluator {
                     IntStream.concat(
                             suspectedDependencies.stream().mapToInt(attName -> data.attribute(attName).index()),
                             IntStream.range(0, 50)
-                                    .filter(i -> rankedAttributes[i][1] > 0.01)
+                                    .filter(i -> rankedAttributes[i][1] > 0.01 && rankedAttributes[i][1] < 1.0)
                                     .map(i -> (int) rankedAttributes[i][0])),
                     IntStream.of(data.classIndex()))
+                    .distinct()
                     .sorted()
                     .toArray();
 

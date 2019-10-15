@@ -34,29 +34,26 @@
                 </div>
             </div>
         </form>
-
-        <#if ignoredAttributes??>
-            <section class="section">
-                <div class="container">
-                    <p class="title is-4">Ignored Attributes</p>
-                    <div><pre><code>
-${ignoredAttributes}
-            </code></pre>
-                    </div>
-                </div>
-            </section>
-        </#if>
-
-        <#if suspectedDependencies??>
-            <section class="section">
-                <div class="container">
-                    <p class="title is-4">Suspected Dependencies</p>
-                    <div><pre><code>
-${suspectedDependencies}
-            </code></pre>
-                    </div>
-                </div>
-            </section>
-        </#if>
     </div>
+
+    <#if ignoredAttributes??>
+        <div class="container">
+            <p class="title is-4">Ignored Attributes</p>
+            <div><pre><code>
+${ignoredAttributes?join("\n")}
+            </code></pre>
+            </div>
+        </div>
+    </#if>
+
+    <#if suspectedDependencies??>
+        <div class="container">
+            <p class="title is-4">Suspected Dependencies</p>
+            <div><pre><code>
+${suspectedDependencies?join("\n")}
+            </code></pre>
+            </div>
+        </div>
+    </#if>
+
 </section>

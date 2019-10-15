@@ -1,53 +1,51 @@
-<#if DIRECT_DEPENDENCIES??>
-    <section class="section">
+<section class="section">
+    <#if DIRECT_DEPENDENCIES??>
         <div class="container">
             <p class="title is-4">Direct Dependencies</p>
             <div><pre><code>
 ${DIRECT_DEPENDENCIES}
             </code></pre></div>
         </div>
-    </section>
-</#if>
+    </#if>
 
-<#if CORRELATED_ATTRIBUTES??>
-    <section class="section">
+    <#if CORRELATED_ATTRIBUTES??>
         <div class="container">
             <p class="title is-4">Highly Correlated Attributes</p>
             <div><pre><code>
 ${CORRELATED_ATTRIBUTES}
-            </code></pre></div>
+        </code></pre>
+            </div>
         </div>
-    </section>
-</#if>
+    </#if>
 
-<#if SELECTED_ATTRIBUTES??>
-    <section class="section">
+    <#if SELECTED_ATTRIBUTES??>
         <div class="container">
             <p class="title is-4">Selected Attributes</p>
             <div><pre><code>
 ${SELECTED_ATTRIBUTES}
-            </code></pre></div>
+        </code></pre>
+            </div>
         </div>
-    </section>
-</#if>
+    </#if>
+</section>
 
-<#if assumptionStumps??>
-    <section class="section">
+
+<section class="section">
+    <#if assumptionStumps??>
         <div class="container">
             <p class="title is-4">Correlation Assumptions</p>
             ${assumptionStumps}
         </div>
-    </section>
-</#if>
+    </#if>
 
-<#if TREE??>
-    <section class="section">
+    <#if TREE??>
         <div class="container">
             <p class="title is-4">Tree</p>
             ${TREE}
         </div>
-    </section>
-</#if>
+    </#if>
+</section>
+
 
 <#if RULES??>
     <section class="section">

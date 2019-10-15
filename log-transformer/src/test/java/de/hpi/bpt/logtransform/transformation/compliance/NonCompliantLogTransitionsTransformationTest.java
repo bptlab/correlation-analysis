@@ -49,13 +49,13 @@ class NonCompliantLogTransitionsTransformationTest {
                 .with("A1", "A2", "A3")
                 .with("A2", "A4")
                 .with("A3", "A4")
-                .with("A4");
+                .with("A4", "#END#");
 
         // Act
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "compliant", "numviolations");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "#Invalid Transitions");
 
         var row1 = afterTransformation.get("1");
         var row2 = afterTransformation.get("2");
@@ -64,12 +64,12 @@ class NonCompliantLogTransitionsTransformationTest {
         var row5 = afterTransformation.get("5");
         var row6 = afterTransformation.get("6");
 
-        assertThat(row1).containsExactly("1", true, 0);
-        assertThat(row2).containsExactly("2", true, 0);
-        assertThat(row3).containsExactly("3", true, 0);
-        assertThat(row4).containsExactly("4", false, 1);
-        assertThat(row5).containsExactly("5", false, 3);
-        assertThat(row6).containsExactly("6", true, 0);
+        assertThat(row1).containsExactly("1", 0);
+        assertThat(row2).containsExactly("2", 1);
+        assertThat(row3).containsExactly("3", 0);
+        assertThat(row4).containsExactly("4", 1);
+        assertThat(row5).containsExactly("5", 4);
+        assertThat(row6).containsExactly("6", 1);
     }
 
 }

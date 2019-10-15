@@ -29,22 +29,21 @@ public class NonCompliantLogTransitionsTransformation implements LogTransformati
     @Override
     public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
         var activityColumn = sourceEventLog.getActivityColumn();
-        var compliantColumn = resultCaseLog.addColumn("compliant", Boolean.class);
-        var violationsColumn = resultCaseLog.addColumn("numviolations", Integer.class);
+        var violationsColumn = resultCaseLog.addColumn("#Invalid Transitions", Integer.class);
 
         for (List<String> trace : activityColumn.getTraces()) {
-            var compliant = true;
             var numViolations = 0;
             for (int i = 0; i < trace.size() - 1; i++) {
 
                 if (compliantFlows.containsKey(trace.get(i))
-                        && compliantFlows.containsKey(trace.get(i + 1))
                         && !compliantFlows.get(trace.get(i)).contains(trace.get(i + 1))) {
-                    compliant = false;
                     numViolations++;
                 }
             }
-            compliantColumn.addValue(compliant);
+            var lastEvent = trace.get(trace.size() - 1);
+            if (compliantFlows.containsKey(lastEvent) && !compliantFlows.get(lastEvent).contains("#END#")) {
+                numViolations++;
+            }
             violationsColumn.addValue(numViolations);
         }
     }

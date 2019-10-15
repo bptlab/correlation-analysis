@@ -36,8 +36,8 @@ class CompliantFlowAnalysisTest {
         assertThat(compliantFlows.get("A2")).containsExactlyInAnyOrder("A5", "A6");
         assertThat(compliantFlows.get("A3")).containsExactlyInAnyOrder("A4");
         assertThat(compliantFlows.get("A4")).containsExactlyInAnyOrder("A5", "A6");
-        assertThat(compliantFlows.get("A5")).isEmpty();
-        assertThat(compliantFlows.get("A6")).isEmpty();
+        assertThat(compliantFlows.get("A5")).containsExactlyInAnyOrder("#END#");
+        assertThat(compliantFlows.get("A6")).containsExactlyInAnyOrder("#END#");
     }
 
     /*

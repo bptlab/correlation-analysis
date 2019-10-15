@@ -48,6 +48,10 @@ public class CompliantFlowAnalysis implements Analysis {
                     throw new RuntimeException("SubProcess '" + subProcess.getName() + "' does not contain one start event!");
                 }
                 toFollow.addLast(subStartEvents.iterator().next());
+            } else if (current instanceof EndEvent) {
+                if (!(current.getParentElement() instanceof SubProcess)) {
+                    result.add("#END#");
+                }
             } else {
                 current.getOutgoing().forEach(flow -> toFollow.addLast(flow.getTarget()));
             }

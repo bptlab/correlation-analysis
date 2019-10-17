@@ -20,18 +20,35 @@ public class CompliantFlowAnalysis implements Analysis {
 
     private Map<String, List<String>> findCompliantFlows(BpmnModelInstance modelInstance) {
         var activities = modelInstance.getModelElementsByType(Activity.class);
-        return activities.stream()
+        var result = activities.stream()
                 .filter(activity -> activity instanceof Task || activity.getChildElementsByType(Activity.class).isEmpty())
                 .collect(toMap(FlowElement::getName, this::findCompliantFlows));
+
+        var validStartFlows = modelInstance.getModelElementsByType(StartEvent.class)
+                .stream()
+                .filter(event -> !(event.getParentElement() instanceof SubProcess))
+                .collect(toMap(s -> "#START#", this::findCompliantFlows));
+
+        result.putAll(validStartFlows);
+        return result;
     }
 
-    private List<String> findCompliantFlows(Activity activity) {
+    private List<String> findCompliantFlows(FlowNode flowNode) {
         var result = new ArrayList<String>();
         var toFollow = new ArrayDeque<FlowNode>();
         var seen = new HashSet<FlowNode>();
-        activity.getOutgoing().forEach(flow -> toFollow.addLast(flow.getTarget()));
-        if (activity.getParentElement() instanceof SubProcess) {
-            ((SubProcess) activity.getParentElement()).getOutgoing().forEach(flow -> toFollow.addLast(flow.getTarget()));
+
+        // Loop activities can follow themselves
+        if (flowNode instanceof Activity && ((Activity) flowNode).getLoopCharacteristics() != null) {
+            result.add(flowNode.getName());
+        }
+
+        // outgoing flows
+        flowNode.getOutgoing().forEach(flow -> toFollow.addLast(flow.getTarget()));
+
+        // if last activity in subprocess: outgoing flows of subprocess
+        if (toFollow.getFirst() instanceof EndEvent && flowNode.getParentElement() instanceof SubProcess) {
+            ((SubProcess) flowNode.getParentElement()).getOutgoing().forEach(flow -> toFollow.addLast(flow.getTarget()));
         }
         while (!toFollow.isEmpty()) {
             var current = toFollow.removeFirst();

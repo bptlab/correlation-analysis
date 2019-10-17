@@ -46,6 +46,7 @@ class NonCompliantLogTransitionsTransformationTest {
                 .build();
 
         var transformation = new NonCompliantLogTransitionsTransformation()
+                .with("#START#", "A1")
                 .with("A1", "A2", "A3")
                 .with("A2", "A4")
                 .with("A3", "A4")
@@ -66,10 +67,10 @@ class NonCompliantLogTransitionsTransformationTest {
 
         assertThat(row1).containsExactly("1", 0);
         assertThat(row2).containsExactly("2", 1);
-        assertThat(row3).containsExactly("3", 0);
+        assertThat(row3).containsExactly("3", 1);
         assertThat(row4).containsExactly("4", 1);
-        assertThat(row5).containsExactly("5", 4);
-        assertThat(row6).containsExactly("6", 1);
+        assertThat(row5).containsExactly("5", 5);
+        assertThat(row6).containsExactly("6", 0);
     }
 
 }

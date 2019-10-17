@@ -36,9 +36,15 @@ public class NonCompliantLogTransitionsTransformation implements LogTransformati
             for (int i = 0; i < trace.size() - 1; i++) {
 
                 if (compliantFlows.containsKey(trace.get(i))
+                        && compliantFlows.containsKey(trace.get(i + 1)) // ignore unknown activities
                         && !compliantFlows.get(trace.get(i)).contains(trace.get(i + 1))) {
                     numViolations++;
                 }
+            }
+            var firstEvent = trace.get(0);
+            if (compliantFlows.containsKey(firstEvent) && !compliantFlows.get("#START#").contains(firstEvent)) {
+                // first check is to ignore unknown activities
+                numViolations++;
             }
             var lastEvent = trace.get(trace.size() - 1);
             if (compliantFlows.containsKey(lastEvent) && !compliantFlows.get(lastEvent).contains("#END#")) {

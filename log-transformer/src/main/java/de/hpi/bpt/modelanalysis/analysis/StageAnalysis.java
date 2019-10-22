@@ -57,7 +57,7 @@ public class StageAnalysis implements Analysis {
             stack.addFirst(sequenceFlow.getTarget());
         }
 
-        var paths = new ArrayList<ArrayList<String>>();
+        var paths = new ArrayList<List<String>>();
         var path = new ArrayList<String>();
         while (!stack.isEmpty()) {
             var current = stack.removeFirst();
@@ -65,6 +65,7 @@ public class StageAnalysis implements Analysis {
                 path.add(activityToStage.get(current.getName()));
             }
             if (current.equals(join)) {
+                path.sort(String::compareToIgnoreCase);
                 paths.add(new ArrayList<>(path));
                 path = new ArrayList<>();
             } else {
@@ -81,8 +82,10 @@ public class StageAnalysis implements Analysis {
         return cartesianProductOf(paths);
     }
 
-    private Set<Pair<String, String>> cartesianProductOf(ArrayList<ArrayList<String>> paths) {
+    private Set<Pair<String, String>> cartesianProductOf(List<List<String>> paths) {
         var result = new HashSet<Pair<String, String>>();
+
+        paths.sort((l1, l2) -> String.join("", l1).compareToIgnoreCase(String.join("", l2)));
 
         for (int pathIndex = 0; pathIndex < paths.size(); pathIndex++) {
             var currentPath = paths.get(pathIndex);

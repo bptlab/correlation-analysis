@@ -59,18 +59,22 @@ public class StageAnalysis implements Analysis {
 
         var paths = new ArrayList<List<String>>();
         var path = new ArrayList<String>();
+        var seen = new HashSet<FlowNode>();
         while (!stack.isEmpty()) {
             var current = stack.removeFirst();
-            if (current instanceof Activity && !path.contains(activityToStage.get(current.getName()))) {
-                path.add(activityToStage.get(current.getName()));
-            }
-            if (current.equals(join)) {
-                path.sort(String::compareToIgnoreCase);
-                paths.add(new ArrayList<>(path));
-                path = new ArrayList<>();
-            } else {
-                for (SequenceFlow sequenceFlow : current.getOutgoing()) {
-                    stack.addFirst(sequenceFlow.getTarget());
+            if (!seen.contains(current)) {
+                seen.add(current);
+                if (current instanceof Activity && !path.contains(activityToStage.get(current.getName()))) {
+                    path.add(activityToStage.get(current.getName()));
+                }
+                if (current.equals(join)) {
+                    path.sort(String::compareToIgnoreCase);
+                    paths.add(new ArrayList<>(path));
+                    path = new ArrayList<>();
+                } else {
+                    for (SequenceFlow sequenceFlow : current.getOutgoing()) {
+                        stack.addFirst(sequenceFlow.getTarget());
+                    }
                 }
             }
         }

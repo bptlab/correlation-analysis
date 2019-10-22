@@ -61,7 +61,7 @@ public class ActivityMapping {
 
         @Override
         public String get(Object o) {
-            return String.valueOf(o);
+            return String.valueOf(o).trim();
         }
 
         @Override

@@ -20,9 +20,12 @@ public class CompliantFlowAnalysis implements Analysis {
 
     private Map<String, List<String>> findCompliantFlows(BpmnModelInstance modelInstance) {
         var activities = modelInstance.getModelElementsByType(Activity.class);
-        var result = activities.stream()
+        var nodesAndFlows = activities.stream()
                 .filter(activity -> activity instanceof Task || activity.getChildElementsByType(Activity.class).isEmpty())
-                .collect(toMap(FlowElement::getName, this::findCompliantFlows));
+                .collect(toMap(flowNode -> flowNode, this::findCompliantFlows));
+
+        Map<String, List<String>> result = nodesAndFlows.keySet().stream().map(FlowNode::getName).distinct().collect(toMap(n -> n, n -> new ArrayList<String>()));
+        nodesAndFlows.forEach((node, flows) -> result.get(node.getName()).addAll(flows));
 
         var validStartFlows = modelInstance.getModelElementsByType(StartEvent.class)
                 .stream()

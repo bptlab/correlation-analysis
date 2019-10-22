@@ -32,7 +32,7 @@ class WasDepartmentInvolvedTransformationTest {
                 .build()
                 .build();
 
-        var transformation = new DepartmentHandoversTransformation()
+        var transformation = new WasDepartmentInvolvedTransformation()
                 .with("A1", "L1")
                 .with("A2", "L1")
                 .with("A3", "L2");

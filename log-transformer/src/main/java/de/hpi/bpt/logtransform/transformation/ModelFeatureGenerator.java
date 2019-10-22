@@ -1,12 +1,18 @@
 package de.hpi.bpt.logtransform.transformation;
 
+import de.hpi.bpt.logtransform.transformation.multi.compliance.CorrectLocationTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.controlflow.NumberOfActivityExecutionsTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.controlflow.StageControlFlowTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.resource.DepartmentHandoversTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.resource.WasDepartmentInvolvedTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.time.StageStartEndTimeTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.time.StageTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.once.conformance.NonCompliantLogTransitionsTransformation;
 import de.hpi.bpt.logtransform.transformation.once.resource.NumberOfDepartmentsInvolvedTransformation;
 import de.hpi.bpt.modelanalysis.feature.*;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,19 +28,29 @@ class ModelFeatureGenerator {
         this.activityMapping = activityMapping;
     }
 
-    List<LogTransformation> from(AnalysisResult analysisResult) {
-        switch (analysisResult.getType()) {
-            case ACTIVITY_TO_LANE:
-                return from((ActivityToLaneFeature) analysisResult);
-            case STAGES:
-                return from((StageFeature) analysisResult);
-            case COMPLIANT_FLOWS:
-                return from((CompliantFlowsFeature) analysisResult);
-            case OPTIONAL_ACTIVITY:
-                return from((OptionalActivityFeature) analysisResult);
-            default:
-                return List.of();
+    List<LogTransformation> from(Set<AnalysisResult> analysisResults) {
+        var result = new ArrayList<LogTransformation>();
+
+        var activityToLaneFeature = analysisResults.stream().filter(r -> r instanceof ActivityToLaneFeature).map(ActivityToLaneFeature.class::cast).findFirst();
+        var stagesFeature = analysisResults.stream().filter(r -> r instanceof StageFeature).map(StageFeature.class::cast).findFirst();
+        var compliantFlowsFeature = analysisResults.stream().filter(r -> r instanceof CompliantFlowsFeature).map(CompliantFlowsFeature.class::cast).findFirst();
+        var optionalActivitiesFeature = analysisResults.stream().filter(r -> r instanceof OptionalActivityFeature).map(OptionalActivityFeature.class::cast).findFirst();
+
+        activityToLaneFeature.ifPresent(feature -> result.addAll(from(feature)));
+        compliantFlowsFeature.ifPresent(feature -> result.add(new NonCompliantLogTransitionsTransformation(mapNames(feature))));
+        optionalActivitiesFeature.ifPresent(feature -> result.add(new NumberOfActivityExecutionsTransformation(feature.getActivityNames())));
+
+        if (stagesFeature.isPresent()) {
+            var activityToStage = stagesFeature.get().getActivityToStage();
+
+            compliantFlowsFeature.ifPresent(feature -> result.add(new CorrectLocationTransformation(mapNames(feature), activityToStage)));
+
+            result.add(new StageControlFlowTransformation(stagesFeature.get().getActivityToStage()));
+            result.add(new StageTimeTransformation(stagesFeature.get().getActivityToStage()));
+            result.add(new StageStartEndTimeTransformation(stagesFeature.get().getActivityToStage()));
         }
+
+        return result;
     }
 
     private List<LogTransformation> from(ActivityToLaneFeature feature) {
@@ -51,26 +67,15 @@ class ModelFeatureGenerator {
         );
     }
 
-    private List<LogTransformation> from(CompliantFlowsFeature feature) {
-        return List.of(
-                new NonCompliantLogTransitionsTransformation(
-                        feature.getCompliantFlows().entrySet().stream()
-                                .filter(entry -> activityMapping.containsKey(entry.getKey()))
-                                .collect(Collectors.toMap(
-                                        entry -> activityMapping.get(entry.getKey()),
-                                        entry -> entry.getValue().stream()
-                                                .filter(activityMapping::containsKey)
-                                                .map(activityMapping::get)
-                                                .collect(toList()))))
-        );
-    }
-
-    private List<LogTransformation> from(StageFeature feature) {
-        return List.of();
-    }
-
-    private List<LogTransformation> from(OptionalActivityFeature feature) {
-        return List.of();
+    private Map<String, List<String>> mapNames(CompliantFlowsFeature feature) {
+        return feature.getCompliantFlows().entrySet().stream()
+                .filter(entry -> activityMapping.containsKey(entry.getKey()))
+                .collect(Collectors.toMap(
+                        entry -> activityMapping.get(entry.getKey()),
+                        entry -> entry.getValue().stream()
+                                .filter(activityMapping::containsKey)
+                                .map(activityMapping::get)
+                                .collect(toList())));
     }
 
     private Set<String> mapNames(AbstractActivityFeature feature) {

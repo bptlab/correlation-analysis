@@ -76,13 +76,13 @@ public class SubProcessTransformation implements LogTransformation {
                 if (!lastSubProcess.equals(currentSubProcess)) {
                     timesEntered.merge(currentSubProcess, 1, Integer::sum);
 
-                    timeSpent.merge(lastSubProcess, Duration.between(lastActivityStart.toInstant(), timestampTrace.get(activityIndex).toInstant()).toMinutes(), Long::sum);
+                    timeSpent.merge(lastSubProcess, Duration.between(lastActivityStart.toInstant(), timestampTrace.get(activityIndex - 1).toInstant()).toMinutes(), Long::sum);
 
                     lastSubProcess = currentSubProcess;
-                    lastActivityStart = timestampTrace.get(activityIndex);
+                    lastActivityStart = timestampTrace.get(activityIndex - 1);
                 }
             }
-            timeSpent.merge(lastSubProcess, Duration.between(lastActivityStart.toInstant(), timestampTrace.get(timestampTrace.size() - 1).toInstant()).toSeconds(), Long::sum);
+            timeSpent.merge(lastSubProcess, Duration.between(lastActivityStart.toInstant(), timestampTrace.get(timestampTrace.size() - 1).toInstant()).toMinutes(), Long::sum);
 
             for (String subProcess : subProcesses) {
                 columnMap.get(String.format("Number of Events in '%s'", subProcess)).addValue(numEvents.getOrDefault(subProcess, 0));

@@ -7,8 +7,6 @@ import de.hpi.bpt.logtransform.transformation.LogTransformation;
 import java.time.Duration;
 import java.util.Date;
 
-import static java.time.temporal.ChronoUnit.MINUTES;
-
 public class CaseDurationTransformation implements LogTransformation {
 
     @Override
@@ -20,7 +18,7 @@ public class CaseDurationTransformation implements LogTransformation {
 
         for (var trace : timestampColumn.getTraces()) {
             var duration = Duration.between(trace.get(0).toInstant(), trace.get(trace.size() - 1).toInstant());
-            durationColumn.addValue((int) duration.get(MINUTES));
+            durationColumn.addValue((int) duration.toMinutes());
         }
     }
 }

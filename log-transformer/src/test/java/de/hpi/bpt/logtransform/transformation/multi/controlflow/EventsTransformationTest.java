@@ -34,13 +34,13 @@ class EventsTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "#Events in case");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "#Events in case", "#Unique events in case", "First event", "Last event");
 
         var row1 = afterTransformation.get("1");
         var row2 = afterTransformation.get("2");
 
-        assertThat(row1).containsExactly("1", 1);
-        assertThat(row2).containsExactly("2", 4);
+        assertThat(row1).containsExactly("1", 1, 1, "A2", "A2");
+        assertThat(row2).containsExactly("2", 4, 2, "A3", "A3");
     }
 
 }

@@ -31,7 +31,8 @@ public class LogTransformer {
 
     public LogTransformer withAnalysisResults(Set<AnalysisResult> analysisResults, Map<String, String> activityMapping) {
         var featureGenerator = new ModelFeatureGenerator(activityMapping);
-        analysisResults.forEach(analysisResult -> transformations.addAll(featureGenerator.from(analysisResult)));
+        transformations.addAll(featureGenerator.from(analysisResults));
+//        analysisResults.forEach(analysisResult -> transformations.addAll(featureGenerator.from(analysisResult)));
         return this;
     }
 

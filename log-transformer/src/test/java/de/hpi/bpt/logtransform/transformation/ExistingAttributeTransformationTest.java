@@ -35,6 +35,6 @@ class ExistingAttributeTransformationTest {
 
         var row1 = afterTransformation.get("1");
 
-        assertThat(row1).containsExactly("1", "C1A1", "C1A2", 2, 1, 9, 3, 20, 1, 10D, "StartValue", "EndValue", 3);
+        assertThat(row1).containsExactly("1", 1, 9, 3, 20, 1, 10D, "StartValue", "EndValue", 3);
     }
 }

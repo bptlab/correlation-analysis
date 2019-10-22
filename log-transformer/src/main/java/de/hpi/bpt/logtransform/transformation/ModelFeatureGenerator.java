@@ -45,7 +45,7 @@ class ModelFeatureGenerator {
 
             compliantFlowsFeature.ifPresent(feature -> result.add(new CorrectLocationTransformation(mapNames(feature), activityToStage)));
 
-            result.add(new StageControlFlowTransformation(stagesFeature.get().getActivityToStage()));
+            result.add(new StageControlFlowTransformation(stagesFeature.get().getActivityToStage(), stagesFeature.get().getParallelStages()));
             result.add(new StageTimeTransformation(stagesFeature.get().getActivityToStage()));
             result.add(new StageStartEndTimeTransformation(stagesFeature.get().getActivityToStage()));
         }

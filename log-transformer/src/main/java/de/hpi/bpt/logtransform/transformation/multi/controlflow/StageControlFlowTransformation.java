@@ -4,9 +4,12 @@ import de.hpi.bpt.logtransform.datastructures.CaseColumn;
 import de.hpi.bpt.logtransform.datastructures.ColumnCaseLog;
 import de.hpi.bpt.logtransform.datastructures.ColumnEventLog;
 import de.hpi.bpt.logtransform.transformation.LogTransformation;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
@@ -18,9 +21,11 @@ import static java.util.stream.Collectors.toList;
 public class StageControlFlowTransformation implements LogTransformation {
 
     private final Map<String, String> activityToStage = new HashMap<>();
+    private final Set<Pair<String, String>> parallelStages = new HashSet<>();
 
-    public StageControlFlowTransformation(Map<String, String> activityToStage) {
+    public StageControlFlowTransformation(Map<String, String> activityToStage, Set<Pair<String, String>> parallelStages) {
         this.activityToStage.putAll(activityToStage);
+        this.parallelStages.addAll(parallelStages);
     }
 
     @Override
@@ -47,9 +52,13 @@ public class StageControlFlowTransformation implements LogTransformation {
 
                 numEvents.merge(currentStage, 1, Integer::sum);
 
-                if (!lastStage.equals(currentStage)) {
+                if (!lastStage.contains(currentStage)) {
                     timesEntered.merge(currentStage, 1, Integer::sum);
-                    lastStage = currentStage;
+                    if (!areParallel(lastStage, currentStage)) {
+                        lastStage = currentStage;
+                    } else {
+                        lastStage = lastStage + currentStage;
+                    }
                 }
             }
 
@@ -58,5 +67,12 @@ public class StageControlFlowTransformation implements LogTransformation {
                 columnMap.get(String.format("Times entered into '%s'", stage)).addValue(timesEntered.getOrDefault(stage, 0));
             }
         }
+    }
+
+    private boolean areParallel(String lastStage, String currentStage) {
+        return parallelStages.stream()
+                .anyMatch(p -> p.getKey().equals(lastStage) && p.getValue().equals(currentStage)
+                        || p.getKey().equals(currentStage) && p.getValue().equals(lastStage)
+                );
     }
 }

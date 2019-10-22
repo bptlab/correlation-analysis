@@ -1,6 +1,7 @@
 package de.hpi.bpt.logtransform.transformation;
 
 import de.hpi.bpt.logtransform.EventLogBuilder;
+import de.hpi.bpt.logtransform.transformation.multi.data.ExistingAttributeTransformation;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -30,7 +31,7 @@ class ExistingAttributeTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "activity_start", "activity_end", "activity_unique", "integerTestValue_start", "integerTestValue_end", "integerTestValue_unique", "integerTestValue_max", "integerTestValue_min", "integerTestValue_avg", "stringTestValue_start", "stringTestValue_end", "stringTestValue_unique");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "integerTestValue (at start)", "integerTestValue (at end)", "integerTestValue (#unique values)", "integerTestValue (max)", "integerTestValue (min)", "integerTestValue (avg)", "stringTestValue (at start)", "stringTestValue (at end)", "stringTestValue (#unique values)");
 
         var row1 = afterTransformation.get("1");
 

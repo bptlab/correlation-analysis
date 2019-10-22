@@ -14,11 +14,10 @@ public class ModelAnalyzer {
 
     private static final List<? extends Analysis> analyses = List.of(
 //            new LoopActivityAnalysis(),
-//            new OptionalActivityAnalysis()
-            new OutgoingGatewayAnalysis(),
-            new ParallelActivityOrderAnalysis(),
+//            new OutgoingGatewayAnalysis(),
+            new OptionalActivityAnalysis(),
             new LaneAnalysis(),
-            new SubProcessAnalysis(),
+            new StageAnalysis(),
             new CompliantFlowAnalysis()
     );
 

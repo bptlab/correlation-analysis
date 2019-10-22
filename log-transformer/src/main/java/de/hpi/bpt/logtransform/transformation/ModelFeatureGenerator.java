@@ -1,11 +1,9 @@
 package de.hpi.bpt.logtransform.transformation;
 
-import de.hpi.bpt.logtransform.transformation.compliance.NonCompliantLogTransitionsTransformation;
-import de.hpi.bpt.logtransform.transformation.controlflow.ActivityExecutionPathSelectionTransformation;
-import de.hpi.bpt.logtransform.transformation.controlflow.SubProcessTransformation;
-import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedHandoverCountTransformation;
-import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedNumberOfResourcesInvolvedTransformation;
-import de.hpi.bpt.logtransform.transformation.resource.ActivityBasedPingPongOccurrenceTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.resource.DepartmentHandoversTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.resource.WasDepartmentInvolvedTransformation;
+import de.hpi.bpt.logtransform.transformation.once.conformance.NonCompliantLogTransitionsTransformation;
+import de.hpi.bpt.logtransform.transformation.once.resource.NumberOfDepartmentsInvolvedTransformation;
 import de.hpi.bpt.modelanalysis.feature.*;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -26,33 +24,17 @@ class ModelFeatureGenerator {
 
     List<LogTransformation> from(AnalysisResult analysisResult) {
         switch (analysisResult.getType()) {
-            case XOR_SPLIT_FOLLOWS:
-                return from((XorSplitFollowsFeature) analysisResult);
-            case REPEATING_ACTIVITY:
-                return from((RepeatingActivityFeature) analysisResult);
-            case PARALLEL_ACTIVITY_ORDER:
-                return from((ParallelActivityOrderFeature) analysisResult);
             case ACTIVITY_TO_LANE:
                 return from((ActivityToLaneFeature) analysisResult);
-            case SUBPROCESS:
-                return from((SubProcessFeature) analysisResult);
+            case STAGES:
+                return from((StageFeature) analysisResult);
             case COMPLIANT_FLOWS:
                 return from((CompliantFlowsFeature) analysisResult);
+            case OPTIONAL_ACTIVITY:
+                return from((OptionalActivityFeature) analysisResult);
             default:
-                throw new RuntimeException("Unknown type of AnalysisResult: '" + analysisResult.getType().name() + "'");
+                return List.of();
         }
-    }
-
-    private List<LogTransformation> from(XorSplitFollowsFeature feature) {
-        return List.of(new ActivityExecutionPathSelectionTransformation(mapNames(feature)));
-    }
-
-    private List<LogTransformation> from(RepeatingActivityFeature feature) {
-        return List.of();
-    }
-
-    private List<LogTransformation> from(ParallelActivityOrderFeature feature) {
-        return List.of();
     }
 
     private List<LogTransformation> from(ActivityToLaneFeature feature) {
@@ -63,19 +45,10 @@ class ModelFeatureGenerator {
                         Map.Entry::getValue
                 ));
         return List.of(
-                new ActivityBasedPingPongOccurrenceTransformation(activityToLane),
-                new ActivityBasedHandoverCountTransformation(activityToLane),
-                new ActivityBasedNumberOfResourcesInvolvedTransformation(activityToLane)
+                new DepartmentHandoversTransformation(activityToLane),
+                new NumberOfDepartmentsInvolvedTransformation(activityToLane),
+                new WasDepartmentInvolvedTransformation(activityToLane)
         );
-    }
-
-    private List<LogTransformation> from(SubProcessFeature feature) {
-        return List.of(new SubProcessTransformation(
-                feature.getSubProcessNames(),
-                feature.getActivityToSubProcess().entrySet().stream()
-                        .filter(entry -> activityMapping.containsKey(entry.getValue()))
-                        .collect(Collectors.toMap(Map.Entry::getKey, e -> activityMapping.get(e.getValue())))
-        ));
     }
 
     private List<LogTransformation> from(CompliantFlowsFeature feature) {
@@ -90,6 +63,14 @@ class ModelFeatureGenerator {
                                                 .map(activityMapping::get)
                                                 .collect(toList()))))
         );
+    }
+
+    private List<LogTransformation> from(StageFeature feature) {
+        return List.of();
+    }
+
+    private List<LogTransformation> from(OptionalActivityFeature feature) {
+        return List.of();
     }
 
     private Set<String> mapNames(AbstractActivityFeature feature) {

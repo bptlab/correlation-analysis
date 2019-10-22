@@ -38,8 +38,7 @@ class OptionalActivityAnalysisTest {
         );
     }
 
-    /*                      /---------\
-                           /           \
+    /*
                           /-> A2 -------\       /--> A4 -----------\
         Start --> A1 --> X               X --> X                    \
                           \-> A3 -------/       \--> X ------> X --> X --> A6 --> End
@@ -67,7 +66,6 @@ class OptionalActivityAnalysisTest {
         builder.connect(taskA1, split1);
         builder.connect(split1, taskA2);
         builder.connect(split1, taskA3);
-        builder.connect(split1, join1);
         builder.connect(taskA2, join1);
         builder.connect(taskA3, join1);
 

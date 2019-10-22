@@ -37,32 +37,16 @@ public class OptionalActivityAnalysis implements Analysis {
     }
 
     private Stream<String> findOptionalActivities(ExclusiveGateway exclusiveJoinGateway) {
+        if (exclusiveJoinGateway.getIncoming().size() == 1) {
+            return Stream.empty();
+        }
+
         var ancestor = new SplitFinder().findLowestCommonAncestor(exclusiveJoinGateway);
         if (ancestor.isEmpty()) {
             return Stream.empty();
         }
         var correspondingSplit = ancestor.get();
-        if (existsOptionalPathBetween(correspondingSplit, exclusiveJoinGateway)) {
-            return collectActivitiesBetween(correspondingSplit, exclusiveJoinGateway).stream();
-        } else {
-            return Stream.empty();
-        }
-    }
-
-    private boolean existsOptionalPathBetween(Gateway correspondingSplit, ExclusiveGateway exclusiveJoinGateway) {
-        var queue = new ArrayDeque<FlowNode>();
-        correspondingSplit.getOutgoing().forEach(sequenceFlow -> queue.addLast(sequenceFlow.getTarget()));
-        while (!queue.isEmpty()) {
-            if (queue.contains(exclusiveJoinGateway)) {
-                return true;
-            }
-            var current = queue.removeFirst();
-            if (current instanceof Activity) {
-                continue;
-            }
-            current.getOutgoing().forEach(sequenceFlow -> queue.addLast(sequenceFlow.getTarget()));
-        }
-        return false;
+        return collectActivitiesBetween(correspondingSplit, exclusiveJoinGateway).stream();
     }
 
     private Set<String> collectActivitiesBetween(Gateway split, ExclusiveGateway join) {

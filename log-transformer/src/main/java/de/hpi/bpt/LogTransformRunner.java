@@ -5,14 +5,15 @@ import de.hpi.bpt.logtransform.io.ArffCaseLogWriter;
 import de.hpi.bpt.logtransform.io.CsvCaseLogReader;
 import de.hpi.bpt.logtransform.io.CsvEventLogReader;
 import de.hpi.bpt.logtransform.io.CsvLogReader;
-import de.hpi.bpt.logtransform.transformation.ExistingAttributeTransformation;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
-import de.hpi.bpt.logtransform.transformation.controlflow.NumberOfTotalActivitiesTransformation;
-import de.hpi.bpt.logtransform.transformation.controlflow.SimpleNumberOfActivityExecutionsTransformation;
-import de.hpi.bpt.logtransform.transformation.resource.HandoverCountTransformation;
-import de.hpi.bpt.logtransform.transformation.resource.NumberOfResourcesInvolvedTransformation;
-import de.hpi.bpt.logtransform.transformation.resource.PingPongOccurrenceTransformation;
-import de.hpi.bpt.logtransform.transformation.time.*;
+import de.hpi.bpt.logtransform.transformation.multi.data.ExistingAttributeTransformation;
+import de.hpi.bpt.logtransform.transformation.once.controlflow.EventsTransformation;
+import de.hpi.bpt.logtransform.transformation.once.resource.HandoverCountTransformation;
+import de.hpi.bpt.logtransform.transformation.once.resource.NumberOfResourcesInvolvedTransformation;
+import de.hpi.bpt.logtransform.transformation.once.time.ActivityBottleneckTransformation;
+import de.hpi.bpt.logtransform.transformation.once.time.CaseDurationTransformation;
+import de.hpi.bpt.logtransform.transformation.once.time.CaseStartEndTimeTransformation;
+import de.hpi.bpt.logtransform.transformation.once.time.ParallelCaseCountTransformation;
 import de.hpi.bpt.modelanalysis.ModelAnalyzer;
 import de.hpi.bpt.modelanalysis.feature.AnalysisResult;
 
@@ -63,14 +64,10 @@ public class LogTransformRunner {
                 .with(new CaseDurationTransformation())
                 .with(new CaseStartEndTimeTransformation())
                 .with(new ParallelCaseCountTransformation())
-                .with(new ActivityExecutionDurationTransformation())
-                .with(new ActivityStartEndTimeTransformation())
+                .with(new ActivityBottleneckTransformation())
 
                 // control flow
-//                .with(new AllActivityPairsTransformation())
-//                .with(new DistinctActivityPairsTransformation())
-                .with(new SimpleNumberOfActivityExecutionsTransformation()) // all activities
-                .with(new NumberOfTotalActivitiesTransformation())
+                .with(new EventsTransformation())
 
                 // model analysis
                 .withAnalysisResults(analysisResults, PROJECT.activityMapping);
@@ -79,7 +76,6 @@ public class LogTransformRunner {
             // resource
             transformer
                     .with(new HandoverCountTransformation())
-                    .with(new PingPongOccurrenceTransformation())
                     .with(new NumberOfResourcesInvolvedTransformation());
         }
 

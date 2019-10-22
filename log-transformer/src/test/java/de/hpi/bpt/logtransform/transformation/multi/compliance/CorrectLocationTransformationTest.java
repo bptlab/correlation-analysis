@@ -74,11 +74,11 @@ class CorrectLocationTransformationTest {
         var row6 = afterTransformation.get("6");
 
         assertThat(row1).containsExactly("1", true, true, true, true, true, true);
-        assertThat(row2).containsExactly("2", true, true, true, true, true, true);
-        assertThat(row3).containsExactly("3", true, true, true, true, false, true);
-        assertThat(row4).containsExactly("4", true, true, true, true, true, true);
+        assertThat(row2).containsExactly("2", true, true, null, null, true, true);
+        assertThat(row3).containsExactly("3", null, null, null, null, false, true);
+        assertThat(row4).containsExactly("4", true, true, null, null, true, true);
         assertThat(row5).containsExactly("5", false, false, false, false, false, false);
-        assertThat(row6).containsExactly("6", true, true, true, true, true, true);
+        assertThat(row6).containsExactly("6", true, true, null, null, null, null);
     }
 
 }

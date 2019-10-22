@@ -32,6 +32,12 @@ class ActivityBottleneckTransformationTest {
                 .trace("3")
                 .row(new Date(800 * MILLISECONDS_FACTOR), "A4")
                 .build()
+                .trace("4")
+                .row(new Date(0), "A0")
+                .row(new Date(500 * MILLISECONDS_FACTOR), "A1")
+                .row(new Date(800 * MILLISECONDS_FACTOR), "A2")
+                .row(new Date(1100 * MILLISECONDS_FACTOR), "A2")
+                .build()
                 .build();
 
         var transformation = new ActivityBottleneckTransformation();
@@ -45,10 +51,12 @@ class ActivityBottleneckTransformationTest {
         var row1 = afterTransformation.get("1");
         var row2 = afterTransformation.get("2");
         var row3 = afterTransformation.get("3");
+        var row4 = afterTransformation.get("4");
 
-        assertThat(row1).containsExactly("1", "A2");
-        assertThat(row2).containsExactly("2", "A2");
+        assertThat(row1).containsExactly("1", "A3");
+        assertThat(row2).containsExactly("2", "A3");
         assertThat(row3).containsExactly("3", "NONE");
+        assertThat(row4).containsExactly("4", "A2");
     }
 
 }

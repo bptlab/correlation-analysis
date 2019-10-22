@@ -5,8 +5,11 @@ import de.hpi.bpt.logtransform.datastructures.ColumnEventLog;
 import de.hpi.bpt.logtransform.transformation.LogTransformation;
 
 import java.time.Duration;
+import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
+
+import static java.util.stream.Collectors.toMap;
 
 public class ActivityBottleneckTransformation implements LogTransformation {
 
@@ -18,19 +21,25 @@ public class ActivityBottleneckTransformation implements LogTransformation {
 
         var nameColumn = resultCaseLog.addColumn("Longest Executing Activity", String.class);
 
-        List<List<Date>> timestampTraces = timestampColumn.getTraces();
+        var timestampTraces = timestampColumn.getTraces();
         for (int traceIndex = 0; traceIndex < timestampTraces.size(); traceIndex++) {
-            List<Date> timestampTrace = timestampTraces.get(traceIndex);
-            var maxExecutionTime = 0L;
-            var activityName = "NONE";
-            for (int eventIndex = 0; eventIndex < timestampTrace.size() - 1; eventIndex++) {
-                var executionTime = Duration.between(timestampTrace.get(eventIndex).toInstant(), timestampTrace.get(eventIndex + 1).toInstant()).getSeconds();
-                if (executionTime > maxExecutionTime) {
-                    maxExecutionTime = executionTime;
-                    activityName = activityColumn.get(traceIndex).get(eventIndex);
-                }
+            var activityDurations = sourceEventLog.getUniqueActivityNames().stream().collect(toMap(a -> a, a -> 0));
+            var timestampTrace = timestampTraces.get(traceIndex);
+            var activityTrace = activityColumn.get(traceIndex);
+
+            for (int eventIndex = 1; eventIndex < timestampTrace.size(); eventIndex++) {
+                var activityName = activityTrace.get(eventIndex);
+
+                var executionTime = Duration.between(timestampTrace.get(eventIndex - 1).toInstant(), timestampTrace.get(eventIndex).toInstant()).getSeconds();
+                activityDurations.merge(activityName, (int) executionTime, Integer::sum);
             }
-            nameColumn.addValue(activityName);
+
+            var maxEntry = activityDurations.entrySet().stream().max(Comparator.comparing(Map.Entry::getValue));
+            if (maxEntry.isPresent() && maxEntry.get().getValue() != 0) {
+                nameColumn.addValue(maxEntry.get().getKey());
+            } else {
+                nameColumn.addValue("NONE");
+            }
         }
     }
 }

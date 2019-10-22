@@ -13,9 +13,10 @@ import static java.util.stream.Collectors.toSet;
 
 public class StageAnalysis implements Analysis {
 
+    private Map<String, String> activityToStage = new HashMap<>();
+
     @Override
     public void analyze(BpmnModelInstance modelInstance, Set<AnalysisResult> analysisResults) {
-        var activityToStage = new HashMap<String, String>();
 
         var activities = modelInstance.getModelElementsByType(Activity.class);
         for (var activity : activities) {
@@ -60,8 +61,8 @@ public class StageAnalysis implements Analysis {
         var path = new ArrayList<String>();
         while (!stack.isEmpty()) {
             var current = stack.removeFirst();
-            if (current instanceof Activity && !path.contains(getStage((Activity) current))) {
-                path.add(getStage((Activity) current));
+            if (current instanceof Activity && !path.contains(activityToStage.get(current.getName()))) {
+                path.add(activityToStage.get(current.getName()));
             }
             if (current.equals(join)) {
                 paths.add(new ArrayList<>(path));
@@ -101,6 +102,11 @@ public class StageAnalysis implements Analysis {
     }
 
     private String getStage(Activity activity) {
-        return activity.getAttributeValue("meta-stage");
+        return activity.getExtensionElements().getElements()
+                .stream()
+                .filter(e -> e.getAttributeValue("metaKey").equals("meta-stage"))
+                .map(e -> e.getAttributeValue("metaValue"))
+                .findFirst()
+                .orElse("NONE");
     }
 }

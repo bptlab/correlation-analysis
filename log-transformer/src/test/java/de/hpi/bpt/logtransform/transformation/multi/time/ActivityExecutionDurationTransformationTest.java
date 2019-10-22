@@ -40,8 +40,8 @@ class ActivityExecutionDurationTransformationTest {
         var row1 = afterTransformation.get("1");
         var row2 = afterTransformation.get("2");
 
-        assertThat(row1).containsExactly("1", 100, 100, 0);
-        assertThat(row2).containsExactly("2", 0, 13, 0);
+        assertThat(row1).containsExactly("1", 0, 100, 100);
+        assertThat(row2).containsExactly("2", 0, 0, 13);
     }
 
 }

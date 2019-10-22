@@ -56,16 +56,22 @@ public class OptionalActivityAnalysis implements Analysis {
             queue.addLast(sequenceFlow.getTarget());
         }
 
+        var seen = new HashSet<FlowNode>();
+
         while (!queue.isEmpty()) {
             var current = queue.removeFirst();
-            if (current instanceof Activity) {
-                result.add(current.getName());
-            }
-            if (!current.equals(join)) {
-                for (SequenceFlow sequenceFlow : current.getOutgoing()) {
-                    queue.addLast(sequenceFlow.getTarget());
+            if (!seen.contains(current)) {
+                seen.add(current);
+                if (current instanceof Activity) {
+                    result.add(current.getName());
+                }
+                if (!current.equals(join)) {
+                    for (SequenceFlow sequenceFlow : current.getOutgoing()) {
+                        queue.addLast(sequenceFlow.getTarget());
+                    }
                 }
             }
+
         }
         return result;
     }

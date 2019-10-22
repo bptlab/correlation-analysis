@@ -19,10 +19,10 @@ public class ActivityExecutionDurationTransformation implements LogTransformatio
             for (int traceIndex = 0; traceIndex < activityTraces.size(); traceIndex++) {
                 List<String> trace = activityTraces.get(traceIndex);
                 var duration = 0;
-                for (int activityIndex = 0; activityIndex < trace.size() - 1; activityIndex++) {
+                for (int activityIndex = 1; activityIndex < trace.size(); activityIndex++) {
                     if (activity.equals(trace.get(activityIndex))) {
                         var timestampTrace = timestampTraces.get(traceIndex);
-                        duration += Duration.between(timestampTrace.get(activityIndex).toInstant(), timestampTrace.get(activityIndex + 1).toInstant()).getSeconds();
+                        duration += Duration.between(timestampTrace.get(activityIndex - 1).toInstant(), timestampTrace.get(activityIndex).toInstant()).getSeconds();
                     }
                 }
                 durationColumn.addValue(duration);

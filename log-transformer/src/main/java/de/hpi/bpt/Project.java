@@ -27,8 +27,8 @@ public enum Project {
 
     SIGNAVIO_SALESFORCE_OPPS(
             "/home/jonas/Data/Signavio Salesforce Opportunities/",
-            "model.bpmn",
-            "events_sorted.csv",
+            "model-stages.bpmn",
+            "events_trimmed.csv",
             List.of("caseattributes.csv"),
             "cases.arff",
             "yyyy-MM-dd'T'HH:mm:ss'Z'",

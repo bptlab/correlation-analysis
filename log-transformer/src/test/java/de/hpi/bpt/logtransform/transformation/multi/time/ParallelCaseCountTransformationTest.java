@@ -49,7 +49,7 @@ class ParallelCaseCountTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "numparallelcases");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "#Parallel cases");
 
         var row1 = afterTransformation.get("1");
         var before = afterTransformation.get("before 1");

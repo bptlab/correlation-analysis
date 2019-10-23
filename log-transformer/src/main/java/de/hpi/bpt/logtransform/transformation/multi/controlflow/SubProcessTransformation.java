@@ -43,7 +43,7 @@ public class SubProcessTransformation implements LogTransformation {
         var timestampColumn = sourceEventLog.getTimestampColumn();
         var columnMap = new HashMap<String, CaseColumn<Integer>>();
         for (String subProcess : subProcesses) {
-            var numEventsName = String.format("Number of Events in '%s'", subProcess);
+            var numEventsName = String.format("#Events in '%s'", subProcess);
             var timeSpentName = String.format("Time spent in '%s' in minutes", subProcess);
             var timesEnteredName = String.format("Times entered into '%s'", subProcess);
             columnMap.put(numEventsName, resultCaseLog.addColumn(numEventsName, Integer.class));
@@ -85,7 +85,7 @@ public class SubProcessTransformation implements LogTransformation {
             timeSpent.merge(lastSubProcess, Duration.between(lastActivityStart.toInstant(), timestampTrace.get(timestampTrace.size() - 1).toInstant()).toMinutes(), Long::sum);
 
             for (String subProcess : subProcesses) {
-                columnMap.get(String.format("Number of Events in '%s'", subProcess)).addValue(numEvents.getOrDefault(subProcess, 0));
+                columnMap.get(String.format("#Events in '%s'", subProcess)).addValue(numEvents.getOrDefault(subProcess, 0));
                 columnMap.get(String.format("Time spent in '%s' in minutes", subProcess)).addValue(timeSpent.getOrDefault(subProcess, 0L).intValue());
                 columnMap.get(String.format("Times entered into '%s'", subProcess)).addValue(timesEntered.getOrDefault(subProcess, 0));
             }

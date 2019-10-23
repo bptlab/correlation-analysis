@@ -63,10 +63,10 @@ class StageControlFlowTransformationTest {
 
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId",
-                "Number of Events in 'S1'", "Times entered into 'S1'",
-                "Number of Events in 'S2'", "Times entered into 'S2'",
-                "Number of Events in 'S3'", "Times entered into 'S3'",
-                "Number of Events in 'S4'", "Times entered into 'S4'"
+                "#Events in 'S1'", "Times entered into 'S1'",
+                "#Events in 'S2'", "Times entered into 'S2'",
+                "#Events in 'S3'", "Times entered into 'S3'",
+                "#Events in 'S4'", "Times entered into 'S4'"
         );
 
         var row1 = afterTransformation.get("1");

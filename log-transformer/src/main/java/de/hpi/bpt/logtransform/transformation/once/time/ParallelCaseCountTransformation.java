@@ -19,7 +19,7 @@ public class ParallelCaseCountTransformation implements LogTransformation {
     @Override
     public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
         var targetSchema = resultCaseLog.getSchema();
-        targetSchema.addColumnDefinition("numparallelcases", Integer.class);
+        targetSchema.addColumnDefinition("#Parallel cases", Integer.class);
 
         var caseTimestamps = sourceEventLog.getTyped(sourceEventLog.getSchema().getTimestampName(), Date.class);
         var caseIds = resultCaseLog.getCaseIds();
@@ -42,9 +42,6 @@ public class ParallelCaseCountTransformation implements LogTransformation {
         var numEnded = 0;
         var parallelCaseCounts = new Integer[caseIds.size()];
         for (TimedCaseEvent timedCaseEvent : timedCases) {
-            if (timedCases.size() > 20 && timedCases.indexOf(timedCaseEvent) % (timedCases.size() / 20) == 0) {
-                System.out.print(".");
-            }
             if (timedCaseEvent.isEnd()) {
                 var caseStartStats = currentCases.get(timedCaseEvent.getCaseId());
                 var parallelCases =
@@ -59,10 +56,9 @@ public class ParallelCaseCountTransformation implements LogTransformation {
                 numStarted++;
             }
         }
-        System.out.println();
 
         var parallelCasesColumn = new CaseColumn<>(Integer.class, parallelCaseCounts);
-        resultCaseLog.put("numparallelcases", parallelCasesColumn);
+        resultCaseLog.put("#Parallel cases", parallelCasesColumn);
     }
 
     private abstract static class TimedCaseEvent {

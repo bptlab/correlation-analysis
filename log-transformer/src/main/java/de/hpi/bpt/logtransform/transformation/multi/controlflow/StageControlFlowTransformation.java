@@ -35,7 +35,7 @@ public class StageControlFlowTransformation implements LogTransformation {
 
         var stages = activityToStage.values().stream().distinct().sorted(String::compareToIgnoreCase).collect(toList());
         for (String stage : stages) {
-            var numEventsName = String.format("Number of Events in '%s'", stage);
+            var numEventsName = String.format("#Events in '%s'", stage);
             var timesEnteredName = String.format("Times entered into '%s'", stage);
             columnMap.put(numEventsName, resultCaseLog.addColumn(numEventsName, Integer.class));
             columnMap.put(timesEnteredName, resultCaseLog.addColumn(timesEnteredName, Integer.class));
@@ -63,7 +63,7 @@ public class StageControlFlowTransformation implements LogTransformation {
             }
 
             for (String stage : stages) {
-                columnMap.get(String.format("Number of Events in '%s'", stage)).addValue(numEvents.getOrDefault(stage, 0));
+                columnMap.get(String.format("#Events in '%s'", stage)).addValue(numEvents.getOrDefault(stage, 0));
                 columnMap.get(String.format("Times entered into '%s'", stage)).addValue(timesEntered.getOrDefault(stage, 0));
             }
         }

@@ -52,9 +52,6 @@ public class CsvEventLogReader {
         Map<String, Object> rowMap;
         var count = 0;
         while ((rowMap = reader.read(header, processors)) != null) {
-            if ((count++ % 100000) == 0) {
-                System.out.print(".");
-            }
             var newCaseId = (String) rowMap.get(header[0]);
 
             if (!currentCaseId.equals(newCaseId)) {

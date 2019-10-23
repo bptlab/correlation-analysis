@@ -7,6 +7,7 @@ import de.hpi.bpt.logtransform.transformation.LogTransformation;
 import java.time.Duration;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -22,8 +23,9 @@ public class ActivityBottleneckTransformation implements LogTransformation {
         var nameColumn = resultCaseLog.addColumn("Longest Executing Activity", String.class);
 
         var timestampTraces = timestampColumn.getTraces();
+        var activityDurationsTemplate = sourceEventLog.getUniqueActivityNames().stream().collect(toMap(a -> a, a -> 0));
         for (int traceIndex = 0; traceIndex < timestampTraces.size(); traceIndex++) {
-            var activityDurations = sourceEventLog.getUniqueActivityNames().stream().collect(toMap(a -> a, a -> 0));
+            var activityDurations = new HashMap<>(activityDurationsTemplate);
             var timestampTrace = timestampTraces.get(traceIndex);
             var activityTrace = activityColumn.get(traceIndex);
 

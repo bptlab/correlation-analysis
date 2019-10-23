@@ -59,7 +59,7 @@ public enum Project {
 
     BPIC2019(
             "/home/jonas/Data/BPIC2019/",
-            "model_subprocesses.bpmn",
+            "model-stages.bpmn",
             "finished_events.csv",
             List.of("caseattributes.csv"),
             "cases.arff",

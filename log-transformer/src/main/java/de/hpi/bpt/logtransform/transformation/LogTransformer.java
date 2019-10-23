@@ -41,7 +41,7 @@ public class LogTransformer {
         resultCaseLog.setName(sourceEventLog.getName() + "_case");
 
         for (var transformation : transformations) {
-            System.out.println(transformation.getClass().getSimpleName());
+            System.out.println("\t\t- " + transformation.getClass().getSimpleName());
             transformation.transform(sourceEventLog, resultCaseLog);
         }
 

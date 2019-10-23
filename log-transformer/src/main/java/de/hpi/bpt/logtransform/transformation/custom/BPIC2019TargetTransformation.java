@@ -12,7 +12,7 @@ public class BPIC2019TargetTransformation implements LogTransformation {
         var changeHappenedColumn = resultCaseLog.addColumn("change_happened", Boolean.class);
 
         for (var trace : activityColumn.getTraces()) {
-            changeHappenedColumn.addValue(trace.contains("Change Price") || trace.contains("Change Quantity"));
+            changeHappenedColumn.addValue(String.join("", trace).contains("Change"));
         }
     }
 }

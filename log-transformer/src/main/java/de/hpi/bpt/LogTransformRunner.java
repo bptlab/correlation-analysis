@@ -83,10 +83,7 @@ public class LogTransformRunner {
                 .map(file -> TimeTracker.runTimed(() -> new CsvCaseLogReader(csvLogReader).readToRowCaseLog(new File(PROJECT.folder + file), file.replace(".csv", "")), "Reading attributes log"))
                 .collect(toList());
 
-        var rowCaseLog = TimeTracker.runTimed(() -> transformer.transformJoining(attributesLogs), "Transforming attributes");
-
 //        new DateBeforeTransformation("caseend", "duedate").transform(rowCaseLog);
-//        new MissingOrPresentValuesTransformation().transform(rowCaseLog);
-        return rowCaseLog;
+        return TimeTracker.runTimed(() -> transformer.transformJoining(attributesLogs), "Transforming attributes");
     }
 }

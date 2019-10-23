@@ -49,6 +49,11 @@ public class ExistingAttributeTransformation implements LogTransformation {
         }
     }
 
+    @Override
+    public String featureNames() {
+        return null;
+    }
+
     private Map<String, CaseColumn<?>> transformIntegerColumn(LogColumn<Integer> logColumn, String sourceColumnName) {
         var result = new LinkedHashMap<String, CaseColumn<?>>();
         var startColumn = new CaseColumn<>(Integer.class);

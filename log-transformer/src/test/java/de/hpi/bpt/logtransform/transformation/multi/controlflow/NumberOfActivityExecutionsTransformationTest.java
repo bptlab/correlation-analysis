@@ -43,7 +43,7 @@ class NumberOfActivityExecutionsTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "#Executions of 'A1'", "#Executions of 'A2'", "#Executions of 'A4'");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "A1 - #Executions", "A2 - #Executions", "A4 - #Executions");
 
         var row1 = afterTransformation.get("1");
         var row2 = afterTransformation.get("2");

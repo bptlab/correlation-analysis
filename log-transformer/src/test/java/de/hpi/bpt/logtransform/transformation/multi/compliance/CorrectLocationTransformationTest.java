@@ -64,7 +64,7 @@ class CorrectLocationTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "Correct predecessor for 'S1'", "Correct successor for 'S1'", "Correct predecessor for 'S2'", "Correct successor for 'S2'", "Correct predecessor for 'S3'", "Correct successor for 'S3'");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "S1 - Correct predecessor", "S1 - Correct successor", "S2 - Correct predecessor", "S2 - Correct successor", "S3 - Correct predecessor", "S3 - Correct successor");
 
         var row1 = afterTransformation.get("1");
         var row2 = afterTransformation.get("2");

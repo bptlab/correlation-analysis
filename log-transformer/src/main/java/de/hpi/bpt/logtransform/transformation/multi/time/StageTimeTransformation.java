@@ -33,9 +33,9 @@ public class StageTimeTransformation implements LogTransformation {
         var stages = activityToStage.values().stream().distinct().sorted(String::compareToIgnoreCase).collect(toList());
 
         for (String stage : stages) {
-            var timeSpentName = String.format("Time spent in '%s' (in minutes)", stage);
-            var timeFromStartName = String.format("Time from start until '%s' (in minutes)", stage);
-            var timeUntilEndName = String.format("Time from '%s' until end (in minutes)", stage);
+            var timeSpentName = String.format("%s - Time spent (in minutes)", stage);
+            var timeFromStartName = String.format("%s - Time from start (in minutes)", stage);
+            var timeUntilEndName = String.format("%s - Time until end (in minutes)", stage);
             columnMap.put(timeSpentName, resultCaseLog.addColumn(timeSpentName, Integer.class));
             columnMap.put(timeFromStartName, resultCaseLog.addColumn(timeFromStartName, Integer.class));
             columnMap.put(timeUntilEndName, resultCaseLog.addColumn(timeUntilEndName, Integer.class));
@@ -80,9 +80,9 @@ public class StageTimeTransformation implements LogTransformation {
 
 
             for (String stage : stages) {
-                columnMap.get(String.format("Time spent in '%s' (in minutes)", stage)).addValue(timeSpent.getOrDefault(stage, 0L).intValue());
-                columnMap.get(String.format("Time from start until '%s' (in minutes)", stage)).addValue(timeFromStart.containsKey(stage) ? timeFromStart.get(stage).intValue() : null);
-                columnMap.get(String.format("Time from '%s' until end (in minutes)", stage)).addValue(timeUntilEnd.containsKey(stage) ? timeUntilEnd.get(stage).intValue() : null);
+                columnMap.get(String.format("%s - Time spent (in minutes)", stage)).addValue(timeSpent.getOrDefault(stage, 0L).intValue());
+                columnMap.get(String.format("%s - Time from start (in minutes)", stage)).addValue(timeFromStart.containsKey(stage) ? timeFromStart.get(stage).intValue() : null);
+                columnMap.get(String.format("%s - Time until end (in minutes)", stage)).addValue(timeUntilEnd.containsKey(stage) ? timeUntilEnd.get(stage).intValue() : null);
             }
         }
     }

@@ -50,9 +50,9 @@ class StageTimeTransformationTest {
 
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId",
-                "Time spent in 'S1' (in minutes)", "Time from start until 'S1' (in minutes)", "Time from 'S1' until end (in minutes)",
-                "Time spent in 'S2' (in minutes)", "Time from start until 'S2' (in minutes)", "Time from 'S2' until end (in minutes)",
-                "Time spent in 'S3' (in minutes)", "Time from start until 'S3' (in minutes)", "Time from 'S3' until end (in minutes)"
+                "S1 - Time spent (in minutes)", "S1 - Time from start (in minutes)", "S1 - Time until end (in minutes)",
+                "S2 - Time spent (in minutes)", "S2 - Time from start (in minutes)", "S2 - Time until end (in minutes)",
+                "S3 - Time spent (in minutes)", "S3 - Time from start (in minutes)", "S3 - Time until end (in minutes)"
         );
 
         var row1 = afterTransformation.get("1");

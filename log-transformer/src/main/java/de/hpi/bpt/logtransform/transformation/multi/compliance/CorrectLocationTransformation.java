@@ -44,8 +44,8 @@ public class CorrectLocationTransformation implements LogTransformation {
                 continue;
             }
 
-            var correctPredecessorColumn = resultCaseLog.addColumn(String.format("Correct predecessor for '%s'", stage), Boolean.class);
-            var correctSuccessorColumn = resultCaseLog.addColumn(String.format("Correct successor for '%s'", stage), Boolean.class);
+            var correctPredecessorColumn = resultCaseLog.addColumn(String.format("%s - Correct predecessor", stage), Boolean.class);
+            var correctSuccessorColumn = resultCaseLog.addColumn(String.format("%s - Correct successor", stage), Boolean.class);
             for (var trace : activityColumn.getTraces()) {
                 var stageContained = trace.stream().map(a -> activityToStage.getOrDefault(a, "NONE")).anyMatch(s -> s.equals(stage));
                 if (!stageContained) {

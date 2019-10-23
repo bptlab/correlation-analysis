@@ -24,7 +24,7 @@ public class NumberOfActivityExecutionsTransformation implements LogTransformati
         var activityColumn = sourceEventLog.getTyped(sourceSchema.getActivityName(), String.class);
 
         for (String activityName : activityNames.stream().sorted(String::compareToIgnoreCase).collect(toList())) {
-            var numExecutionsColumn = resultCaseLog.addColumn(String.format("#Executions of '%s'", activityName), Integer.class);
+            var numExecutionsColumn = resultCaseLog.addColumn(String.format("%s - #Executions", activityName), Integer.class);
 
             for (List<String> trace : activityColumn.getTraces()) {
                 numExecutionsColumn.addValue((int) trace.stream().filter(traceActivityName -> traceActivityName.equals(activityName)).count());

@@ -63,7 +63,6 @@ public class StageAnalysis implements Analysis {
         while (!stack.isEmpty()) {
             var current = stack.removeFirst();
             if (!seen.contains(current)) {
-                seen.add(current);
                 if (current instanceof Activity && !path.contains(activityToStage.get(current.getName()))) {
                     path.add(activityToStage.get(current.getName()));
                 }
@@ -72,6 +71,7 @@ public class StageAnalysis implements Analysis {
                     paths.add(new ArrayList<>(path));
                     path = new ArrayList<>();
                 } else {
+                    seen.add(current);
                     for (SequenceFlow sequenceFlow : current.getOutgoing()) {
                         stack.addFirst(sequenceFlow.getTarget());
                     }

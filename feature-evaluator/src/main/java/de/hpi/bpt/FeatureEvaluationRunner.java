@@ -4,10 +4,10 @@ import de.hpi.bpt.evaluation.CrossValidator;
 import de.hpi.bpt.evaluation.FeatureEvaluator;
 import de.hpi.bpt.evaluation.decisiontree.DecisionRulesClassifier;
 import de.hpi.bpt.evaluation.decisiontree.DecisionTreeClassifier;
+import de.hpi.bpt.evaluation.decisiontree.TraversableJ48;
 import de.hpi.bpt.util.DataPreprocessor;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
-import weka.classifiers.trees.J48;
 import weka.core.Drawable;
 import weka.core.Instances;
 
@@ -34,6 +34,9 @@ class FeatureEvaluationRunner {
     private Set<String> suspectedDependencies = new HashSet<>();
     private String directDependencies;
     private String highlyCorrelatedAttributes;
+    private String selectedFeatures;
+    private TraversableJ48 tree;
+    private String rules;
 
     FeatureEvaluationRunner projectName(String projectName) {
         this.projectName = projectName;
@@ -82,19 +85,18 @@ class FeatureEvaluationRunner {
         this.processedData = dataPreprocessor.replaceMissingStringValuesWithConstant(reducedData);
 
         var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(processedData, suspectedDependencies), "Calculating feature scores");
-        var selectedFeatures = IntStream.range(0, dataWithSelectedFeatures.numAttributes())
+        selectedFeatures = IntStream.range(0, dataWithSelectedFeatures.numAttributes())
                 .mapToObj(i -> dataWithSelectedFeatures.attribute(i).name())
                 .collect(joining("\n"));
 
-        J48 tree = runTimed(() -> treeClassifier.buildJ48Tree(dataWithSelectedFeatures), "Building J48 tree");
-
-//        var rules = runTimed(() -> rulesClassifier.buildPARTRules(dataWithSelectedFeatures), "Building decision rules");
-
-//        var crossValidation = runTimed(() -> validator.validate(rules, dataWithSelectedFeatures), "Cross-validating tree");
+        var treeAndRemovedAttributes = runTimed(() -> treeClassifier.buildJ48Tree(dataWithSelectedFeatures), "Building J48 tree");
+        tree = treeAndRemovedAttributes.getLeft();
+        ignoredAttributes.addAll(treeAndRemovedAttributes.getRight());
+        rules = tree.getRoot().toString();
 
         stumps = runTimed(() -> treeClassifier.buildStumpsForAttributes(dataWithSelectedFeatures, suspectedDependencies), "Checking suspected dependencies");
 
-        return getTemplateParameters(selectedFeatures, tree);
+        return getTemplateParameters();
     }
 
 
@@ -103,29 +105,31 @@ class FeatureEvaluationRunner {
         processedData = dataPreprocessor.remove(newlyIgnoredAttributes, processedData);
 
         var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(processedData, suspectedDependencies), "Calculating feature scores");
-        var selectedFeatures = IntStream.range(0, dataWithSelectedFeatures.numAttributes())
+        selectedFeatures = IntStream.range(0, dataWithSelectedFeatures.numAttributes())
                 .mapToObj(i -> dataWithSelectedFeatures.attribute(i).name())
                 .collect(joining("\n"));
 
-        J48 tree = runTimed(() -> treeClassifier.buildJ48Tree(dataWithSelectedFeatures), "Building J48 tree");
+        var treeAndRemovedAttributes = runTimed(() -> treeClassifier.buildJ48Tree(dataWithSelectedFeatures), "Building J48 tree");
+        tree = treeAndRemovedAttributes.getLeft();
+        ignoredAttributes.addAll(treeAndRemovedAttributes.getRight());
+        processedData = dataPreprocessor.remove(treeAndRemovedAttributes.getRight(), processedData);
+        rules = tree.getRoot().toString();
 
-//        var rules = runTimed(() -> rulesClassifier.buildPARTRules(dataWithSelectedFeatures), "Building decision rules");
-
-//        var crossValidation = runTimed(() -> validator.validate(rules, dataWithSelectedFeatures), "Cross-validating tree");
-
-        return getTemplateParameters(selectedFeatures, tree);
+        return getTemplateParameters();
     }
 
-    private Map<String, Object> getTemplateParameters(String selectedFeatures, J48 tree) throws Exception {
-        var result = getFixedValues();
-        result.put("selectedAttributes", selectedFeatures);
-        result.put("tree", getTreeImageTag(tree));
-//        result.put("rules", tree.toSource("Rules"));
-//        result.put("evaluation", crossValidation.toClassDetailsString());
-        return result;
+    Map<String, Object> runCrossValidation() {
+        try {
+            var crossValidation = runTimed(() -> validator.validate(tree, processedData), "Cross-validating tree");
+            var result = getTemplateParameters();
+            result.put("evaluation", crossValidation.toClassDetailsString());
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
-    private Map<String, Object> getFixedValues() {
+    private Map<String, Object> getTemplateParameters() throws Exception {
         var result = new HashMap<String, Object>();
         result.put("projectName", projectName);
         result.put("targetAttribute", targetAttribute);
@@ -144,6 +148,9 @@ class FeatureEvaluationRunner {
             result.put("correlatedAttributes", highlyCorrelatedAttributes);
         }
 
+        result.put("selectedAttributes", selectedFeatures);
+        result.put("tree", getTreeImageTag(tree));
+        result.put("rules", rules);
         return result;
     }
 

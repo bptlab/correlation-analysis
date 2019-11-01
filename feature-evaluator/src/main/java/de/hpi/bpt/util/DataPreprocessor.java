@@ -4,6 +4,7 @@ import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -70,7 +71,7 @@ public class DataPreprocessor {
         }
     }
 
-    public Instances remove(List<String> attributesToIgnore, Instances data) {
+    public Instances remove(Collection<String> attributesToIgnore, Instances data) {
         var indicesToRemove = IntStream.range(0, data.numAttributes()).filter(i -> {
             for (String attributeToIgnore : attributesToIgnore) {
                 var name = data.attribute(i).name();

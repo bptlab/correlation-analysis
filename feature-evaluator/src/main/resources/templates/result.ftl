@@ -68,14 +68,22 @@ ${rules}
     </section>
 </#if>
 
-<#if evaluation??>
-    <section class="section">
-        <div class="container">
+<section class="section">
+    <div class="container">
+        <#if evaluation??>
             <p class="title is-4">Evaluation</p>
             <div><pre><code>
 ${evaluation}
             </code></pre>
             </div>
+        <#else>
+            <form action="${contextPath}/crossvalidate" method="get">
+                <div class="field">
+                    <div class="control">
+                        <input type="submit" value="Cross-Validate Accuracy" class="button is-primary">
+            </div>
         </div>
-    </section>
-</#if>
+            </form>
+        </#if>
+    </div>
+</section>

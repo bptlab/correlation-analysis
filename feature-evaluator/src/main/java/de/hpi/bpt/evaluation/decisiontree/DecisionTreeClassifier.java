@@ -23,14 +23,11 @@ public class DecisionTreeClassifier {
 
     public Pair<TraversableJ48, Set<String>> buildJ48Tree(Instances data) {
         try {
-            var classifier = new TraversableJ48();
-            classifier.setMinNumObj(Math.min(100, data.size() / 100));
-            classifier.setBinarySplits(true);
-            classifier.buildClassifier(data);
+            TraversableJ48 classifier = classify(data);
 
             var removedAttributes = new HashSet<String>();
 
-            var obviousAttributeIndices = collectObviousAttributeIndices(classifier);
+            Set<Integer> obviousAttributeIndices = collectObviousAttributeIndices(classifier);
 
             while (!obviousAttributeIndices.isEmpty()) {
                 System.out.println("Removing:");
@@ -43,7 +40,7 @@ public class DecisionTreeClassifier {
                 remove.setAttributeIndicesArray(obviousAttributeIndices.stream().mapToInt(i -> i).toArray());
                 remove.setInputFormat(data);
                 data = Filter.useFilter(data, remove);
-                classifier.buildClassifier(data);
+                classifier = classify(data);
                 obviousAttributeIndices = collectObviousAttributeIndices(classifier);
             }
 
@@ -53,7 +50,15 @@ public class DecisionTreeClassifier {
         }
     }
 
-    public Set<Integer> collectObviousAttributeIndices(TraversableJ48 classifier) {
+    private TraversableJ48 classify(Instances data) throws Exception {
+        var classifier = new TraversableJ48();
+        classifier.setMinNumObj(Math.min(100, data.size() / 100));
+        classifier.setBinarySplits(true);
+        classifier.buildClassifier(data);
+        return classifier;
+    }
+
+    private Set<Integer> collectObviousAttributeIndices(TraversableJ48 classifier) {
         var queue = new ArrayDeque<ClassifierTree>();
         queue.addLast(classifier.getRoot());
         var attIndicesToRemove = new HashSet<Integer>();

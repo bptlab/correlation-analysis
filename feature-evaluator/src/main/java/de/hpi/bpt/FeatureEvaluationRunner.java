@@ -1,8 +1,7 @@
 package de.hpi.bpt;
 
-import de.hpi.bpt.evaluation.CrossValidator;
+import de.hpi.bpt.evaluation.ClassifierValidator;
 import de.hpi.bpt.evaluation.FeatureEvaluator;
-import de.hpi.bpt.evaluation.decisiontree.DecisionRulesClassifier;
 import de.hpi.bpt.evaluation.decisiontree.DecisionTreeClassifier;
 import de.hpi.bpt.evaluation.decisiontree.TraversableJ48;
 import de.hpi.bpt.util.DataPreprocessor;
@@ -24,8 +23,7 @@ class FeatureEvaluationRunner {
     private final DataPreprocessor dataPreprocessor = new DataPreprocessor();
     private final FeatureEvaluator featureEvaluator = new FeatureEvaluator();
     private final DecisionTreeClassifier treeClassifier = new DecisionTreeClassifier();
-    private final DecisionRulesClassifier rulesClassifier = new DecisionRulesClassifier();
-    private final CrossValidator validator = new CrossValidator();
+    private final ClassifierValidator validator = new ClassifierValidator();
     private Instances processedData;
     private String projectName;
     private String targetAttribute;
@@ -120,9 +118,9 @@ class FeatureEvaluationRunner {
 
     Map<String, Object> runCrossValidation() {
         try {
-            var crossValidation = runTimed(() -> validator.validate(tree, processedData), "Cross-validating tree");
+            var modelValidation = runTimed(() -> validator.validate(tree, processedData), "Cross-validating tree");
             var result = getTemplateParameters();
-            result.put("evaluation", crossValidation.toClassDetailsString());
+            result.put("evaluation", modelValidation.toClassDetailsString());
             return result;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);

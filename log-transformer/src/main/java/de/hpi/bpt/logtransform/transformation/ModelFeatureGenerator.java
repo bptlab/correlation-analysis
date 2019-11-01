@@ -21,15 +21,15 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.*;
 
-class ModelFeatureGenerator {
+public class ModelFeatureGenerator {
 
     private final Map<String, String> activityMapping;
 
-    ModelFeatureGenerator(Map<String, String> activityMapping) {
+    public ModelFeatureGenerator(Map<String, String> activityMapping) {
         this.activityMapping = activityMapping;
     }
 
-    List<LogTransformation> from(Set<AnalysisResult> analysisResults) {
+    public List<LogTransformation> from(Set<AnalysisResult> analysisResults) {
         var result = new ArrayList<LogTransformation>();
 
         var activityToLaneFeature = analysisResults.stream().filter(r -> r instanceof ActivityToLaneFeature).map(ActivityToLaneFeature.class::cast).findFirst();

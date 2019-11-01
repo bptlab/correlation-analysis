@@ -6,7 +6,11 @@ import de.hpi.bpt.logtransform.io.CsvCaseLogReader;
 import de.hpi.bpt.logtransform.io.CsvEventLogReader;
 import de.hpi.bpt.logtransform.io.CsvLogReader;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
+import de.hpi.bpt.logtransform.transformation.ModelFeatureGenerator;
+import de.hpi.bpt.logtransform.transformation.multi.controlflow.NumberOfActivityExecutionsTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.data.ExistingAttributeTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.resource.ResourceHandoversTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.resource.WasResourceInvolvedTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.ActivityStartEndTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.ActivityTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.BetweenEventsDurationTransformation;
@@ -73,6 +77,8 @@ public class LogTransformRunner {
 
         if (TRANSFORMATION_TYPE.equals(TransformationType.WITH_MODEL)) {
             // model analysis
+            var featureGenerator = new ModelFeatureGenerator(PROJECT.activityMapping);
+            transformer.with(featureGenerator.from(analysisResults));
             transformer.withAnalysisResults(analysisResults, PROJECT.activityMapping);
 
         } else if (TRANSFORMATION_TYPE.equals(TransformationType.WITHOUT_MODEL_ALL_ACTIVITIES)) {
@@ -80,7 +86,10 @@ public class LogTransformRunner {
                     // time
                     .with(new ActivityTimeTransformation())
                     .with(new ActivityStartEndTimeTransformation())
-                    .with(new BetweenEventsDurationTransformation());
+                    .with(new BetweenEventsDurationTransformation())
+
+                    // control flow
+                    .with(new NumberOfActivityExecutionsTransformation());
         }
 
         if (PROJECT.resourceName != null) {
@@ -88,6 +97,12 @@ public class LogTransformRunner {
             transformer
                     .with(new HandoverCountTransformation())
                     .with(new NumberOfResourcesInvolvedTransformation());
+
+            if (TRANSFORMATION_TYPE.equals(TransformationType.WITHOUT_MODEL_ALL_ACTIVITIES)) {
+                transformer
+                        .with(new ResourceHandoversTransformation())
+                        .with(new WasResourceInvolvedTransformation());
+            }
         }
 
         var attributesLogs = PROJECT.attributesFile.stream()

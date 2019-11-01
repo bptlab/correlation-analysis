@@ -18,12 +18,21 @@ public class NumberOfActivityExecutionsTransformation implements LogTransformati
         this.activityNames.addAll(activityNames);
     }
 
+    public NumberOfActivityExecutionsTransformation() {
+    }
+
     @Override
     public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
         var sourceSchema = sourceEventLog.getSchema();
         var activityColumn = sourceEventLog.getTyped(sourceSchema.getActivityName(), String.class);
 
-        for (String activityName : activityNames.stream().sorted(String::compareToIgnoreCase).collect(toList())) {
+        List<String> activityNames;
+        if (this.activityNames.isEmpty()) {
+            activityNames = sourceEventLog.getUniqueActivityNames();
+        } else {
+            activityNames = this.activityNames.stream().sorted(String::compareToIgnoreCase).collect(toList());
+        }
+        for (String activityName : activityNames) {
             var numExecutionsColumn = resultCaseLog.addColumn(String.format("%s - #Executions", activityName), Integer.class);
 
             for (List<String> trace : activityColumn.getTraces()) {

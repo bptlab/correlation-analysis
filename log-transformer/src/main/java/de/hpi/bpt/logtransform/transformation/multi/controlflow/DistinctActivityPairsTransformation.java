@@ -4,15 +4,13 @@ import de.hpi.bpt.logtransform.datastructures.ColumnCaseLog;
 import de.hpi.bpt.logtransform.datastructures.ColumnEventLog;
 import de.hpi.bpt.logtransform.transformation.LogTransformation;
 
-import static java.util.stream.Collectors.toList;
-
 public class DistinctActivityPairsTransformation implements LogTransformation {
 
     @Override
     public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
         var activityColumn = sourceEventLog.getActivityColumn();
 
-        var uniqueActivityNames = sourceEventLog.getUniqueActivityNames().stream().sorted().collect(toList());
+        var uniqueActivityNames = sourceEventLog.getUniqueActivityNames();
 
         for (int i = 0; i < uniqueActivityNames.size(); i++) {
             String activity1 = uniqueActivityNames.get(i);

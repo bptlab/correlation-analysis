@@ -7,10 +7,7 @@ import de.hpi.bpt.logtransform.logmanipulation.CaseLogConverter;
 import de.hpi.bpt.logtransform.logmanipulation.RowCaseLogJoiner;
 import de.hpi.bpt.modelanalysis.feature.AnalysisResult;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class LogTransformer {
 
@@ -53,7 +50,7 @@ public class LogTransformer {
         return attributeLogs.stream().reduce(transform(), joiner::join);
     }
 
-    public LogTransformer with(List<LogTransformation> transformations) {
+    public LogTransformer with(Collection<LogTransformation> transformations) {
         this.transformations.addAll(transformations);
         return this;
     }

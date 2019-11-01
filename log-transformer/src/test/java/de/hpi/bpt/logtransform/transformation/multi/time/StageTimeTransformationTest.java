@@ -59,9 +59,9 @@ class StageTimeTransformationTest {
         var row2 = afterTransformation.get("2");
         var row3 = afterTransformation.get("3");
 
-        assertThat(row1).containsExactly("1", 0, 0, 3, 1, 1, 2, 2, 2, 0);
+        assertThat(row1).containsExactly("1", 0, 0, 3, 1, 0, 2, 2, 1, 0);
         assertThat(row2).containsExactly("2", 2, 0, 0, 0, null, null, 0, null, null);
-        assertThat(row3).containsExactly("3", 1, 0, 1, 2, 1, 0, 0, null, null);
+        assertThat(row3).containsExactly("3", 1, 0, 1, 2, 0, 0, 0, null, null);
     }
 
 }

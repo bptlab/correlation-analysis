@@ -4,45 +4,45 @@ import de.hpi.bpt.logtransform.EventLogBuilder;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
+import java.text.SimpleDateFormat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class BetweenEventsDurationTransformationTest {
 
-    private static final int MILLISECONDS_FACTOR = 1000;
-
     @Test
-    void transform() {
+    void transform() throws Exception {
         // Arrange
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         var sourceEventLog = new EventLogBuilder()
                 .schema()
                 .build()
                 .trace("1")
-                .row(new Date(0), "A1")
-                .row(new Date(100 * MILLISECONDS_FACTOR), "A2")
-                .row(new Date(200 * MILLISECONDS_FACTOR), "A3")
-                .build()
-                .trace("2")
-                .row(new Date(300 * MILLISECONDS_FACTOR), "A2")
-                .row(new Date(305 * MILLISECONDS_FACTOR), "A1")
-                .row(new Date(313 * MILLISECONDS_FACTOR), "A3")
+                .row(formatter.parse("01-01-2000 09:00"), "A1")
+                .row(formatter.parse("01-01-2000 09:15"), "A2")
+                .row(formatter.parse("01-01-2000 09:30"), "A1")
+                .row(formatter.parse("01-01-2000 09:45"), "A3")
                 .build()
                 .build();
 
-        var transformation = new BetweenEventsDurationTransformation("A1", "A3");
+        var transformation = new BetweenEventsDurationTransformation();
 
         // Act
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "A1_A3_duration_between");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId",
+                "Duration between 'A1' and 'A2' (in minutes)",
+                "Duration between 'A1' and 'A3' (in minutes)",
+                "Duration between 'A2' and 'A1' (in minutes)",
+                "Duration between 'A2' and 'A3' (in minutes)",
+                "Duration between 'A3' and 'A1' (in minutes)",
+                "Duration between 'A3' and 'A2' (in minutes)"
+        );
 
         var row1 = afterTransformation.get("1");
-        var row2 = afterTransformation.get("2");
 
-        assertThat(row1).containsExactly("1", 200);
-        assertThat(row2).containsExactly("2", 8);
+        assertThat(row1).containsExactly("1", 0, 0, 0, 15, 0, 0);
     }
 
 }

@@ -68,7 +68,7 @@ public class StageTimeTransformation implements LogTransformation {
 
                 if (!lastStage.equals(currentStage)) {
                     timeSpent.merge(lastStage, Duration.between(lastStageStart.toInstant(), timestampTrace.get(activityIndex - 1).toInstant()).toMinutes(), Long::sum);
-                    timeFromStart.putIfAbsent(currentStage, Duration.between(startTime, timestampTrace.get(activityIndex).toInstant()).toMinutes());
+                    timeFromStart.putIfAbsent(currentStage, Duration.between(startTime, timestampTrace.get(activityIndex - 1).toInstant()).toMinutes());
                     timeUntilEnd.put(lastStage, Duration.between(timestampTrace.get(activityIndex - 1).toInstant(), endTime).toMinutes());
 
                     lastStage = currentStage;
@@ -76,7 +76,7 @@ public class StageTimeTransformation implements LogTransformation {
                 }
             }
             timeSpent.merge(lastStage, Duration.between(lastStageStart.toInstant(), timestampTrace.get(timestampTrace.size() - 1).toInstant()).toMinutes(), Long::sum);
-            timeUntilEnd.put(lastStage, Duration.between(timestampTrace.get(timestampTrace.size() - 1).toInstant(), endTime).toMinutes());
+            timeUntilEnd.put(lastStage, 0L);
 
 
             for (String stage : stages) {

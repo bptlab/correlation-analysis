@@ -7,6 +7,9 @@ import de.hpi.bpt.logtransform.io.CsvEventLogReader;
 import de.hpi.bpt.logtransform.io.CsvLogReader;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
 import de.hpi.bpt.logtransform.transformation.multi.data.ExistingAttributeTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.time.ActivityStartEndTimeTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.time.ActivityTimeTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.time.BetweenEventsDurationTransformation;
 import de.hpi.bpt.logtransform.transformation.once.controlflow.EventsTransformation;
 import de.hpi.bpt.logtransform.transformation.once.resource.HandoverCountTransformation;
 import de.hpi.bpt.logtransform.transformation.once.resource.NumberOfResourcesInvolvedTransformation;
@@ -19,28 +22,27 @@ import de.hpi.bpt.modelanalysis.feature.AnalysisResult;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
 public class LogTransformRunner {
 
+    private static final TransformationType TRANSFORMATION_TYPE = TransformationType.WITH_MODEL;
+
     private static final Project PROJECT = Project.SIGNAVIO_SALESFORCE_OPPS;
 
     public static void main(String[] args) {
 
-        var analysisResults = analyzeModel();
+        var analysisResults = new HashSet<AnalysisResult>();
+        if (TRANSFORMATION_TYPE.equals(TransformationType.WITH_MODEL)) {
+            analysisResults.addAll(analyzeModel());
+        }
 
         var rowCaseLog = retrieveCaseLog(analysisResults);
 
         TimeTracker.runTimed(() -> new ArffCaseLogWriter().writeToFile(rowCaseLog, PROJECT.folder + PROJECT.caseFile), "Writing case log...");
-    }
-
-    private static Set<AnalysisResult> analyzeModel() {
-        if (!new File(PROJECT.folder + PROJECT.modelFile).isFile()) {
-            return Collections.emptySet();
-        }
-        return TimeTracker.runTimed(() -> new ModelAnalyzer().analyzeModel(PROJECT.folder + PROJECT.modelFile), "Analyzing model");
     }
 
     private static RowCaseLog retrieveCaseLog(Set<AnalysisResult> analysisResults) {
@@ -67,10 +69,19 @@ public class LogTransformRunner {
                 .with(new ActivityBottleneckTransformation())
 
                 // control flow
-                .with(new EventsTransformation())
+                .with(new EventsTransformation());
 
-                // model analysis
-                .withAnalysisResults(analysisResults, PROJECT.activityMapping);
+        if (TRANSFORMATION_TYPE.equals(TransformationType.WITH_MODEL)) {
+            // model analysis
+            transformer.withAnalysisResults(analysisResults, PROJECT.activityMapping);
+
+        } else if (TRANSFORMATION_TYPE.equals(TransformationType.WITHOUT_MODEL_ALL_ACTIVITIES)) {
+            transformer
+                    // time
+                    .with(new ActivityTimeTransformation())
+                    .with(new ActivityStartEndTimeTransformation())
+                    .with(new BetweenEventsDurationTransformation());
+        }
 
         if (PROJECT.resourceName != null) {
             // resource
@@ -85,5 +96,18 @@ public class LogTransformRunner {
 
 //        new DateBeforeTransformation("caseend", "duedate").transform(rowCaseLog);
         return TimeTracker.runTimed(() -> transformer.transformJoining(attributesLogs), "Transforming attributes");
+    }
+
+    private static Set<AnalysisResult> analyzeModel() {
+        if (!new File(PROJECT.folder + PROJECT.modelFile).isFile()) {
+            return Collections.emptySet();
+        }
+        return TimeTracker.runTimed(() -> new ModelAnalyzer().analyzeModel(PROJECT.folder + PROJECT.modelFile), "Analyzing model");
+    }
+
+    private enum TransformationType {
+        WITH_MODEL,
+        WITHOUT_MODEL_ALL_ACTIVITIES,
+        WITHOUT_MODEL_CASE_ONLY
     }
 }

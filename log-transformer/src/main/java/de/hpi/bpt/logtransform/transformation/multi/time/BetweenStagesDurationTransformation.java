@@ -42,9 +42,12 @@ public class BetweenStagesDurationTransformation implements LogTransformation {
                     var stage1Index = -1;
                     for (int eventIndex = 0; eventIndex < eventTrace.size(); eventIndex++) {
                         var current = eventTrace.get(eventIndex);
+                        if (!activityToStage.containsKey(current)) {
+                            continue;
+                        }
                         if (activityToStage.get(current).equals(stage1)) {
                             stage1Seen = true;
-                            stage1Index = Math.max(0, eventIndex - 1);
+                            stage1Index = Math.max(0, eventIndex);
                         } else if (activityToStage.get(current).equals(stage2) && stage1Seen) {
                             duration += Duration.between(timestampTrace.get(stage1Index).toInstant(), timestampTrace.get(eventIndex - 1).toInstant()).toMinutes();
                             stage1Seen = false;

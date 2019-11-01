@@ -7,7 +7,7 @@ import de.hpi.bpt.evaluation.decisiontree.DecisionTreeClassifier;
 import de.hpi.bpt.util.DataPreprocessor;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
-import weka.classifiers.Classifier;
+import weka.classifiers.trees.J48;
 import weka.core.Drawable;
 import weka.core.Instances;
 
@@ -32,6 +32,8 @@ class FeatureEvaluationRunner {
     private String stumps;
     private Set<String> ignoredAttributes = new HashSet<>();
     private Set<String> suspectedDependencies = new HashSet<>();
+    private String directDependencies;
+    private String highlyCorrelatedAttributes;
 
     FeatureEvaluationRunner projectName(String projectName) {
         this.projectName = projectName;
@@ -74,8 +76,8 @@ class FeatureEvaluationRunner {
 
         var preprocessedData = runTimed(() -> dataPreprocessor.simplePreprocess(data), "Preparing data");
         var attributeSelection = runTimed(() -> featureEvaluator.selectAttributes(preprocessedData), "Selecting attributes");
-        var directDependencies = featureEvaluator.findDirectDependencies(data, attributeSelection);
-        var highlyCorrelatedAttributes = featureEvaluator.findHighlyCorrelatedAttributes(data, attributeSelection);
+        directDependencies = featureEvaluator.findDirectDependencies(data, attributeSelection);
+        highlyCorrelatedAttributes = featureEvaluator.findHighlyCorrelatedAttributes(data, attributeSelection);
         var reducedData = featureEvaluator.retainTop50Attributes(preprocessedData, attributeSelection, suspectedDependencies);
         this.processedData = dataPreprocessor.replaceMissingStringValuesWithConstant(reducedData);
 
@@ -84,27 +86,15 @@ class FeatureEvaluationRunner {
                 .mapToObj(i -> dataWithSelectedFeatures.attribute(i).name())
                 .collect(joining("\n"));
 
-        Classifier tree = runTimed(() -> treeClassifier.buildJ48Tree(dataWithSelectedFeatures), "Building J48 tree");
-        var treeImage = getTreeImageTag((Drawable) tree);
+        J48 tree = runTimed(() -> treeClassifier.buildJ48Tree(dataWithSelectedFeatures), "Building J48 tree");
 
-        var rules = runTimed(() -> rulesClassifier.buildPARTRules(dataWithSelectedFeatures), "Building decision rules");
+//        var rules = runTimed(() -> rulesClassifier.buildPARTRules(dataWithSelectedFeatures), "Building decision rules");
 
 //        var crossValidation = runTimed(() -> validator.validate(rules, dataWithSelectedFeatures), "Cross-validating tree");
 
         stumps = runTimed(() -> treeClassifier.buildStumpsForAttributes(dataWithSelectedFeatures, suspectedDependencies), "Checking suspected dependencies");
 
-        var result = getFixedValues();
-        result.put("SELECTED_ATTRIBUTES", selectedFeatures);
-        result.put("TREE", treeImage);
-        result.put("RULES", rules.toString());
-//        result.put("EVALUATION", crossValidation.toClassDetailsString());
-        if (!directDependencies.isEmpty()) {
-            result.put("DIRECT_DEPENDENCIES", directDependencies);
-        }
-        if (!highlyCorrelatedAttributes.isEmpty()) {
-            result.put("CORRELATED_ATTRIBUTES", highlyCorrelatedAttributes);
-        }
-        return result;
+        return getTemplateParameters(selectedFeatures, tree);
     }
 
 
@@ -112,41 +102,27 @@ class FeatureEvaluationRunner {
         ignoredAttributes.addAll(newlyIgnoredAttributes);
         processedData = dataPreprocessor.remove(newlyIgnoredAttributes, processedData);
 
-
-        var simpleAttributeSelection = runTimed(() -> featureEvaluator.selectAttributes(processedData), "Selecting attributes");
-        var directDependencies = featureEvaluator.findDirectDependencies(processedData, simpleAttributeSelection);
-        var highlyCorrelatedAttributes = featureEvaluator.findHighlyCorrelatedAttributes(processedData, simpleAttributeSelection);
-        var reducedData = featureEvaluator.removeNonInterestingAttributes(processedData, simpleAttributeSelection, suspectedDependencies);
-
-        var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(reducedData, suspectedDependencies), "Calculating feature scores");
+        var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(processedData, suspectedDependencies), "Calculating feature scores");
         var selectedFeatures = IntStream.range(0, dataWithSelectedFeatures.numAttributes())
                 .mapToObj(i -> dataWithSelectedFeatures.attribute(i).name())
                 .collect(joining("\n"));
 
-        Classifier tree = runTimed(() -> treeClassifier.buildJ48Tree(dataWithSelectedFeatures), "Building J48 tree");
-        var treeImage = getTreeImageTag((Drawable) tree);
+        J48 tree = runTimed(() -> treeClassifier.buildJ48Tree(dataWithSelectedFeatures), "Building J48 tree");
 
 //        var rules = runTimed(() -> rulesClassifier.buildPARTRules(dataWithSelectedFeatures), "Building decision rules");
 
 //        var crossValidation = runTimed(() -> validator.validate(rules, dataWithSelectedFeatures), "Cross-validating tree");
 
-        var result = getFixedValues();
-        result.put("SELECTED_ATTRIBUTES", selectedFeatures);
-        result.put("TREE", treeImage);
-//        result.put("RULES", rules.toString());
-//        result.put("EVALUATION", crossValidation.toClassDetailsString());
-        if (!directDependencies.isEmpty()) {
-            result.put("DIRECT_DEPENDENCIES", directDependencies);
-        }
-        if (!highlyCorrelatedAttributes.isEmpty()) {
-            result.put("CORRELATED_ATTRIBUTES", highlyCorrelatedAttributes);
-        }
-        return result;
+        return getTemplateParameters(selectedFeatures, tree);
     }
 
-    private String getTreeImageTag(Drawable tree) throws Exception {
-        var treeBase64 = Base64.getEncoder().encodeToString(Graphviz.fromString(tree.graph()).render(Format.SVG).toString().getBytes(StandardCharsets.UTF_8));
-        return "<img src=\"data:image/svg+xml;utf8;base64, " + treeBase64 + "\"/>";
+    private Map<String, Object> getTemplateParameters(String selectedFeatures, J48 tree) throws Exception {
+        var result = getFixedValues();
+        result.put("selectedAttributes", selectedFeatures);
+        result.put("tree", getTreeImageTag(tree));
+//        result.put("rules", tree.toSource("Rules"));
+//        result.put("evaluation", crossValidation.toClassDetailsString());
+        return result;
     }
 
     private Map<String, Object> getFixedValues() {
@@ -161,8 +137,19 @@ class FeatureEvaluationRunner {
             result.put("suspectedDependencies", suspectedDependencies);
             result.put("assumptionStumps", stumps);
         }
+        if (!directDependencies.isEmpty()) {
+            result.put("directDependencies", directDependencies);
+        }
+        if (!highlyCorrelatedAttributes.isEmpty()) {
+            result.put("correlatedAttributes", highlyCorrelatedAttributes);
+        }
 
         return result;
+    }
+
+    private String getTreeImageTag(Drawable tree) throws Exception {
+        var treeBase64 = Base64.getEncoder().encodeToString(Graphviz.fromString(tree.graph()).render(Format.SVG).toString().getBytes(StandardCharsets.UTF_8));
+        return "<img src=\"data:image/svg+xml;utf8;base64, " + treeBase64 + "\"/>";
     }
 
     private List<String> getAttributesSorted() {

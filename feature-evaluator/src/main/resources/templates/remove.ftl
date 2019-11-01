@@ -35,25 +35,31 @@
             </div>
         </form>
     </div>
+</section>
+
 
     <#if ignoredAttributes??>
-        <div class="container">
-            <p class="title is-4">Ignored Attributes</p>
-            <div><pre><code>
+        <section class="section">
+            <div class="container">
+                <p class="title is-4">Ignored Attributes</p>
+                <div><pre><code>
 ${ignoredAttributes?join("\n")}
             </code></pre>
+                </div>
             </div>
-        </div>
+        </section>
     </#if>
 
     <#if suspectedDependencies??>
-        <div class="container">
-            <p class="title is-4">Suspected Dependencies</p>
-            <div><pre><code>
+        <section class="section">
+            <div class="container">
+                <p class="title is-4">Correlation Assumptions</p>
+                <div><pre><code>
 ${suspectedDependencies?join("\n")}
             </code></pre>
+                </div>
             </div>
-        </div>
+        </section>
     </#if>
 
-</section>
+<hr class="hr">

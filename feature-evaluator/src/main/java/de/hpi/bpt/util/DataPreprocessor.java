@@ -2,9 +2,7 @@ package de.hpi.bpt.util;
 
 import weka.core.Instances;
 import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.Remove;
-import weka.filters.unsupervised.attribute.ReplaceMissingWithUserConstant;
-import weka.filters.unsupervised.attribute.StringToNominal;
+import weka.filters.unsupervised.attribute.*;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -16,19 +14,39 @@ public class DataPreprocessor {
     public Instances simplePreprocess(Instances data) {
         try {
             data.deleteWithMissingClass();
-            var filter = stringToNominal();
-            filter.setInputFormat(data);
-            data = Filter.useFilter(data, filter);
+            List<Filter> filters;
+            if (data.classAttribute().isNumeric()) {
+                filters = List.of(numericToNominal(data.classIndex()), stringToNominal(), removeUseless());
+            } else {
+                filters = List.of(stringToNominal(), removeUseless());
+            }
+            for (var filter : filters) {
+                filter.setInputFormat(data);
+                data = Filter.useFilter(data, filter);
+            }
+
             return data;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }
 
+    private Filter numericToNominal(int classAttributeIndex) {
+        var numericToNominal = new NumericToNominal();
+        numericToNominal.setAttributeIndicesArray(new int[]{classAttributeIndex});
+        return numericToNominal;
+    }
+
     private Filter stringToNominal() {
         var stringToNominal = new StringToNominal();
         stringToNominal.setAttributeRange("first-last");
         return stringToNominal;
+    }
+
+    private Filter removeUseless() {
+        var removeUseless = new RemoveUseless();
+        removeUseless.setMaximumVariancePercentageAllowed(100);
+        return removeUseless;
     }
 
 

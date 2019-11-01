@@ -17,10 +17,10 @@
                 </div>
 
                 <div class="field">
-                    <label class="label">Suspected Dependencies</label>
+                    <label class="label">Correlation Assumptions</label>
                     <div class="control">
                         <input class="input" type="text" name="suspectedDependencies"
-                               placeholder="Suspected Dependencies">
+                               placeholder="Correlation Assumptions">
                     </div>
                 </div>
 

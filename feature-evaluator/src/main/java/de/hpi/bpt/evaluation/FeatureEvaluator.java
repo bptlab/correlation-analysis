@@ -91,36 +91,6 @@ public class FeatureEvaluator {
         }
     }
 
-    public Instances removeNonInterestingAttributes(Instances data, AttributeSelection attributeSelection, Set<String> suspectedDependencies) {
-        try {
-            var attributesToKeep = suspectedDependencies.stream().map(attName -> data.attribute(attName).index()).collect(toSet());
-            var rankedAttributes = attributeSelection.rankedAttributes();
-            var directDependencyAttributeIndices = IntStream.range(0, rankedAttributes.length)
-                    .filter(i -> rankedAttributes[i][1] == 1.0)
-                    .map(i -> (int) rankedAttributes[i][0])
-                    .toArray();
-
-            var almostNoDependencyAttributeIndices = IntStream.range(0, rankedAttributes.length)
-                    .filter(i -> i > 50 || rankedAttributes[i][1] < 0.01)
-                    .map(i -> (int) rankedAttributes[i][0])
-                    .toArray();
-
-
-            var remove = new Remove();
-            remove.setAttributeIndicesArray(
-                    IntStream.concat(
-                            Arrays.stream(directDependencyAttributeIndices),
-                            Arrays.stream(almostNoDependencyAttributeIndices))
-                            .filter(i -> !attributesToKeep.contains(i))
-                            .distinct().sorted().toArray());
-            remove.setInputFormat(data);
-            return Filter.useFilter(data, remove);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-
-    }
-
     public Instances retainTop50Attributes(Instances data, AttributeSelection attributeSelection, Set<String> suspectedDependencies) {
         try {
             var rankedAttributes = attributeSelection.rankedAttributes();

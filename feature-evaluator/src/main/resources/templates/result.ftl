@@ -1,70 +1,81 @@
-<section class="section">
-    <#if DIRECT_DEPENDENCIES??>
+<#if directDependencies??>
+    <section class="section">
         <div class="container">
             <p class="title is-4">Direct Dependencies</p>
             <div><pre><code>
-${DIRECT_DEPENDENCIES}
-            </code></pre></div>
-        </div>
-    </#if>
-
-    <#if CORRELATED_ATTRIBUTES??>
-        <div class="container">
-            <p class="title is-4">Highly Correlated Attributes</p>
-            <div><pre><code>
-${CORRELATED_ATTRIBUTES}
-        </code></pre>
+${directDependencies}
+            </code></pre>
             </div>
-        </div>
-    </#if>
-
-    <#if SELECTED_ATTRIBUTES??>
-        <div class="container">
-            <p class="title is-4">Selected Attributes</p>
-            <div><pre><code>
-${SELECTED_ATTRIBUTES}
-        </code></pre>
-            </div>
-        </div>
-    </#if>
-</section>
-
-
-<section class="section">
-    <#if assumptionStumps??>
-        <div class="container">
-            <p class="title is-4">Correlation Assumptions</p>
-            ${assumptionStumps}
-        </div>
-    </#if>
-
-    <#if TREE??>
-        <div class="container">
-            <p class="title is-4">Tree</p>
-            ${TREE}
-        </div>
-    </#if>
-</section>
-
-
-<#if RULES??>
-    <section class="section">
-        <div class="container">
-            <p class="title is-4">Rules</p>
-            <div><pre><code>
-${RULES}
-            </code></pre></div>
         </div>
     </section>
 </#if>
 
-<#if EVALUATION??>
+<#if correlatedAttributes??>
+    <section class="section">
+        <div class="container">
+            <p class="title is-4">Highly Correlated Attributes</p>
+            <div><pre><code>
+${correlatedAttributes}
+        </code></pre>
+            </div>
+        </div>
+    </section>
+</#if>
+
+<#if selectedAttributes??>
+    <section class="section">
+        <div class="container">
+            <p class="title is-4">Selected Attributes</p>
+            <div><pre><code>
+${selectedAttributes}
+        </code></pre>
+            </div>
+        </div>
+    </section>
+</#if>
+
+<hr class="hr">
+
+<#if tree??>
+    <section class="section">
+        <div class="container">
+            <p class="title is-4">Tree</p>
+            ${tree}
+        </div>
+    </section>
+</#if>
+
+<#if assumptionStumps??>
+    <section class="section">
+        <div class="container">
+            <p class="title is-4">Correlation Assumptions Tree</p>
+            ${assumptionStumps}
+        </div>
+    </section>
+</#if>
+
+<hr class="hr">
+
+<#if rules??>
+    <section class="section">
+        <div class="container">
+            <p class="title is-4">Rules</p>
+            <div><pre><code>
+${rules}
+            </code></pre>
+            </div>
+        </div>
+    </section>
+</#if>
+
+<#if evaluation??>
     <section class="section">
         <div class="container">
             <p class="title is-4">Evaluation</p>
             <div><pre><code>
-${EVALUATION}
-            </code></pre></div>
+${evaluation}
+            </code></pre>
+            </div>
         </div>
     </section>
 </#if>

@@ -5,6 +5,7 @@ import de.hpi.bpt.logtransform.transformation.multi.controlflow.NumberOfActivity
 import de.hpi.bpt.logtransform.transformation.multi.controlflow.StageControlFlowTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.resource.DepartmentHandoversTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.resource.WasDepartmentInvolvedTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.time.BetweenStagesDurationTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.StageStartEndTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.StageTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.once.conformance.NonCompliantLogTransitionsTransformation;
@@ -38,7 +39,7 @@ class ModelFeatureGenerator {
 
         activityToLaneFeature.ifPresent(feature -> result.addAll(from(feature)));
         compliantFlowsFeature.ifPresent(feature -> result.add(new NonCompliantLogTransitionsTransformation(mapNames(feature))));
-        optionalActivitiesFeature.ifPresent(feature -> result.add(new NumberOfActivityExecutionsTransformation(feature.getActivityNames())));
+        optionalActivitiesFeature.ifPresent(feature -> result.add(new NumberOfActivityExecutionsTransformation(mapNames(feature))));
 
         if (stagesFeature.isPresent()) {
             var activityToStage = stagesFeature.get().getActivityToStage();
@@ -48,6 +49,7 @@ class ModelFeatureGenerator {
             result.add(new StageControlFlowTransformation(stagesFeature.get().getActivityToStage(), stagesFeature.get().getParallelStages()));
             result.add(new StageTimeTransformation(stagesFeature.get().getActivityToStage()));
             result.add(new StageStartEndTimeTransformation(stagesFeature.get().getActivityToStage()));
+            result.add(new BetweenStagesDurationTransformation(stagesFeature.get().getActivityToStage()));
         }
 
         return result;

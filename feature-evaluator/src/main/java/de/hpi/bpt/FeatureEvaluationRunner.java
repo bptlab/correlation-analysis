@@ -90,7 +90,7 @@ class FeatureEvaluationRunner {
         var treeAndRemovedAttributes = runTimed(() -> treeClassifier.buildJ48Tree(dataWithSelectedFeatures), "Building J48 tree");
         tree = treeAndRemovedAttributes.getLeft();
         ignoredAttributes.addAll(treeAndRemovedAttributes.getRight());
-        rules = tree.getRoot().toString();
+        rules = tree.toString();
 
         stumps = runTimed(() -> treeClassifier.buildStumpsForAttributes(dataWithSelectedFeatures, suspectedDependencies), "Checking suspected dependencies");
 
@@ -111,7 +111,7 @@ class FeatureEvaluationRunner {
         tree = treeAndRemovedAttributes.getLeft();
         ignoredAttributes.addAll(treeAndRemovedAttributes.getRight());
         processedData = dataPreprocessor.remove(treeAndRemovedAttributes.getRight(), processedData);
-        rules = tree.getRoot().toString();
+        rules = tree.toString();
 
         return getTemplateParameters();
     }

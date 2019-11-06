@@ -5,7 +5,7 @@ import weka.classifiers.trees.j48.ClassifierTree;
 
 public class TraversableJ48 extends J48 {
 
-    public ClassifierTree getRoot() {
+    ClassifierTree getRoot() {
         return m_root;
     }
 
@@ -14,6 +14,12 @@ public class TraversableJ48 extends J48 {
         return new J48Traverser().graph(m_root);
     }
 
-
-
+    @Override
+    public String toString() {
+        try {
+            return new J48RulesByClassPrinter().toString(m_root);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 }

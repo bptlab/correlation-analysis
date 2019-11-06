@@ -153,7 +153,8 @@ class FeatureEvaluationRunner {
     }
 
     private String getTreeImageTag(Drawable tree) throws Exception {
-        var treeBase64 = Base64.getEncoder().encodeToString(Graphviz.fromString(tree.graph()).render(Format.SVG).toString().getBytes(StandardCharsets.UTF_8));
+        var graph = tree.graph();
+        var treeBase64 = Base64.getEncoder().encodeToString(Graphviz.fromString(graph).render(Format.SVG).toString().getBytes(StandardCharsets.UTF_8));
         return "<img src=\"data:image/svg+xml;utf8;base64, " + treeBase64 + "\"/>";
     }
 

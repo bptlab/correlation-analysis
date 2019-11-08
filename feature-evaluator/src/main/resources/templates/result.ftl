@@ -68,6 +68,8 @@ ${rules}
     </section>
 </#if>
 
+<hr class="hr">
+
 <section class="section">
     <div class="container">
         <#if evaluation??>
@@ -77,10 +79,10 @@ ${evaluation}
             </code></pre>
             </div>
         <#else>
-            <form action="${contextPath}/crossvalidate" method="get">
+            <form action="${contextPath}/accuracy" method="get">
                 <div class="field">
                     <div class="control">
-                        <input type="submit" value="Cross-Validate Accuracy" class="button is-primary">
+                        <input type="submit" value="Calculate Accuracy" class="button is-primary">
             </div>
         </div>
             </form>

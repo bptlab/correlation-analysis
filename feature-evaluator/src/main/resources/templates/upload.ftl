@@ -24,10 +24,10 @@
                 </div>
 
                 <div class="field">
-                    <label class="label">Correlation Assumptions</label>
+                    <label class="label">Correlation Assumptions (Optional)</label>
                     <div class="control">
                         <input class="input" type="text" name="suspectedDependencies"
-                               placeholder="Correlation Assumptions">
+                               placeholder="Correlation Assumptions (Optional)">
                     </div>
                 </div>
 

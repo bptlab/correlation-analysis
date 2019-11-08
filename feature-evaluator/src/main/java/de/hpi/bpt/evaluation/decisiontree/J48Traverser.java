@@ -14,7 +14,7 @@ class J48Traverser {
         var stack = new ArrayDeque<Pair<ClassifierTree, Integer>>();
 
         StringBuffer text = new StringBuffer();
-        text.append("digraph J48Tree {\n");
+        text.append("digraph J48Tree {\n").append("node [shape=Mrecord];");
 
         var id = 0;
 
@@ -30,9 +30,9 @@ class J48Traverser {
                     text.append("N").append(id).append(" [label=\"").append(Utils.backQuoteChars(localModel.dumpLabel(i1, trainingData))).append("\" ").append("shape=box style=filled ");
                     text.append("]\n");
                 } else {
-                    text.append("N").append(id).append(" [label=\"").append(Utils.backQuoteChars(children[i1].getLocalModel().leftSide(trainingData)))
-                            .append("\\n").append(Utils.backQuoteChars(createSplitNodeLabel(children[i1], trainingData)))
-                            .append("\" ");
+                    text.append("N").append(id).append(" [label=\"{").append(Utils.backQuoteChars(children[i1].getLocalModel().leftSide(trainingData)))
+                            .append("|").append(Utils.backQuoteChars(createSplitNodeLabel(children[i1], trainingData)))
+                            .append("}\" ");
                     text.append("]\n");
                     stack.addFirst(Pair.of(children[i1], id));
                 }
@@ -54,9 +54,9 @@ class J48Traverser {
                         text.append("N").append(id).append(" [label=\"").append(Utils.backQuoteChars(localModel.dumpLabel(i, trainingData))).append("\" ").append("shape=box style=filled ");
                         text.append("]\n");
                     } else {
-                        text.append("N").append(id).append(" [label=\"").append(Utils.backQuoteChars(children[i].getLocalModel().leftSide(trainingData)))
-                                .append("\\n").append(Utils.backQuoteChars(createSplitNodeLabel(children[i], trainingData)))
-                                .append("\" ");
+                        text.append("N").append(id).append(" [label=\"{").append(Utils.backQuoteChars(children[i].getLocalModel().leftSide(trainingData)))
+                                .append("|").append(Utils.backQuoteChars(createSplitNodeLabel(children[i], trainingData)))
+                                .append("}\" ");
                         text.append("]\n");
                         stack.addFirst(Pair.of(children[i], id));
                     }
@@ -75,8 +75,8 @@ class J48Traverser {
                     .append(" [label=\"").append(Utils.backQuoteChars(root.getLocalModel().dumpLabel(0, trainingData))).append("\" ").append("shape=box style=filled ");
             text.append("]\n");
         } else {
-            text.append("N").append(0).append(" [label=\"").append(Utils.backQuoteChars(root.getLocalModel().leftSide(trainingData))).append("\\n")
-                    .append(Utils.backQuoteChars(createSplitNodeLabel(root, trainingData))).append("\" ");
+            text.append("N").append(0).append(" [label=\"{").append(Utils.backQuoteChars(root.getLocalModel().leftSide(trainingData))).append("|")
+                    .append(Utils.backQuoteChars(createSplitNodeLabel(root, trainingData))).append("}\" ");
             text.append("]\n");
         }
     }
@@ -87,11 +87,17 @@ class J48Traverser {
 
         text = new StringBuffer();
         var numClasses = node.getLocalModel().distribution().numClasses();
+
+        text.append("{");
         for (int i = 0; i < numClasses; i++) {
             Distribution distribution = node.getLocalModel().distribution();
             text.append(data.classAttribute().value(i));
             text.append(": " + Utils.roundDouble(distribution.perClass(i), 2));
-            text.append("\n");
+            if (i < numClasses - 1) {
+                text.append("|");
+            } else {
+                text.append("}");
+            }
         }
 
         return text.toString();

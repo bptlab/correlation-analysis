@@ -27,7 +27,7 @@
             </div>
         </form>
 
-        <form action="${contextPath}/" method="post">
+        <form action="${contextPath}/" method="get">
             <div class="field">
                 <div class="control">
                     <input type="submit" value="Reset" class="button is-light">

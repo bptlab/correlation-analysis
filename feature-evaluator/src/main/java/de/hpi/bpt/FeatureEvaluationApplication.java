@@ -53,7 +53,7 @@ public class FeatureEvaluationApplication extends Application {
             routeContext.render("result-page", results);
         });
 
-        GET("/crossvalidate", routeContext -> {
+        GET("/accuracy", routeContext -> {
             routeContext.render("result-page", runner.runCrossValidation());
         });
     }

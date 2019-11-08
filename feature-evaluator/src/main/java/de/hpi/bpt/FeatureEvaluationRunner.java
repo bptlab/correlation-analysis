@@ -27,6 +27,7 @@ class FeatureEvaluationRunner {
     private Instances processedData;
     private String projectName;
     private String targetAttribute;
+    private Optional<String> targetValue;
     private String stumps;
     private Set<String> ignoredAttributes = new HashSet<>();
     private Set<String> suspectedDependencies = new HashSet<>();
@@ -43,6 +44,12 @@ class FeatureEvaluationRunner {
 
     FeatureEvaluationRunner targetAttribute(String targetAttribute) {
         this.targetAttribute = targetAttribute;
+        return this;
+    }
+
+
+    public FeatureEvaluationRunner targetValue(Optional<String> targetValue) {
+        this.targetValue = targetValue;
         return this;
     }
 
@@ -74,8 +81,18 @@ class FeatureEvaluationRunner {
 
     private Map<String, Object> doRunFirstEvaluation(Instances data) throws Exception {
         data.setClass(data.attribute(targetAttribute));
+        Instances preprocessedData;
 
-        var preprocessedData = runTimed(() -> dataPreprocessor.simplePreprocess(data), "Preparing data");
+        if (targetValue.isPresent()) {
+            var targetValueIndex = data.classAttribute().indexOfValue(targetValue.get());
+            if (targetValueIndex == -1) {
+                throw new RuntimeException("Invalid target value selected!");
+            }
+            preprocessedData = runTimed(() -> dataPreprocessor.simplePreprocessAndMerge(data, targetValueIndex), "Preparing data");
+        } else {
+            preprocessedData = runTimed(() -> dataPreprocessor.simplePreprocess(data), "Preparing data");
+        }
+
         var attributeSelection = runTimed(() -> featureEvaluator.selectAttributes(preprocessedData), "Selecting attributes");
         directDependencies = featureEvaluator.findDirectDependencies(data, attributeSelection);
         highlyCorrelatedAttributes = featureEvaluator.findHighlyCorrelatedAttributes(data, attributeSelection);

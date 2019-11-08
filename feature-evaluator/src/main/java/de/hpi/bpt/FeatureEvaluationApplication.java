@@ -8,6 +8,7 @@ import weka.core.converters.ArffLoader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static de.hpi.bpt.util.TimeTracker.runTimed;
 import static java.util.Collections.emptyList;
@@ -29,6 +30,7 @@ public class FeatureEvaluationApplication extends Application {
             var fileItem = routeContext.getRequest().getFile("caseLog");
             var projectName = routeContext.getParameter("projectName").toString();
             var targetAttribute = routeContext.getParameter("targetAttribute").toString();
+            Optional<String> targetValue = routeContext.getParameter("targetValue").isEmpty() ? Optional.empty() : Optional.of(routeContext.getParameter("targetValue").toString());
             var suspectedDependenciesParam = routeContext.getParameter("suspectedDependencies").toString();
             List<String> suspectedDependencies = suspectedDependenciesParam.isEmpty() ? emptyList() : Arrays.asList(suspectedDependenciesParam.split(","));
 
@@ -36,6 +38,7 @@ public class FeatureEvaluationApplication extends Application {
             var results = runner
                     .projectName(projectName)
                     .targetAttribute(targetAttribute)
+                    .targetValue(targetValue)
                     .suspectedDependencies(suspectedDependencies)
                     .runFirstEvaluation(data);
 

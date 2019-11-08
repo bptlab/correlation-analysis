@@ -12,6 +12,30 @@ import static java.util.stream.Collectors.joining;
 
 public class DataPreprocessor {
 
+    public Instances simplePreprocessAndMerge(Instances data, int targetValueIndex) {
+        try {
+            var processedData = simplePreprocess(data);
+            var merge = new MergeManyValues();
+            merge.setLabel("not " + processedData.classAttribute().value(targetValueIndex));
+            merge.setAttributeIndex(String.valueOf(processedData.classIndex() + 1));
+            merge.setMergeValueRange(IntStream.range(1, processedData.classAttribute().numValues() + 1).filter(i -> i != (targetValueIndex + 1)).mapToObj(String::valueOf).collect(joining(",")));
+            var oldClassIndex = processedData.classIndex();
+            // workaround: MergeManyValues will not operate on the class attribute.
+            if (oldClassIndex == 0) {
+                processedData.setClassIndex(1);
+            } else {
+                processedData.setClassIndex(0);
+            }
+            merge.setInputFormat(processedData);
+            var result = Filter.useFilter(processedData, merge);
+            result.setClassIndex(oldClassIndex);
+            return result;
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+
     public Instances simplePreprocess(Instances data) {
         try {
             data.deleteWithMissingClass();

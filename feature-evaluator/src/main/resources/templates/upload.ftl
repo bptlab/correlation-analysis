@@ -17,6 +17,13 @@
                 </div>
 
                 <div class="field">
+                    <label class="label">Target Value (Optional)</label>
+                    <div class="control">
+                        <input class="input" type="text" name="targetValue" placeholder="Target Value (Optional)">
+                    </div>
+                </div>
+
+                <div class="field">
                     <label class="label">Correlation Assumptions</label>
                     <div class="control">
                         <input class="input" type="text" name="suspectedDependencies"

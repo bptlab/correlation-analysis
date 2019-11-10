@@ -1,6 +1,5 @@
 package de.hpi.bpt.evaluation;
 
-import weka.classifiers.AbstractClassifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
@@ -25,7 +24,7 @@ public class ClassifierValidator {
             metricsToDisplay.add("f-measure");
 
             evaluation.setMetricsToDisplay(metricsToDisplay);
-            evaluation.evaluateModel(AbstractClassifier.makeCopy(classifier), data);
+            evaluation.evaluateModel(classifier, data);
 
             return evaluation;
         } catch (Exception e) {

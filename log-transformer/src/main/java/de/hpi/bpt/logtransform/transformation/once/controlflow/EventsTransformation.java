@@ -14,7 +14,7 @@ public class EventsTransformation implements LogTransformation {
         var activityColumn = sourceEventLog.getTyped(schema.getActivityName(), String.class);
 
         var numEventsColumn = resultCaseLog.addColumn("#Events in case", Integer.class);
-        var numUniqueEventsColumn = resultCaseLog.addColumn("#Unique events in case", Integer.class);
+        var numUniqueEventsColumn = resultCaseLog.addColumn("#Distinct events in case", Integer.class);
         var firstEventColumn = resultCaseLog.addColumn("First event", String.class);
         var lastEventColumn = resultCaseLog.addColumn("Last event", String.class);
 

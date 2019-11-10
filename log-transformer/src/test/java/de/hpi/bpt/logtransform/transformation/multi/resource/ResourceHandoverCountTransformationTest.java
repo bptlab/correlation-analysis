@@ -2,14 +2,14 @@ package de.hpi.bpt.logtransform.transformation.multi.resource;
 
 import de.hpi.bpt.logtransform.EventLogBuilder;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
-import de.hpi.bpt.logtransform.transformation.once.resource.HandoverCountTransformation;
+import de.hpi.bpt.logtransform.transformation.once.resource.ResourceHandoverCountTransformation;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class HandoverCountTransformationTest {
+class ResourceHandoverCountTransformationTest {
 
     @Test
     void transform() {
@@ -38,7 +38,7 @@ class HandoverCountTransformationTest {
                 .build()
                 .build();
 
-        var transformation = new HandoverCountTransformation();
+        var transformation = new ResourceHandoverCountTransformation();
 
         // Act
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();

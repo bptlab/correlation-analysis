@@ -8,7 +8,7 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class WasDepartmentInvolvedTransformationTest {
+class TimesDepartmentInvolvedTransformationTest {
     @Test
     void transform() {
         // Arrange
@@ -32,7 +32,7 @@ class WasDepartmentInvolvedTransformationTest {
                 .build()
                 .build();
 
-        var transformation = new WasDepartmentInvolvedTransformation()
+        var transformation = new TimesDepartmentInvolvedTransformation()
                 .with("A1", "L1")
                 .with("A2", "L1")
                 .with("A3", "L2");
@@ -41,14 +41,14 @@ class WasDepartmentInvolvedTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "Department 'L1' involved?", "Department 'L2' involved?");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "#Department 'L1' involved", "#Department 'L2' involved");
 
         var row1 = afterTransformation.get("1");
         var row2 = afterTransformation.get("2");
         var row3 = afterTransformation.get("3");
 
-        assertThat(row1).containsExactly("1", true, false);
-        assertThat(row2).containsExactly("2", false, true);
-        assertThat(row3).containsExactly("3", true, true);
+        assertThat(row1).containsExactly("1", 2, 0);
+        assertThat(row2).containsExactly("2", 0, 2);
+        assertThat(row3).containsExactly("3", 3, 2);
     }
 }

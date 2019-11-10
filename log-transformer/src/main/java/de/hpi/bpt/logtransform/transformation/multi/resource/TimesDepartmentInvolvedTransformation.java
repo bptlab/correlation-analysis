@@ -8,18 +8,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-public class WasDepartmentInvolvedTransformation implements LogTransformation {
+public class TimesDepartmentInvolvedTransformation implements LogTransformation {
 
     private Map<String, String> activityToLane = new HashMap<>();
 
-    public WasDepartmentInvolvedTransformation() {
+    public TimesDepartmentInvolvedTransformation() {
     }
 
-    public WasDepartmentInvolvedTransformation(Map<String, String> activityToLane) {
+    public TimesDepartmentInvolvedTransformation(Map<String, String> activityToLane) {
         this.activityToLane.putAll(activityToLane);
     }
 
-    public WasDepartmentInvolvedTransformation with(String activity, String lane) {
+    public TimesDepartmentInvolvedTransformation with(String activity, String lane) {
         activityToLane.put(activity, lane);
         return this;
     }
@@ -33,19 +33,19 @@ public class WasDepartmentInvolvedTransformation implements LogTransformation {
 
         for (var lane : distinctLanes) {
 
-            var wasInvolvedColumn = resultCaseLog.addColumn(
-                    String.format("Department '%s' involved?", lane),
-                    Boolean.class
+            var timesInvolvedColumn = resultCaseLog.addColumn(
+                    String.format("#Department '%s' involved", lane),
+                    Integer.class
             );
 
             for (var trace : activityColumn.getTraces()) {
-                var result = false;
+                var count = 0;
                 for (var activity : trace) {
                     if (activityToLane.getOrDefault(activity, "NONE").equals(lane)) {
-                        result = true;
+                        count++;
                     }
                 }
-                wasInvolvedColumn.addValue(result);
+                timesInvolvedColumn.addValue(count);
             }
         }
     }

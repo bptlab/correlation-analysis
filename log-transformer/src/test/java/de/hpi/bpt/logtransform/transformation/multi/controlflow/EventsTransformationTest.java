@@ -34,7 +34,7 @@ class EventsTransformationTest {
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
-        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "#Events in case", "#Unique events in case", "First event", "Last event");
+        assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId", "#Events in case", "#Distinct events in case", "First event", "Last event");
 
         var row1 = afterTransformation.get("1");
         var row2 = afterTransformation.get("2");

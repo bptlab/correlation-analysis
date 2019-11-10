@@ -8,7 +8,7 @@ import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class WasResourceInvolvedTransformationTest {
+class TimesResourceInvolvedTransformationTest {
 
     @Test
     void transform() {
@@ -29,21 +29,21 @@ class WasResourceInvolvedTransformationTest {
                 .build()
                 .build();
 
-        var transformation = new WasResourceInvolvedTransformation();
+        var transformation = new TimesResourceInvolvedTransformation();
 
         // Act
         var afterTransformation = new LogTransformer(sourceEventLog).with(transformation).transform();
 
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId",
-                "Resource 'R1' involved?", "Resource 'R2' involved?", "Resource 'R3' involved?"
+                "#Resource 'R1' involved", "#Resource 'R2' involved", "#Resource 'R3' involved"
         );
 
         var row1 = afterTransformation.get("1");
         var row2 = afterTransformation.get("2");
 
-        assertThat(row1).containsExactly("1", true, true, true);
-        assertThat(row2).containsExactly("2", true, false, false);
+        assertThat(row1).containsExactly("1", 1, 1, 1);
+        assertThat(row2).containsExactly("2", 3, 0, 0);
     }
 
 }

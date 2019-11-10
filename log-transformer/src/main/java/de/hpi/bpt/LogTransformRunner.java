@@ -10,13 +10,13 @@ import de.hpi.bpt.logtransform.transformation.ModelFeatureGenerator;
 import de.hpi.bpt.logtransform.transformation.multi.controlflow.EventBigramTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.controlflow.NumberOfActivityExecutionsTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.data.ExistingAttributeTransformation;
-import de.hpi.bpt.logtransform.transformation.multi.resource.WasResourceInvolvedTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.resource.TimesResourceInvolvedTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.ActivityStartEndTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.ActivityTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.BetweenEventsDurationTransformation;
 import de.hpi.bpt.logtransform.transformation.once.controlflow.EventsTransformation;
-import de.hpi.bpt.logtransform.transformation.once.resource.HandoverCountTransformation;
 import de.hpi.bpt.logtransform.transformation.once.resource.NumberOfResourcesInvolvedTransformation;
+import de.hpi.bpt.logtransform.transformation.once.resource.ResourceHandoverCountTransformation;
 import de.hpi.bpt.logtransform.transformation.once.time.ActivityBottleneckTransformation;
 import de.hpi.bpt.logtransform.transformation.once.time.CaseDurationTransformation;
 import de.hpi.bpt.logtransform.transformation.once.time.CaseStartEndTimeTransformation;
@@ -95,13 +95,13 @@ public class LogTransformRunner {
         if (PROJECT.resourceName != null) {
             // resource
             transformer
-                    .with(new HandoverCountTransformation())
+                    .with(new ResourceHandoverCountTransformation())
                     .with(new NumberOfResourcesInvolvedTransformation());
 
             if (transformationType.equals(TransformationType.WITHOUT_MODEL_ALL_ACTIVITIES)) {
                 transformer
 //                        .with(new ResourceHandoversTransformation()) TODO out of heap space - too many combinations
-                        .with(new WasResourceInvolvedTransformation());
+                        .with(new TimesResourceInvolvedTransformation());
             }
         }
 

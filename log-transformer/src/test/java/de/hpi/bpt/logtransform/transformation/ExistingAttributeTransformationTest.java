@@ -40,10 +40,10 @@ class ExistingAttributeTransformationTest {
 
         // Assert
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId",
-                "integerTestValue (at start)", "integerTestValue (at end)", "integerTestValue (#unique values)", "integerTestValue (max)", "integerTestValue (min)", "integerTestValue (avg)",
-                "doubleTestValue (at start)", "doubleTestValue (at end)", "doubleTestValue (#unique values)", "doubleTestValue (max)", "doubleTestValue (min)", "doubleTestValue (avg)",
-                "stringTestValue (at start)", "stringTestValue (at end)", "stringTestValue (#unique values)", "stringTestValue = 'EndValue' (times present)", "stringTestValue = 'MidValue' (times present)", "stringTestValue = 'StartValue' (times present)",
-                "booleanTestValue (at start)", "booleanTestValue (at end)", "booleanTestValue (#unique values)", "booleanTestValue = 'true' (times present)", "booleanTestValue = 'false' (times present)"
+                "integerTestValue (at start)", "integerTestValue (at end)", "integerTestValue (#distinct values)", "integerTestValue (max)", "integerTestValue (min)", "integerTestValue (avg)",
+                "doubleTestValue (at start)", "doubleTestValue (at end)", "doubleTestValue (#distinct values)", "doubleTestValue (max)", "doubleTestValue (min)", "doubleTestValue (avg)",
+                "stringTestValue (at start)", "stringTestValue (at end)", "stringTestValue (#distinct values)", "stringTestValue = 'EndValue' (times present)", "stringTestValue = 'MidValue' (times present)", "stringTestValue = 'StartValue' (times present)",
+                "booleanTestValue (at start)", "booleanTestValue (at end)", "booleanTestValue (#distinct values)", "booleanTestValue = 'true' (times present)", "booleanTestValue = 'false' (times present)"
 
         );
 

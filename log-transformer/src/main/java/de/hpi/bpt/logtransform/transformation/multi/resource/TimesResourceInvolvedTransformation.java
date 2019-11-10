@@ -4,7 +4,7 @@ import de.hpi.bpt.logtransform.datastructures.ColumnCaseLog;
 import de.hpi.bpt.logtransform.datastructures.ColumnEventLog;
 import de.hpi.bpt.logtransform.transformation.LogTransformation;
 
-public class WasResourceInvolvedTransformation implements LogTransformation {
+public class TimesResourceInvolvedTransformation implements LogTransformation {
 
     @Override
     public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {
@@ -16,13 +16,13 @@ public class WasResourceInvolvedTransformation implements LogTransformation {
         var resourceColumn = sourceEventLog.getResourceColumn();
 
         for (var resource : sourceEventLog.getUniqueResourceNames()) {
-            var wasInvolvedColumn = resultCaseLog.addColumn(
-                    String.format("Resource '%s' involved?", resource),
-                    Boolean.class
+            var timesInvolvedColumn = resultCaseLog.addColumn(
+                    String.format("#Resource '%s' involved", resource),
+                    Integer.class
             );
 
             for (var trace : resourceColumn.getTraces()) {
-                wasInvolvedColumn.addValue(trace.contains(resource));
+                timesInvolvedColumn.addValue((int) trace.stream().filter(resource::equals).count());
             }
         }
     }

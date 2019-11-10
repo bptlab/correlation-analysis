@@ -5,11 +5,12 @@ import de.hpi.bpt.logtransform.transformation.multi.controlflow.NumberOfActivity
 import de.hpi.bpt.logtransform.transformation.multi.controlflow.StageBigramTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.controlflow.StageControlFlowTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.resource.DepartmentHandoversTransformation;
-import de.hpi.bpt.logtransform.transformation.multi.resource.WasDepartmentInvolvedTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.resource.TimesDepartmentInvolvedTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.BetweenStagesDurationTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.StageStartEndTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.StageTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.once.conformance.NonCompliantLogTransitionsTransformation;
+import de.hpi.bpt.logtransform.transformation.once.resource.DepartmentHandoverCountTransformation;
 import de.hpi.bpt.logtransform.transformation.once.resource.NumberOfDepartmentsInvolvedTransformation;
 import de.hpi.bpt.modelanalysis.feature.*;
 
@@ -64,9 +65,10 @@ public class ModelFeatureGenerator {
                         Map.Entry::getValue
                 ));
         return List.of(
+                new DepartmentHandoverCountTransformation(activityToLane),
                 new DepartmentHandoversTransformation(activityToLane),
                 new NumberOfDepartmentsInvolvedTransformation(activityToLane),
-                new WasDepartmentInvolvedTransformation(activityToLane)
+                new TimesDepartmentInvolvedTransformation(activityToLane)
         );
     }
 

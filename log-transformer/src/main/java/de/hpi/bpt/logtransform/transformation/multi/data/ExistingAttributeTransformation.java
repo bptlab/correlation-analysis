@@ -29,7 +29,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
 
             var startColumnName = sourceColumnName + " (at start)";
             var endColumnName = sourceColumnName + " (at end)";
-            var uniqueColumnName = sourceColumnName + " (#unique values)";
+            var uniqueColumnName = sourceColumnName + " (#distinct values)";
             targetSchema.addColumnDefinition(startColumnName, sourceColumnType);
             targetSchema.addColumnDefinition(endColumnName, sourceColumnType);
             targetSchema.addColumnDefinition(uniqueColumnName, Integer.class);
@@ -91,7 +91,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
 
         result.put(sourceColumnName + " (at start)", startColumn);
         result.put(sourceColumnName + " (at end)", endColumn);
-        result.put(sourceColumnName + " (#unique values)", uniqueColumn);
+        result.put(sourceColumnName + " (#distinct values)", uniqueColumn);
         result.put(sourceColumnName + " (max)", maxColumn);
         result.put(sourceColumnName + " (min)", minColumn);
         result.put(sourceColumnName + " (avg)", avgColumn);
@@ -120,7 +120,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
 
         result.put(sourceColumnName + " (at start)", startColumn);
         result.put(sourceColumnName + " (at end)", endColumn);
-        result.put(sourceColumnName + " (#unique values)", uniqueColumn);
+        result.put(sourceColumnName + " (#distinct values)", uniqueColumn);
         result.put(sourceColumnName + " (max)", maxColumn);
         result.put(sourceColumnName + " (min)", minColumn);
         result.put(sourceColumnName + " (avg)", avgColumn);
@@ -146,7 +146,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
 
         result.put(sourceColumnName + " (at start)", startColumn);
         result.put(sourceColumnName + " (at end)", endColumn);
-        result.put(sourceColumnName + " (#unique values)", uniqueColumn);
+        result.put(sourceColumnName + " (#distinct values)", uniqueColumn);
         valueColumns.forEach((value, caseColumn) -> result.put(sourceColumnName + " = '" + value + "' (times present)", caseColumn));
         return result;
     }
@@ -170,7 +170,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
 
         result.put(sourceColumnName + " (at start)", startColumn);
         result.put(sourceColumnName + " (at end)", endColumn);
-        result.put(sourceColumnName + " (#unique values)", uniqueColumn);
+        result.put(sourceColumnName + " (#distinct values)", uniqueColumn);
         result.put(sourceColumnName + " = 'true' (times present)", containsTrueColumn);
         result.put(sourceColumnName + " = 'false' (times present)", containsFalseColumn);
         return result;
@@ -190,7 +190,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
 
         result.put(sourceColumnName + " (at start)", startColumn);
         result.put(sourceColumnName + " (at end)", endColumn);
-        result.put(sourceColumnName + " (#unique values)", uniqueColumn);
+        result.put(sourceColumnName + " (#distinct values)", uniqueColumn);
         return result;
     }
 }

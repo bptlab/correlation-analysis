@@ -68,24 +68,16 @@ ${rules}
     </section>
 </#if>
 
+<#if evaluation??>
 <hr class="hr">
 
-<section class="section">
-    <div class="container">
-        <#if evaluation??>
+    <section class="section">
+        <div class="container">
             <p class="title is-4">Evaluation</p>
             <div><pre><code>
 ${evaluation}
             </code></pre>
             </div>
-        <#else>
-            <form action="${contextPath}/accuracy" method="get">
-                <div class="field">
-                    <div class="control">
-                        <input type="submit" value="Calculate Accuracy" class="button is-primary">
-            </div>
         </div>
-            </form>
-        </#if>
-    </div>
 </section>
+</#if>

@@ -99,28 +99,17 @@ class FeatureEvaluationRunner {
         var reducedData = featureEvaluator.retainTop50Attributes(preprocessedData, attributeSelection, suspectedDependencies);
         this.processedData = dataPreprocessor.replaceMissingStringValuesWithConstant(reducedData);
 
-        var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(processedData, suspectedDependencies), "Calculating feature scores");
-        selectedFeatures = IntStream.range(0, dataWithSelectedFeatures.numAttributes())
-                .mapToObj(i -> dataWithSelectedFeatures.attribute(i).name())
-                .collect(joining("\n"));
-
-        var treeAndRemovedAttributes = runTimed(() -> treeClassifier.buildJ48Tree(dataWithSelectedFeatures), "Building J48 tree");
-        tree = treeAndRemovedAttributes.getLeft();
-        ignoredAttributes.addAll(treeAndRemovedAttributes.getRight());
-        processedData = dataPreprocessor.remove(treeAndRemovedAttributes.getRight(), processedData);
-
-        rules = tree.toString();
-
-        stumps = runTimed(() -> treeClassifier.buildStumpsForAttributes(dataWithSelectedFeatures, suspectedDependencies), "Checking suspected dependencies");
-
-        return getTemplateParameters();
+        return runClassification();
     }
-
 
     private Map<String, Object> doRunSubsequentEvaluation(List<String> newlyIgnoredAttributes) throws Exception {
         ignoredAttributes.addAll(newlyIgnoredAttributes);
         processedData = dataPreprocessor.remove(newlyIgnoredAttributes, processedData);
 
+        return runClassification();
+    }
+
+    private Map<String, Object> runClassification() throws Exception {
         var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.retainImportantFeatures(processedData, suspectedDependencies), "Calculating feature scores");
         selectedFeatures = IntStream.range(0, dataWithSelectedFeatures.numAttributes())
                 .mapToObj(i -> dataWithSelectedFeatures.attribute(i).name())
@@ -130,21 +119,19 @@ class FeatureEvaluationRunner {
         tree = treeAndRemovedAttributes.getLeft();
         ignoredAttributes.addAll(treeAndRemovedAttributes.getRight());
         processedData = dataPreprocessor.remove(treeAndRemovedAttributes.getRight(), processedData);
+
         rules = tree.toString();
-
-        return getTemplateParameters();
-    }
-
-    Map<String, Object> runCrossValidation() {
-        try {
-            var modelValidation = runTimed(() -> validator.validate(tree, processedData), "Cross-validating tree");
-            var result = getTemplateParameters();
-            result.put("evaluation", modelValidation.toClassDetailsString());
-            return result;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
+        if (stumps == null) {
+            stumps = runTimed(() -> treeClassifier.buildStumpsForAttributes(dataWithSelectedFeatures, suspectedDependencies), "Checking suspected dependencies");
         }
+
+        var modelValidation = runTimed(() -> validator.validate(tree, dataWithSelectedFeatures), "Cross-validating tree");
+
+        var result = getTemplateParameters();
+        result.put("evaluation", modelValidation.toSummaryString() + "\n" + modelValidation.toClassDetailsString());
+        return result;
     }
+
 
     private Map<String, Object> getTemplateParameters() throws Exception {
         var result = new HashMap<String, Object>();
@@ -168,6 +155,7 @@ class FeatureEvaluationRunner {
         result.put("selectedAttributes", selectedFeatures);
         result.put("tree", getTreeImageTag(tree));
         result.put("rules", rules);
+
         return result;
     }
 

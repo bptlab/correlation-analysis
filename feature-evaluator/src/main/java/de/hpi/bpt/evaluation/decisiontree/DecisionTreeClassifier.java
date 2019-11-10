@@ -4,7 +4,6 @@ import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import org.apache.commons.lang3.tuple.Pair;
 import weka.classifiers.trees.J48;
-import weka.classifiers.trees.REPTree;
 import weka.classifiers.trees.j48.BinC45Split;
 import weka.classifiers.trees.j48.ClassifierTree;
 import weka.core.Attribute;
@@ -90,16 +89,6 @@ public class DecisionTreeClassifier {
         }
 
         return attIndicesToRemove;
-    }
-
-    public REPTree buildREPTree(Instances data) {
-        try {
-            var classifier = new REPTree();
-            classifier.buildClassifier(data);
-            return classifier;
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
     }
 
     private J48 buildStumpForAttribute(Instances data, Attribute attribute) {

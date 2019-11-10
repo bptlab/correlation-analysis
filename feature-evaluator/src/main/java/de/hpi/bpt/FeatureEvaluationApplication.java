@@ -52,10 +52,6 @@ public class FeatureEvaluationApplication extends Application {
             var results = runner.runSubsequentEvaluation(newIgnoredAttributes);
             routeContext.render("result-page", results);
         });
-
-        GET("/accuracy", routeContext -> {
-            routeContext.render("result-page", runner.runCrossValidation());
-        });
     }
 
     private Instances loadDataFromFile(FileItem fileItem) {

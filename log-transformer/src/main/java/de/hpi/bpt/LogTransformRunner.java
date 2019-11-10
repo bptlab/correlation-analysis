@@ -7,6 +7,7 @@ import de.hpi.bpt.logtransform.io.CsvEventLogReader;
 import de.hpi.bpt.logtransform.io.CsvLogReader;
 import de.hpi.bpt.logtransform.transformation.LogTransformer;
 import de.hpi.bpt.logtransform.transformation.ModelFeatureGenerator;
+import de.hpi.bpt.logtransform.transformation.multi.controlflow.EventBigramTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.controlflow.NumberOfActivityExecutionsTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.data.ExistingAttributeTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.resource.WasResourceInvolvedTransformation;
@@ -32,23 +33,22 @@ import static java.util.stream.Collectors.toList;
 
 public class LogTransformRunner {
 
-    private static final TransformationType TRANSFORMATION_TYPE = TransformationType.WITH_MODEL;
-
     private static final Project PROJECT = Project.BPIC2019;
 
     public static void main(String[] args) {
+        for (TransformationType transformationType : TransformationType.values()) {
+            var analysisResults = new HashSet<AnalysisResult>();
 
-        var analysisResults = new HashSet<AnalysisResult>();
-        if (TRANSFORMATION_TYPE.equals(TransformationType.WITH_MODEL)) {
-            analysisResults.addAll(analyzeModel());
+            if (transformationType.equals(TransformationType.WITH_MODEL)) {
+                analysisResults.addAll(analyzeModel());
+            }
+
+            var rowCaseLog = retrieveCaseLog(analysisResults, transformationType);
+            TimeTracker.runTimed(() -> new ArffCaseLogWriter().writeToFile(rowCaseLog, PROJECT.folder + "cases_" + transformationType.name() + ".arff"), "Writing case log...");
         }
-
-        var rowCaseLog = retrieveCaseLog(analysisResults);
-
-        TimeTracker.runTimed(() -> new ArffCaseLogWriter().writeToFile(rowCaseLog, PROJECT.folder + PROJECT.caseFile), "Writing case log...");
     }
 
-    private static RowCaseLog retrieveCaseLog(Set<AnalysisResult> analysisResults) {
+    private static RowCaseLog retrieveCaseLog(Set<AnalysisResult> analysisResults, TransformationType transformationType) {
         var csvLogReader = new CsvLogReader()
                 .separator(PROJECT.separator)
                 .dateFormat(PROJECT.dateFormat)
@@ -74,18 +74,19 @@ public class LogTransformRunner {
                 // control flow
                 .with(new EventsTransformation());
 
-        if (TRANSFORMATION_TYPE.equals(TransformationType.WITH_MODEL)) {
+        if (transformationType.equals(TransformationType.WITH_MODEL)) {
             // model analysis
             var featureGenerator = new ModelFeatureGenerator(PROJECT.activityMapping);
             transformer.with(featureGenerator.from(analysisResults));
             transformer.withAnalysisResults(analysisResults, PROJECT.activityMapping);
 
-        } else if (TRANSFORMATION_TYPE.equals(TransformationType.WITHOUT_MODEL_ALL_ACTIVITIES)) {
+        } else if (transformationType.equals(TransformationType.WITHOUT_MODEL_ALL_ACTIVITIES)) {
             transformer
                     // time
                     .with(new ActivityTimeTransformation())
                     .with(new ActivityStartEndTimeTransformation())
                     .with(new BetweenEventsDurationTransformation())
+                    .with(new EventBigramTransformation())
 
                     // control flow
                     .with(new NumberOfActivityExecutionsTransformation());
@@ -97,7 +98,7 @@ public class LogTransformRunner {
                     .with(new HandoverCountTransformation())
                     .with(new NumberOfResourcesInvolvedTransformation());
 
-            if (TRANSFORMATION_TYPE.equals(TransformationType.WITHOUT_MODEL_ALL_ACTIVITIES)) {
+            if (transformationType.equals(TransformationType.WITHOUT_MODEL_ALL_ACTIVITIES)) {
                 transformer
 //                        .with(new ResourceHandoversTransformation()) TODO out of heap space - too many combinations
                         .with(new WasResourceInvolvedTransformation());

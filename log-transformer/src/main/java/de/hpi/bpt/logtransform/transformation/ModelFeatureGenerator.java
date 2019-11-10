@@ -2,6 +2,7 @@ package de.hpi.bpt.logtransform.transformation;
 
 import de.hpi.bpt.logtransform.transformation.multi.compliance.CorrectLocationTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.controlflow.NumberOfActivityExecutionsTransformation;
+import de.hpi.bpt.logtransform.transformation.multi.controlflow.StageBigramTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.controlflow.StageControlFlowTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.resource.DepartmentHandoversTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.resource.WasDepartmentInvolvedTransformation;
@@ -11,7 +12,6 @@ import de.hpi.bpt.logtransform.transformation.multi.time.StageTimeTransformation
 import de.hpi.bpt.logtransform.transformation.once.conformance.NonCompliantLogTransitionsTransformation;
 import de.hpi.bpt.logtransform.transformation.once.resource.NumberOfDepartmentsInvolvedTransformation;
 import de.hpi.bpt.modelanalysis.feature.*;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +46,11 @@ public class ModelFeatureGenerator {
 
             compliantFlowsFeature.ifPresent(feature -> result.add(new CorrectLocationTransformation(mapNames(feature), activityToStage)));
 
-            result.add(new StageControlFlowTransformation(stagesFeature.get().getActivityToStage(), stagesFeature.get().getParallelStages()));
-            result.add(new StageTimeTransformation(stagesFeature.get().getActivityToStage()));
-            result.add(new StageStartEndTimeTransformation(stagesFeature.get().getActivityToStage()));
-            result.add(new BetweenStagesDurationTransformation(stagesFeature.get().getActivityToStage()));
+            result.add(new StageControlFlowTransformation(activityToStage, stagesFeature.get().getParallelStages()));
+            result.add(new StageTimeTransformation(activityToStage));
+            result.add(new StageStartEndTimeTransformation(activityToStage));
+            result.add(new BetweenStagesDurationTransformation(activityToStage));
+            result.add(new StageBigramTransformation(activityToStage));
         }
 
         return result;
@@ -84,13 +85,6 @@ public class ModelFeatureGenerator {
         return feature.getActivityNames().stream()
                 .filter(activityMapping::containsKey)
                 .map(activityMapping::get)
-                .collect(toSet());
-    }
-
-    private Set<Pair<String, String>> mapNames(AbstractActivityPairFeature feature) {
-        return feature.getActivityPairs().stream()
-                .filter(pair -> activityMapping.containsKey(pair.getLeft()) && activityMapping.containsKey(pair.getRight()))
-                .map(pair -> Pair.of(activityMapping.get(pair.getLeft()), activityMapping.get(pair.getRight())))
                 .collect(toSet());
     }
 }

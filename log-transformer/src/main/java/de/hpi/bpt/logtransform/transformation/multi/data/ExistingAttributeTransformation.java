@@ -38,16 +38,21 @@ public class ExistingAttributeTransformation implements LogTransformation {
                 var uniqueValues = sourceEventLog.getUniqueStringValues(sourceColumnName);
                 if (uniqueValues.size() <= 10) {
                     for (String uniqueStringValue : uniqueValues) {
-                        targetSchema.addColumnDefinition(sourceColumnName + " = '" + uniqueStringValue + "' present?", Boolean.class);
+                        targetSchema.addColumnDefinition(sourceColumnName + " = '" + uniqueStringValue + "' (times present)", Integer.class);
                     }
                     resultCaseLog.putAll(transformStringColumn(sourceColumn.as(String.class), sourceColumnName, uniqueValues));
                 } else {
                     resultCaseLog.putAll(transformColumn(sourceColumn, sourceColumnName));
                 }
             } else if (Boolean.class.equals(sourceColumn.getType())) {
-                targetSchema.addColumnDefinition(sourceColumnName + " = 'true' present?", Boolean.class);
-                targetSchema.addColumnDefinition(sourceColumnName + " = 'false' present?", Boolean.class);
+                targetSchema.addColumnDefinition(sourceColumnName + " = 'true' (times present)", Integer.class);
+                targetSchema.addColumnDefinition(sourceColumnName + " = 'false' (times present)", Integer.class);
                 resultCaseLog.putAll(transformBooleanColumn(sourceColumn.as(Boolean.class), sourceColumnName));
+            } else if (Date.class.equals(sourceColumn.getType())) {
+                targetSchema.addColumnDefinition(sourceColumnName + " (max)", Date.class);
+                targetSchema.addColumnDefinition(sourceColumnName + " (min)", Date.class);
+                targetSchema.addColumnDefinition(sourceColumnName + " (avg)", Double.class);
+                resultCaseLog.putAll(transformIntegerColumn(sourceColumn.as(Integer.class), sourceColumnName));
             } else if (Integer.class.equals(sourceColumn.getType())) {
                 targetSchema.addColumnDefinition(sourceColumnName + " (max)", Integer.class);
                 targetSchema.addColumnDefinition(sourceColumnName + " (min)", Integer.class);
@@ -128,21 +133,21 @@ public class ExistingAttributeTransformation implements LogTransformation {
         var endColumn = new CaseColumn<>(String.class);
         var uniqueColumn = new CaseColumn<>(Integer.class);
 
-        Map<String, CaseColumn<Boolean>> valueColumns = new LinkedHashMap<>();
-        uniqueValues.forEach(uniqueValue -> valueColumns.put(uniqueValue, new CaseColumn<>(Boolean.class)));
+        Map<String, CaseColumn<Integer>> valueColumns = new LinkedHashMap<>();
+        uniqueValues.forEach(uniqueValue -> valueColumns.put(uniqueValue, new CaseColumn<>(Integer.class)));
 
 
         for (List<String> traceColumn : logColumn.getTraces()) {
             startColumn.addValue(traceColumn.get(0));
             endColumn.addValue(traceColumn.get(traceColumn.size() - 1));
             uniqueColumn.addValue(new HashSet<>(traceColumn).size());
-            uniqueValues.forEach(uniqueValue -> valueColumns.get(uniqueValue).addValue(traceColumn.contains(uniqueValue)));
+            uniqueValues.forEach(uniqueValue -> valueColumns.get(uniqueValue).addValue((int) traceColumn.stream().filter(uniqueValue::equals).count()));
         }
 
         result.put(sourceColumnName + " (at start)", startColumn);
         result.put(sourceColumnName + " (at end)", endColumn);
         result.put(sourceColumnName + " (#unique values)", uniqueColumn);
-        valueColumns.forEach((value, caseColumn) -> result.put(sourceColumnName + " = '" + value + "' present?", caseColumn));
+        valueColumns.forEach((value, caseColumn) -> result.put(sourceColumnName + " = '" + value + "' (times present)", caseColumn));
         return result;
     }
 
@@ -152,22 +157,22 @@ public class ExistingAttributeTransformation implements LogTransformation {
         var endColumn = new CaseColumn<>(Boolean.class);
         var uniqueColumn = new CaseColumn<>(Integer.class);
 
-        var containsTrueColumn = new CaseColumn<>(Boolean.class);
-        var containsFalseColumn = new CaseColumn<>(Boolean.class);
+        var containsTrueColumn = new CaseColumn<>(Integer.class);
+        var containsFalseColumn = new CaseColumn<>(Integer.class);
 
         for (List<Boolean> traceColumn : logColumn.getTraces()) {
             startColumn.addValue(traceColumn.get(0));
             endColumn.addValue(traceColumn.get(traceColumn.size() - 1));
             uniqueColumn.addValue(new HashSet<>(traceColumn).size());
-            containsTrueColumn.addValue(traceColumn.contains(true));
-            containsFalseColumn.addValue(traceColumn.contains(false));
+            containsTrueColumn.addValue((int) traceColumn.stream().filter(b -> b).count());
+            containsFalseColumn.addValue((int) traceColumn.stream().filter(b -> !b).count());
         }
 
         result.put(sourceColumnName + " (at start)", startColumn);
         result.put(sourceColumnName + " (at end)", endColumn);
         result.put(sourceColumnName + " (#unique values)", uniqueColumn);
-        result.put(sourceColumnName + " = 'true' present?", containsTrueColumn);
-        result.put(sourceColumnName + " = 'false' present?", containsFalseColumn);
+        result.put(sourceColumnName + " = 'true' (times present)", containsTrueColumn);
+        result.put(sourceColumnName + " = 'false' (times present)", containsFalseColumn);
         return result;
     }
 

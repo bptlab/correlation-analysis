@@ -27,6 +27,7 @@ public class ResourceHandoversTransformation implements LogTransformation {
                 for (List<String> trace : resourceColumn.getTraces()) {
                     if (!(trace.contains(resource1) && trace.contains(resource2))) {
                         handoverCountColumn.addValue(null);
+                        continue;
                     }
                     var count = 0;
                     for (int i = 0; i < trace.size() - 1; i++) {

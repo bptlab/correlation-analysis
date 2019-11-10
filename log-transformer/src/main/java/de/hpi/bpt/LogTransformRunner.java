@@ -9,7 +9,6 @@ import de.hpi.bpt.logtransform.transformation.LogTransformer;
 import de.hpi.bpt.logtransform.transformation.ModelFeatureGenerator;
 import de.hpi.bpt.logtransform.transformation.multi.controlflow.NumberOfActivityExecutionsTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.data.ExistingAttributeTransformation;
-import de.hpi.bpt.logtransform.transformation.multi.resource.ResourceHandoversTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.resource.WasResourceInvolvedTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.ActivityStartEndTimeTransformation;
 import de.hpi.bpt.logtransform.transformation.multi.time.ActivityTimeTransformation;
@@ -35,7 +34,7 @@ public class LogTransformRunner {
 
     private static final TransformationType TRANSFORMATION_TYPE = TransformationType.WITH_MODEL;
 
-    private static final Project PROJECT = Project.SIGNAVIO_SALESFORCE_OPPS;
+    private static final Project PROJECT = Project.BPIC2019;
 
     public static void main(String[] args) {
 
@@ -100,7 +99,7 @@ public class LogTransformRunner {
 
             if (TRANSFORMATION_TYPE.equals(TransformationType.WITHOUT_MODEL_ALL_ACTIVITIES)) {
                 transformer
-                        .with(new ResourceHandoversTransformation())
+//                        .with(new ResourceHandoversTransformation()) TODO out of heap space - too many combinations
                         .with(new WasResourceInvolvedTransformation());
             }
         }

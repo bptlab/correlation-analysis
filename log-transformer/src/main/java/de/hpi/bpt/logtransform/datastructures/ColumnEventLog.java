@@ -49,4 +49,8 @@ public class ColumnEventLog extends LinkedHashMap<String, LogColumn<?>> {
     public List<String> getUniqueResourceNames() {
         return getResourceColumn().getTraces().stream().flatMap(List::stream).distinct().sorted(String::compareToIgnoreCase).collect(toList());
     }
+
+    public List<String> getUniqueStringValues(String name) {
+        return getTyped(name, String.class).getTraces().stream().flatMap(List::stream).distinct().sorted(String::compareToIgnoreCase).collect(toList());
+    }
 }

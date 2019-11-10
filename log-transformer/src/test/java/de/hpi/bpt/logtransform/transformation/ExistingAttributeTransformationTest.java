@@ -42,8 +42,8 @@ class ExistingAttributeTransformationTest {
         assertThat(afterTransformation.getSchema()).containsOnlyKeys("caseId",
                 "integerTestValue (at start)", "integerTestValue (at end)", "integerTestValue (#unique values)", "integerTestValue (max)", "integerTestValue (min)", "integerTestValue (avg)",
                 "doubleTestValue (at start)", "doubleTestValue (at end)", "doubleTestValue (#unique values)", "doubleTestValue (max)", "doubleTestValue (min)", "doubleTestValue (avg)",
-                "stringTestValue (at start)", "stringTestValue (at end)", "stringTestValue (#unique values)", "stringTestValue = 'EndValue' present?", "stringTestValue = 'MidValue' present?", "stringTestValue = 'StartValue' present?",
-                "booleanTestValue (at start)", "booleanTestValue (at end)", "booleanTestValue (#unique values)", "booleanTestValue = 'true' present?", "booleanTestValue = 'false' present?"
+                "stringTestValue (at start)", "stringTestValue (at end)", "stringTestValue (#unique values)", "stringTestValue = 'EndValue' (times present)", "stringTestValue = 'MidValue' (times present)", "stringTestValue = 'StartValue' (times present)",
+                "booleanTestValue (at start)", "booleanTestValue (at end)", "booleanTestValue (#unique values)", "booleanTestValue = 'true' (times present)", "booleanTestValue = 'false' (times present)"
 
         );
 
@@ -54,20 +54,20 @@ class ExistingAttributeTransformationTest {
         assertThat(row1).containsExactly("1",
                 1, 9, 3, 20, 1, 10D,
                 1.3, 9.3, 3, 20.3, 1.3, 10.3D,
-                "StartValue", "EndValue", 3, true, true, true,
-                false, true, 2, true, true
+                "StartValue", "EndValue", 3, 1, 1, 1,
+                false, true, 2, 1, 2
         );
         assertThat(row2).containsExactly("2",
                 1, 1, 1, 1, 1, 1D,
                 1.5, 1.5, 1, 1.5, 1.5, 1.5,
-                "StartValue", "StartValue", 1, false, false, true,
-                true, true, 1, true, false
+                "StartValue", "StartValue", 1, 0, 0, 1,
+                true, true, 1, 1, 0
         );
         assertThat(row3).containsExactly("3",
                 1, 1, 1, 1, 1, 1D,
                 1.5, 1.5, 1, 1.5, 1.5, 1.5,
-                "EndValue", "EndValue", 1, true, false, false,
-                false, false, 1, false, true
+                "EndValue", "EndValue", 1, 1, 0, 0,
+                false, false, 1, 0, 1
         );
     }
 }

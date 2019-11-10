@@ -1,6 +1,5 @@
 package de.hpi.bpt.logtransform.datastructures;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,11 +12,6 @@ public class CaseColumn<T> {
     public CaseColumn(Class<T> type) {
         this.type = type;
         values = new ArrayList<>();
-    }
-
-    public CaseColumn(Class<T> type, int numCases) {
-        this.type = type;
-        values = new ArrayList<>(Arrays.asList((T[]) Array.newInstance(type, numCases)));
     }
 
     public CaseColumn(Class<T> type, T[] values) {
@@ -46,13 +40,6 @@ public class CaseColumn<T> {
             throw new RuntimeException("Unexpected value '" + value + "' for type '" + type.getSimpleName() + "'!");
         }
         values.add(type.cast(value));
-    }
-
-    public void setValue(int i, Object value) {
-        if (value != null && !type.isInstance(value)) {
-            throw new RuntimeException("Unexpected value '" + value + "' for type '" + type.getSimpleName() + "'!");
-        }
-        values.set(i, type.cast(value));
     }
 
     public int indexOf(T value) {

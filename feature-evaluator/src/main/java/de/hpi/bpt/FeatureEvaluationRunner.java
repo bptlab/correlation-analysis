@@ -7,7 +7,6 @@ import de.hpi.bpt.evaluation.decisiontree.TraversableJ48;
 import de.hpi.bpt.util.DataPreprocessor;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
-import weka.classifiers.trees.J48;
 import weka.core.Drawable;
 import weka.core.Instances;
 
@@ -29,7 +28,7 @@ class FeatureEvaluationRunner {
     private String projectName;
     private String targetAttribute;
     private Optional<String> targetValue;
-    private List<J48> stumps = new ArrayList<>();
+    private List<TraversableJ48> stumps = new ArrayList<>();
     private Set<String> ignoredAttributes = new HashSet<>();
     private Set<String> suspectedDependencies = new HashSet<>();
     private String directDependencies;

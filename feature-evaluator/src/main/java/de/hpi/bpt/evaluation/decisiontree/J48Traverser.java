@@ -1,14 +1,14 @@
 package de.hpi.bpt.evaluation.decisiontree;
 
 import org.apache.commons.lang3.tuple.Pair;
-import weka.classifiers.trees.j48.ClassifierSplitModel;
-import weka.classifiers.trees.j48.ClassifierTree;
-import weka.classifiers.trees.j48.Distribution;
+import weka.classifiers.trees.j48.*;
 import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.Utils;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
+import java.util.Date;
 
 class J48Traverser {
 
@@ -28,7 +28,7 @@ class J48Traverser {
             var children = root.getSons();
             for (int childIndex = 0; childIndex < children.length; childIndex++) {
                 nodeId++;
-                text.append("N").append(0).append("->").append("N").append(nodeId).append(" [label=\"").append(Utils.backQuoteChars(localModel.rightSide(childIndex, trainingData).trim())).append("\"]\n");
+                createEdgeLabel(text, localModel, 0, nodeId, childIndex, trainingData);
                 if (children[childIndex].isLeaf()) {
                     createLeafLabel(text, nodeId, totalNumInstances, children[childIndex], trainingData, childIndex, localModel);
                 } else {
@@ -48,7 +48,7 @@ class J48Traverser {
                 var children = node.getSons();
                 for (int childIndex = 0; childIndex < children.length; childIndex++) {
                     nodeId++;
-                    text.append("N").append(id).append("->").append("N").append(nodeId).append(" [label=\"").append(Utils.backQuoteChars(localModel.rightSide(childIndex, trainingData).trim())).append("\"];\n");
+                    createEdgeLabel(text, localModel, id, nodeId, childIndex, trainingData);
                     if (children[childIndex].isLeaf()) {
                         createLeafLabel(text, nodeId, totalNumInstances, children[childIndex], trainingData, childIndex, localModel);
                     } else {
@@ -86,6 +86,29 @@ class J48Traverser {
                 .append("|").append(Utils.backQuoteChars(createSplitNodeLabel(child, trainingData.classAttribute())))
                 .append("}\" ");
         text.append("];\n");
+    }
+
+    private void createEdgeLabel(StringBuffer text, ClassifierSplitModel localModel, int sourceId, int targetId, int childIndex, Instances trainingData) {
+        var attributeValue = localModel.rightSide(childIndex, trainingData).trim();
+        Attribute attribute;
+        if (localModel instanceof BinC45Split) {
+            attribute = trainingData.attribute(((BinC45Split) localModel).attIndex());
+        } else {
+            attribute = trainingData.attribute(((C45Split) localModel).attIndex());
+        }
+
+        if (attribute.isDate()) {
+            var split = attributeValue.split(" ");
+            var operand = split[0];
+            var timestamp = split[1];
+            String dateFormat = "yyyy-MM-dd";
+            SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+            attributeValue = operand + " " + sdf.format(new Date(Long.parseLong(timestamp)));
+        }
+        text.append("N").append(sourceId).append("->").append("N").append(targetId)
+                .append(" [label=\"")
+                .append(Utils.backQuoteChars(attributeValue))
+                .append("\"];\n");
     }
 
     private String createSplitNodeLabel(ClassifierTree node, Attribute classAttribute) {

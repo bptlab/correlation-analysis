@@ -1,7 +1,6 @@
 package de.hpi.bpt.evaluation.decisiontree;
 
 import org.apache.commons.lang3.tuple.Pair;
-import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.BinC45Split;
 import weka.classifiers.trees.j48.ClassifierTree;
 import weka.core.Attribute;
@@ -84,9 +83,9 @@ public class DecisionTreeClassifier {
         return attIndicesToRemove;
     }
 
-    private J48 buildStumpForAttribute(Instances data, Attribute attribute) {
+    private TraversableJ48 buildStumpForAttribute(Instances data, Attribute attribute) {
         try {
-            var classifier = new J48();
+            var classifier = new TraversableJ48();
             classifier.setMinNumObj(Math.min(100, data.size() / 100));
 
             if (attribute.numValues() > 5) {
@@ -106,9 +105,9 @@ public class DecisionTreeClassifier {
         }
     }
 
-    public List<J48> buildStumpsForAttributes(Instances data, Set<String> suspectedDependencies) {
+    public List<TraversableJ48> buildStumpsForAttributes(Instances data, Set<String> suspectedDependencies) {
         try {
-            var result = new ArrayList<J48>();
+            var result = new ArrayList<TraversableJ48>();
             for (String attributeName : suspectedDependencies) {
                 if (data.attribute(attributeName) == null) {
                     continue;

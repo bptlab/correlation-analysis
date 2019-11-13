@@ -1,8 +1,10 @@
 package de.hpi.bpt.evaluation.decisiontree;
 
 import org.apache.commons.lang3.tuple.Pair;
+import weka.classifiers.trees.j48.ClassifierSplitModel;
 import weka.classifiers.trees.j48.ClassifierTree;
 import weka.classifiers.trees.j48.Distribution;
+import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.Utils;
 
@@ -14,27 +16,24 @@ class J48Traverser {
         var stack = new ArrayDeque<Pair<ClassifierTree, Integer>>();
 
         StringBuffer text = new StringBuffer();
-        text.append("digraph J48Tree {\n").append("node [shape=Mrecord];");
+        text.append("digraph J48Tree {\n").append("node [shape=record, margin=\"0.25,0.1\"];\n");
 
-        var id = 0;
+        var nodeId = 0;
+        var totalNumInstances = numInstancesIn(root);
 
         graphRoot(root, text);
         if (!root.isLeaf()) {
             var localModel = root.getLocalModel();
             var trainingData = root.getTrainingData();
             var children = root.getSons();
-            for (int i1 = 0; i1 < children.length; i1++) {
-                id++;
-                text.append("N").append(0).append("->").append("N").append(id).append(" [label=\"").append(Utils.backQuoteChars(localModel.rightSide(i1, trainingData).trim())).append("\"]\n");
-                if (children[i1].isLeaf()) {
-                    text.append("N").append(id).append(" [label=\"").append(Utils.backQuoteChars(localModel.dumpLabel(i1, trainingData))).append("\" ").append("shape=box style=filled ");
-                    text.append("]\n");
+            for (int childIndex = 0; childIndex < children.length; childIndex++) {
+                nodeId++;
+                text.append("N").append(0).append("->").append("N").append(nodeId).append(" [label=\"").append(Utils.backQuoteChars(localModel.rightSide(childIndex, trainingData).trim())).append("\"]\n");
+                if (children[childIndex].isLeaf()) {
+                    createLeafLabel(text, nodeId, totalNumInstances, children[childIndex], trainingData, childIndex, localModel);
                 } else {
-                    text.append("N").append(id).append(" [label=\"{").append(Utils.backQuoteChars(children[i1].getLocalModel().leftSide(trainingData)))
-                            .append("|").append(Utils.backQuoteChars(createSplitNodeLabel(children[i1], trainingData)))
-                            .append("}\" ");
-                    text.append("]\n");
-                    stack.addFirst(Pair.of(children[i1], id));
+                    createNodeLabel(text, nodeId, trainingData, children[childIndex], totalNumInstances);
+                    stack.addFirst(Pair.of(children[childIndex], nodeId));
                 }
             }
         }
@@ -42,23 +41,19 @@ class J48Traverser {
         while (!stack.isEmpty()) {
             var nodeAndId = stack.removeFirst();
             var node = nodeAndId.getLeft();
-            var nodeId = nodeAndId.getRight();
+            var id = nodeAndId.getRight();
             if (!node.isLeaf()) {
                 var localModel = node.getLocalModel();
                 var trainingData = node.getTrainingData();
                 var children = node.getSons();
-                for (int i = 0; i < children.length; i++) {
+                for (int childIndex = 0; childIndex < children.length; childIndex++) {
                     id++;
-                    text.append("N").append(nodeId).append("->").append("N").append(id).append(" [label=\"").append(Utils.backQuoteChars(localModel.rightSide(i, trainingData).trim())).append("\"]\n");
-                    if (children[i].isLeaf()) {
-                        text.append("N").append(id).append(" [label=\"").append(Utils.backQuoteChars(localModel.dumpLabel(i, trainingData))).append("\" ").append("shape=box style=filled ");
-                        text.append("]\n");
+                    text.append("N").append(nodeId).append("->").append("N").append(id).append(" [label=\"").append(Utils.backQuoteChars(localModel.rightSide(childIndex, trainingData).trim())).append("\"];\n");
+                    if (children[childIndex].isLeaf()) {
+                        createLeafLabel(text, id, totalNumInstances, children[childIndex], trainingData, childIndex, localModel);
                     } else {
-                        text.append("N").append(id).append(" [label=\"{").append(Utils.backQuoteChars(children[i].getLocalModel().leftSide(trainingData)))
-                                .append("|").append(Utils.backQuoteChars(createSplitNodeLabel(children[i], trainingData)))
-                                .append("}\" ");
-                        text.append("]\n");
-                        stack.addFirst(Pair.of(children[i], id));
+                        createNodeLabel(text, id, trainingData, children[childIndex], totalNumInstances);
+                        stack.addFirst(Pair.of(children[childIndex], id));
                     }
                 }
             }
@@ -71,17 +66,29 @@ class J48Traverser {
     private void graphRoot(ClassifierTree root, StringBuffer text) throws Exception {
         var trainingData = root.getTrainingData();
         if (root.isLeaf()) {
-            text.append("N").append(0)
-                    .append(" [label=\"").append(Utils.backQuoteChars(root.getLocalModel().dumpLabel(0, trainingData))).append("\" ").append("shape=box style=filled ");
-            text.append("]\n");
+            createLeafLabel(text, 0, numInstancesIn(root), root, trainingData, 0, root.getLocalModel());
         } else {
-            text.append("N").append(0).append(" [label=\"{").append(Utils.backQuoteChars(root.getLocalModel().leftSide(trainingData))).append("|")
-                    .append(Utils.backQuoteChars(createSplitNodeLabel(root, trainingData))).append("}\" ");
-            text.append("]\n");
+            createNodeLabel(text, 0, trainingData, root, numInstancesIn(root));
         }
     }
 
-    private String createSplitNodeLabel(ClassifierTree node, Instances data) {
+    private void createLeafLabel(StringBuffer text, int nodeId, double totalNumInstances, ClassifierTree leaf, Instances trainingData, int childIndex, ClassifierSplitModel parentLocalModel) throws Exception {
+        var numInstances = numInstancesIn(leaf);
+        text.append("N").append(nodeId).append(" [shape=record, style=filled, label=\"{").append(Utils.backQuoteChars(parentLocalModel.dumpLabel(childIndex, trainingData)));
+        text.append("|").append(String.format("%.2f%%", (double) numInstances / totalNumInstances * 100));
+        text.append("}\" ").append("];\n");
+    }
+
+    private void createNodeLabel(StringBuffer text, int id, Instances trainingData, ClassifierTree child, int totalNumInstances) {
+        var numInstances = numInstancesIn(child);
+        text.append("N").append(id).append(" [label=\"{").append(Utils.backQuoteChars(child.getLocalModel().leftSide(trainingData)))
+                .append("|").append(String.format("%.2f%%", (double) numInstances / (double) totalNumInstances * 100))
+                .append("|").append(Utils.backQuoteChars(createSplitNodeLabel(child, trainingData.classAttribute())))
+                .append("}\" ");
+        text.append("];\n");
+    }
+
+    private String createSplitNodeLabel(ClassifierTree node, Attribute classAttribute) {
 
         StringBuffer text;
 
@@ -91,7 +98,7 @@ class J48Traverser {
         text.append("{");
         for (int i = 0; i < numClasses; i++) {
             Distribution distribution = node.getLocalModel().distribution();
-            text.append(data.classAttribute().value(i));
+            text.append(classAttribute.value(i));
             text.append(": " + Utils.roundDouble(distribution.perClass(i), 2));
             if (i < numClasses - 1) {
                 text.append("|");
@@ -101,5 +108,15 @@ class J48Traverser {
         }
 
         return text.toString();
+    }
+
+    private int numInstancesIn(ClassifierTree node) {
+        // Is there a better way to retrieve this information?
+        var distribution = node.getLocalModel().distribution();
+        var numInstances = 0;
+        for (int i = 0; i < distribution.numBags(); i++) {
+            numInstances += distribution.perBag(i);
+        }
+        return numInstances;
     }
 }

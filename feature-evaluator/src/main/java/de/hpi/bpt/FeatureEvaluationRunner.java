@@ -7,6 +7,7 @@ import de.hpi.bpt.evaluation.decisiontree.TraversableJ48;
 import de.hpi.bpt.util.DataPreprocessor;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
+import weka.classifiers.trees.J48;
 import weka.core.Drawable;
 import weka.core.Instances;
 
@@ -28,7 +29,7 @@ class FeatureEvaluationRunner {
     private String projectName;
     private String targetAttribute;
     private Optional<String> targetValue;
-    private String stumps;
+    private List<J48> stumps = new ArrayList<>();
     private Set<String> ignoredAttributes = new HashSet<>();
     private Set<String> suspectedDependencies = new HashSet<>();
     private String directDependencies;
@@ -48,7 +49,7 @@ class FeatureEvaluationRunner {
     }
 
 
-    public FeatureEvaluationRunner targetValue(Optional<String> targetValue) {
+    FeatureEvaluationRunner targetValue(Optional<String> targetValue) {
         this.targetValue = targetValue;
         return this;
     }
@@ -61,6 +62,7 @@ class FeatureEvaluationRunner {
     void reset() {
         ignoredAttributes.clear();
         suspectedDependencies.clear();
+        stumps.clear();
     }
 
     Map<String, Object> runFirstEvaluation(Instances data) {
@@ -121,8 +123,8 @@ class FeatureEvaluationRunner {
         processedData = dataPreprocessor.remove(treeAndRemovedAttributes.getRight(), processedData);
 
         rules = tree.toString();
-        if (stumps == null) {
-            stumps = runTimed(() -> treeClassifier.buildStumpsForAttributes(dataWithSelectedFeatures, suspectedDependencies), "Checking suspected dependencies");
+        if (stumps.isEmpty()) {
+            stumps.addAll(runTimed(() -> treeClassifier.buildStumpsForAttributes(dataWithSelectedFeatures, suspectedDependencies), "Checking suspected dependencies"));
         }
 
         var modelValidation = runTimed(() -> validator.validate(tree, dataWithSelectedFeatures), "Cross-validating tree");
@@ -133,7 +135,7 @@ class FeatureEvaluationRunner {
     }
 
 
-    private Map<String, Object> getTemplateParameters() throws Exception {
+    private Map<String, Object> getTemplateParameters() {
         var result = new HashMap<String, Object>();
         result.put("projectName", projectName);
         result.put("targetAttribute", targetAttribute);
@@ -143,7 +145,7 @@ class FeatureEvaluationRunner {
         }
         if (!suspectedDependencies.isEmpty()) {
             result.put("suspectedDependencies", suspectedDependencies);
-            result.put("assumptionStumps", stumps);
+            result.put("assumptionStumps", stumps.stream().map(this::getTreeImageTag).collect(joining("\n\n")));
         }
         if (!directDependencies.isEmpty()) {
             result.put("directDependencies", directDependencies);
@@ -159,10 +161,14 @@ class FeatureEvaluationRunner {
         return result;
     }
 
-    private String getTreeImageTag(Drawable tree) throws Exception {
-        var graph = tree.graph();
-        var treeBase64 = Base64.getEncoder().encodeToString(Graphviz.fromString(graph).render(Format.SVG).toString().getBytes(StandardCharsets.UTF_8));
-        return "<img src=\"data:image/svg+xml;utf8;base64, " + treeBase64 + "\"/>";
+    private String getTreeImageTag(Drawable tree) {
+        try {
+            var graph = tree.graph();
+            var treeBase64 = Base64.getEncoder().encodeToString(Graphviz.fromString(graph).render(Format.SVG).toString().getBytes(StandardCharsets.UTF_8));
+            return "<img src=\"data:image/svg+xml;utf8;base64, " + treeBase64 + "\"/>";
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     private List<String> getAttributesSorted() {

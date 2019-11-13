@@ -1,22 +1,15 @@
 package de.hpi.bpt.evaluation.decisiontree;
 
-import guru.nidi.graphviz.engine.Format;
-import guru.nidi.graphviz.engine.Graphviz;
 import org.apache.commons.lang3.tuple.Pair;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.j48.BinC45Split;
 import weka.classifiers.trees.j48.ClassifierTree;
 import weka.core.Attribute;
-import weka.core.Drawable;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Remove;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayDeque;
-import java.util.Base64;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class DecisionTreeClassifier {
 
@@ -113,9 +106,9 @@ public class DecisionTreeClassifier {
         }
     }
 
-    public String buildStumpsForAttributes(Instances data, Set<String> suspectedDependencies) {
+    public List<J48> buildStumpsForAttributes(Instances data, Set<String> suspectedDependencies) {
         try {
-            var result = "";
+            var result = new ArrayList<J48>();
             for (String attributeName : suspectedDependencies) {
                 if (data.attribute(attributeName) == null) {
                     continue;
@@ -126,17 +119,11 @@ public class DecisionTreeClassifier {
                 remove.setInputFormat(data);
                 var removed = Filter.useFilter(data, remove);
                 var stump = buildStumpForAttribute(removed, removed.attribute(attributeName));
-
-                result += getTreeImageTag(stump) + "\n";
+                result.add(stump);
             }
             return result;
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-    }
-
-    private String getTreeImageTag(Drawable tree) throws Exception {
-        var treeBase64 = Base64.getEncoder().encodeToString(Graphviz.fromString(tree.graph()).render(Format.SVG).toString().getBytes(StandardCharsets.UTF_8));
-        return "<img src=\"data:image/svg+xml;utf8;base64, " + treeBase64 + "\"/>";
     }
 }

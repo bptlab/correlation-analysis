@@ -73,9 +73,9 @@ class FeatureEvaluationRunner {
         }
     }
 
-    Map<String, Object> runSubsequentEvaluation(List<String> newlyIgnoredAttributes) {
+    Map<String, Object> runSubsequentEvaluation(List<String> newlyIgnoredAttributes, String newlyIgnoredAttributesContaining) {
         try {
-            return doRunSubsequentEvaluation(newlyIgnoredAttributes);
+            return doRunSubsequentEvaluation(newlyIgnoredAttributes, newlyIgnoredAttributesContaining);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -98,15 +98,35 @@ class FeatureEvaluationRunner {
         var attributeSelection = runTimed(() -> featureEvaluator.selectAttributes(preprocessedData), "Selecting attributes");
         directDependencies = featureEvaluator.findDirectDependencies(data, attributeSelection);
         highlyCorrelatedAttributes = featureEvaluator.findHighlyCorrelatedAttributes(data, attributeSelection);
-        var reducedData = featureEvaluator.retainTop50Attributes(preprocessedData, attributeSelection, suspectedDependencies);
+        var reducedData = featureEvaluator.retainTopAttributes(preprocessedData, attributeSelection, suspectedDependencies);
         this.processedData = dataPreprocessor.replaceMissingStringValuesWithConstant(reducedData);
 
         return runClassification();
     }
 
-    private Map<String, Object> doRunSubsequentEvaluation(List<String> newlyIgnoredAttributes) throws Exception {
-        ignoredAttributes.addAll(newlyIgnoredAttributes);
-        processedData = dataPreprocessor.remove(newlyIgnoredAttributes, processedData);
+    private Map<String, Object> doRunSubsequentEvaluation(List<String> newlyIgnoredAttributes, String newlyIgnoredAttributesContaining) throws Exception {
+        var toRemove = new HashSet<String>();
+        toRemove.addAll(newlyIgnoredAttributes);
+
+        if (!newlyIgnoredAttributesContaining.isBlank()) {
+            var alsoToIgnore = newlyIgnoredAttributesContaining.split(",");
+            var attributeNamesAlsoToIgnore = IntStream.range(0, processedData.numAttributes())
+                    .mapToObj(i -> processedData.attribute(i).name())
+                    .filter(name -> {
+                        for (String s : alsoToIgnore) {
+                            if (name.contains(s)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    })
+                    .collect(Collectors.toList());
+
+            toRemove.addAll(attributeNamesAlsoToIgnore);
+        }
+
+        processedData = dataPreprocessor.remove(toRemove, processedData);
+        ignoredAttributes.addAll(toRemove);
 
         return runClassification();
     }

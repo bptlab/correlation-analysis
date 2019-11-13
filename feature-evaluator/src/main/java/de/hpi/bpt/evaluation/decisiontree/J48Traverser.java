@@ -47,13 +47,13 @@ class J48Traverser {
                 var trainingData = node.getTrainingData();
                 var children = node.getSons();
                 for (int childIndex = 0; childIndex < children.length; childIndex++) {
-                    id++;
-                    text.append("N").append(nodeId).append("->").append("N").append(id).append(" [label=\"").append(Utils.backQuoteChars(localModel.rightSide(childIndex, trainingData).trim())).append("\"];\n");
+                    nodeId++;
+                    text.append("N").append(id).append("->").append("N").append(nodeId).append(" [label=\"").append(Utils.backQuoteChars(localModel.rightSide(childIndex, trainingData).trim())).append("\"];\n");
                     if (children[childIndex].isLeaf()) {
-                        createLeafLabel(text, id, totalNumInstances, children[childIndex], trainingData, childIndex, localModel);
+                        createLeafLabel(text, nodeId, totalNumInstances, children[childIndex], trainingData, childIndex, localModel);
                     } else {
-                        createNodeLabel(text, id, trainingData, children[childIndex], totalNumInstances);
-                        stack.addFirst(Pair.of(children[childIndex], id));
+                        createNodeLabel(text, nodeId, trainingData, children[childIndex], totalNumInstances);
+                        stack.addFirst(Pair.of(children[childIndex], nodeId));
                     }
                 }
             }

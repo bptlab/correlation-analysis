@@ -6,7 +6,7 @@
         <form action="${contextPath}/ignore" method="post" enctype="multipart/form-data">
 
             <div class="field">
-                <label class="label">Ignore Attributes</label>
+                <label class="label">Ignore attributes</label>
                 <div class="box" style="max-height:15em; overflow:auto">
                     <div class="control">
                         <#list attributes as attribute>
@@ -18,6 +18,11 @@
                         </#list>
                     </div>
                 </div>
+            </div>
+
+            <div class="field">
+                <label class="label">Ignore attributes containing...</label>
+                <input type="text" name="ignoredAttributesContaining" placeholder="Won,Lost,Stage 7,...">
             </div>
 
             <div class="field">

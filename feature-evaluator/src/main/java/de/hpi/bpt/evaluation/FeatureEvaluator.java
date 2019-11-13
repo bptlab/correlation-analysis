@@ -91,15 +91,15 @@ public class FeatureEvaluator {
         }
     }
 
-    public Instances retainTop50Attributes(Instances data, AttributeSelection attributeSelection, Set<String> suspectedDependencies) {
+    public Instances retainTopAttributes(Instances data, AttributeSelection attributeSelection, Set<String> suspectedDependencies) {
         try {
             var rankedAttributes = attributeSelection.rankedAttributes();
 
             var attributesToKeep = IntStream.concat(
                     IntStream.concat(
                             suspectedDependencies.stream().mapToInt(attName -> data.attribute(attName).index()),
-                            IntStream.range(0, 50)
-                                    .filter(i -> rankedAttributes[i][1] > 0.01 && rankedAttributes[i][1] < 1.0)
+                            IntStream.range(0, rankedAttributes.length)
+                                    .filter(i -> rankedAttributes[i][1] > 0.05 && rankedAttributes[i][1] < 1.0)
                                     .map(i -> (int) rankedAttributes[i][0])),
                     IntStream.of(data.classIndex()))
                     .distinct()

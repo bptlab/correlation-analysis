@@ -47,9 +47,9 @@ public class FeatureEvaluationApplication extends Application {
 
         POST("/ignore", routeContext ->
         {
-            var newIgnoredAttributesParam = routeContext.getParameter("ignoredAttributes").getValues();
-            var newIgnoredAttributes = Arrays.asList(newIgnoredAttributesParam);
-            var results = runner.runSubsequentEvaluation(newIgnoredAttributes);
+            var newIgnoredAttributes = Arrays.asList(routeContext.getParameter("ignoredAttributes").getValues());
+            var newIgnoredAttributesContaining = routeContext.getParameter("ignoredAttributesContaining").toString();
+            var results = runner.runSubsequentEvaluation(newIgnoredAttributes, newIgnoredAttributesContaining);
             routeContext.render("result-page", results);
         });
     }

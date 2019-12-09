@@ -52,7 +52,7 @@ public class ExistingAttributeTransformation implements LogTransformation {
                 targetSchema.addColumnDefinition(sourceColumnName + " (max)", Date.class);
                 targetSchema.addColumnDefinition(sourceColumnName + " (min)", Date.class);
                 targetSchema.addColumnDefinition(sourceColumnName + " (avg)", Double.class);
-                resultCaseLog.putAll(transformIntegerColumn(sourceColumn.as(Integer.class), sourceColumnName));
+                resultCaseLog.putAll(transformDateColumn(sourceColumn.as(Date.class), sourceColumnName));
             } else if (Integer.class.equals(sourceColumn.getType())) {
                 targetSchema.addColumnDefinition(sourceColumnName + " (max)", Integer.class);
                 targetSchema.addColumnDefinition(sourceColumnName + " (min)", Integer.class);
@@ -95,6 +95,32 @@ public class ExistingAttributeTransformation implements LogTransformation {
         result.put(sourceColumnName + " (max)", maxColumn);
         result.put(sourceColumnName + " (min)", minColumn);
         result.put(sourceColumnName + " (avg)", avgColumn);
+        return result;
+    }
+
+    private Map<String, CaseColumn<?>> transformDateColumn(LogColumn<Date> logColumn, String sourceColumnName) {
+        var result = new LinkedHashMap<String, CaseColumn<?>>();
+        var startColumn = new CaseColumn<>(Date.class);
+        var endColumn = new CaseColumn<>(Date.class);
+        var uniqueColumn = new CaseColumn<>(Date.class);
+        var maxColumn = new CaseColumn<>(Date.class);
+        var minColumn = new CaseColumn<>(Date.class);
+
+        for (var traceColumn : logColumn.getTraces()) {
+            var firstValue = traceColumn.get(0);
+            startColumn.addValue(firstValue);
+            endColumn.addValue(traceColumn.get(traceColumn.size() - 1));
+            uniqueColumn.addValue(new HashSet<>(traceColumn).size());
+            var stats = traceColumn.stream().filter(Objects::nonNull).mapToLong(e -> e.toInstant().toEpochMilli()).summaryStatistics();
+            maxColumn.addValue(new Date(stats.getMax()));
+            minColumn.addValue(new Date(stats.getMin()));
+        }
+
+        result.put(sourceColumnName + " (at start)", startColumn);
+        result.put(sourceColumnName + " (at end)", endColumn);
+        result.put(sourceColumnName + " (#distinct values)", uniqueColumn);
+        result.put(sourceColumnName + " (max)", maxColumn);
+        result.put(sourceColumnName + " (min)", minColumn);
         return result;
     }
 

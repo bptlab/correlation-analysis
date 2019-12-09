@@ -85,11 +85,7 @@ class FeatureEvaluationRunner {
         Instances preprocessedData;
 
         if (targetValue.isPresent()) {
-            var targetValueIndex = data.classAttribute().indexOfValue(targetValue.get());
-            if (targetValueIndex == -1) {
-                throw new RuntimeException("Invalid target value selected!");
-            }
-            preprocessedData = runTimed(() -> dataPreprocessor.simplePreprocessAndMerge(data, targetValueIndex), "Preparing data");
+            preprocessedData = runTimed(() -> dataPreprocessor.simplePreprocessAndMerge(data, targetValue.get()), "Preparing data");
         } else {
             preprocessedData = runTimed(() -> dataPreprocessor.simplePreprocess(data), "Preparing data");
         }

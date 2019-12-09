@@ -43,8 +43,9 @@ public class DecisionTreeClassifier {
 
     private TraversableJ48 classify(Instances data) throws Exception {
         var classifier = new TraversableJ48();
-        classifier.setMinNumObj(Math.min(100, data.size() / 100));
+        classifier.setMinNumObj(data.size() / 100);
         classifier.setBinarySplits(true);
+        classifier.setSubtreeRaising(false);
         classifier.buildClassifier(data);
         return classifier;
     }
@@ -86,7 +87,7 @@ public class DecisionTreeClassifier {
     private TraversableJ48 buildStumpForAttribute(Instances data, Attribute attribute) {
         try {
             var classifier = new TraversableJ48();
-            classifier.setMinNumObj(Math.min(100, data.size() / 100));
+            classifier.setMinNumObj(data.size() / 100);
 
             if (attribute.numValues() > 5) {
                 // many different values: we hope to find relevant ones via binary splits and drop irrelevant ones via pruning

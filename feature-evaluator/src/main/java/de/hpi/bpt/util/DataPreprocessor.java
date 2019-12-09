@@ -6,15 +6,20 @@ import weka.filters.unsupervised.attribute.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.joining;
 
 public class DataPreprocessor {
 
-    public Instances simplePreprocessAndMerge(Instances data, int targetValueIndex) {
+    public Instances simplePreprocessAndMerge(Instances data, String targetValue) {
         try {
             var processedData = simplePreprocess(data);
+            var targetValueIndex = processedData.classAttribute().indexOfValue(targetValue);
+            if (targetValueIndex == -1) {
+                throw new RuntimeException("Invalid target value selected!");
+            }
             var merge = new MergeManyValues();
             merge.setLabel("not " + processedData.classAttribute().value(targetValueIndex));
             merge.setAttributeIndex(String.valueOf(processedData.classIndex() + 1));

@@ -96,7 +96,7 @@ class CorrelationAnalysisRunner {
         var attributeSelection = runTimed(() -> featureEvaluator.selectAttributes(preprocessedData), "Selecting attributes");
         directDependencies = featureEvaluator.findDirectDependencies(data, attributeSelection);
         highlyCorrelatedAttributes = featureEvaluator.findHighlyCorrelatedAttributes(data, attributeSelection);
-        var reducedData = featureEvaluator.retainTopAttributes(preprocessedData, attributeSelection, suspectedCorrelations);
+        var reducedData = featureEvaluator.retainAttributes(preprocessedData, attributeSelection, suspectedCorrelations);
         this.processedData = dataPreprocessor.replaceMissingStringValuesWithConstant(reducedData);
 
         return runClassification();

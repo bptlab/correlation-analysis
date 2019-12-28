@@ -49,6 +49,10 @@ public class FeatureSelector {
     }
 
 
+    /**
+     * Perform filter-based feature selection and return a ranking of features and their scores.
+     * Used in the methods below.
+     */
     public AttributeSelection selectAttributes(Instances data) {
         try {
             var attributeSelection = new AttributeSelection();
@@ -64,6 +68,10 @@ public class FeatureSelector {
         }
     }
 
+    /**
+     * Given a ranking of features, find and remove those that have a direct correlation,
+     * i.e., a ranking score of 1.0.
+     */
     public String findDirectDependencies(Instances data, AttributeSelection attributeSelection) {
         try {
             var rankedAttributes = attributeSelection.rankedAttributes();
@@ -78,6 +86,10 @@ public class FeatureSelector {
         }
     }
 
+    /**
+     * Given a ranking of features, find those that have a high correlation, i.e., a ranking score > 0.9,
+     * to print as information to the user.
+     */
     public String findHighlyCorrelatedAttributes(Instances data, AttributeSelection attributeSelection) {
         try {
             var rankedAttributes = attributeSelection.rankedAttributes();
@@ -92,7 +104,10 @@ public class FeatureSelector {
         }
     }
 
-    public Instances retainTopAttributes(Instances data, AttributeSelection attributeSelection, Set<String> suspectedDependencies) {
+    /**
+     * Given a ranking of features, remove those that have a ranking score > 0.05.
+     */
+    public Instances retainAttributes(Instances data, AttributeSelection attributeSelection, Set<String> suspectedDependencies) {
         try {
             var rankedAttributes = attributeSelection.rankedAttributes();
 

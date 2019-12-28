@@ -8,6 +8,9 @@ import java.util.ArrayList;
 
 public class ClassifierMetrics {
 
+    /**
+     * Return accuracy metrics for a given classifier and data set.
+     */
     public Evaluation getMetrics(Classifier classifier, Instances data) {
         try {
             var evaluation = new Evaluation(data);

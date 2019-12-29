@@ -93,7 +93,7 @@ class CorrelationAnalysisRunner {
             preprocessedData = runTimed(() -> dataPreprocessor.simplePreprocess(data), "Preparing data");
         }
 
-        var attributeSelection = runTimed(() -> featureEvaluator.selectAttributes(preprocessedData), "Selecting attributes");
+        var attributeSelection = runTimed(() -> featureEvaluator.selectAttributes(preprocessedData), "Performing filter-based feature selection");
         directDependencies = featureEvaluator.findDirectDependencies(data, attributeSelection);
         highlyCorrelatedAttributes = featureEvaluator.findHighlyCorrelatedAttributes(data, attributeSelection);
         var reducedData = featureEvaluator.retainAttributes(preprocessedData, attributeSelection, suspectedCorrelations);
@@ -130,7 +130,7 @@ class CorrelationAnalysisRunner {
 
     private Map<String, Object> runClassification() throws Exception {
         // Perform CFS. Might be computationally expensive and not worth it - remove if desired.
-        var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.performCfs(processedData, suspectedCorrelations), "Calculating feature scores");
+        var dataWithSelectedFeatures = runTimed(() -> featureEvaluator.performCfs(processedData, suspectedCorrelations), "Performing CFS");
         
         selectedFeatures = IntStream.range(0, dataWithSelectedFeatures.numAttributes())
                 .mapToObj(i -> dataWithSelectedFeatures.attribute(i).name())
@@ -146,7 +146,7 @@ class CorrelationAnalysisRunner {
             stumps.addAll(runTimed(() -> treeClassifier.buildStumpsForAttributes(dataWithSelectedFeatures, suspectedCorrelations), "Checking suspected dependencies"));
         }
 
-        var modelValidation = runTimed(() -> validator.getMetrics(tree, dataWithSelectedFeatures), "Cross-validating tree");
+        var modelValidation = runTimed(() -> validator.getMetrics(tree, dataWithSelectedFeatures), "Calculating accuracy metrics");
 
         var result = getTemplateParameters();
         result.put("evaluation", modelValidation.toSummaryString() + "\n" + modelValidation.toClassDetailsString());

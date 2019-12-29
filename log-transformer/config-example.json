@@ -1,0 +1,12 @@
+{
+    "folder": "/home/user/data/procurement",
+    "modelFile": "procurement.bpmn",
+    "eventLogFile": "procurement.csv",
+    "caseAttributesFiles": [ "attributes1.csv", "attributes2.csv" ],
+    "dateFormat": "yyyy-MM-dd HH:mm",
+    "separator": ";",
+    "caseIdName": "caseID",
+    "timestampName": "finishedAt",
+    "activityName": "eventCode",
+    "resourceName": "resource"
+}

@@ -17,6 +17,9 @@ A configuration file can be provided using the `--args` flag:
 
 Alternatively, load the gradle project with an IDE ([IntelliJ IDEA](https://www.jetbrains.com/idea/download) is recommended), and execute the `main` method of the `Main` class.
 
+The application reads an event log, and optionally a case attributes log and a process model, and produces case logs in [ARFF](https://www.cs.waikato.ac.nz/ml/weka/arff.html) format.
+It produces three case log variants, as described in the thesis: one with only once-per-case attributes (`CASE_ONLY`), one with all entity-based attributes (`ALL_ACTIVITIES_RESOURCES`), and one with abstracted entity-based attributes based on a process model (`WITH_MODEL`).
+The ARFF files can be fed into the correlation analysis application, or opened using the [WEKA Explorer](https://www.cs.waikato.ac.nz/ml/weka/) for manual investigation.
 
 ## Configuration
 

@@ -1,8 +1,8 @@
 package de.hpi.bpt.logtransformer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformation;
-import de.hpi.bpt.logtransformer.transformation.transformation.custom.BPIC2019TargetTransformation;
+import de.hpi.bpt.logtransformer.transformation.operations.LogTransformation;
+import de.hpi.bpt.logtransformer.transformation.operations.custom.BPIC2019TargetTransformation;
 
 import java.util.Collections;
 import java.util.List;

@@ -8,6 +8,9 @@ import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformation
 import java.time.ZoneId;
 import java.util.Date;
 
+/**
+ * Transformations T3 and T4
+ */
 public class CaseStartEndTimeTransformation implements LogTransformation {
 
     @Override

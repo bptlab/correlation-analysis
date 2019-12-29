@@ -7,6 +7,12 @@ import de.hpi.bpt.logtransformer.transformation.transformation.custom.BPIC2019Ta
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Encapsulates configuration for the log transformation (things like CSV separators, date formats, file names etc.).
+ * Used to parse the configuration from a provided JSON file.
+ * Alternatively, create a static method (see {@link #BPIC2019()} to provide configuration values and potential
+ * custom (project-specific) transformations, and use in {@link Main} if no input file is provided.
+ */
 public class Project {
 
     private String folder;

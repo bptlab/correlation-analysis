@@ -10,6 +10,9 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Transformation DR2_d1,d2
+ */
 public class DepartmentHandoversTransformation implements LogTransformation {
 
     private Map<String, String> activityToLane = new HashMap<>();

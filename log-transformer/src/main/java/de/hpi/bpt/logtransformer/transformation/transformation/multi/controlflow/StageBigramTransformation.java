@@ -9,6 +9,9 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Transformation SF2_s,t
+ */
 public class StageBigramTransformation implements LogTransformation {
 
     private final Map<String, String> activityToStage = new HashMap<>();

@@ -10,6 +10,9 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Transformation ST6_s,t
+ */
 public class BetweenStagesDurationTransformation implements LogTransformation {
 
     private final Map<String, String> activityToStage = new HashMap<>();

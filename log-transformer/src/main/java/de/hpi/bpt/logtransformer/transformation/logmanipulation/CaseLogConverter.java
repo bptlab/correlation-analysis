@@ -6,6 +6,9 @@ import de.hpi.bpt.logtransformer.transformation.datastructures.RowCaseLog;
 
 import java.util.ArrayList;
 
+/**
+ * Converts case logs from column-oriented to row-oriented format.
+ */
 public class CaseLogConverter {
 
     public RowCaseLog asRowCaseLog(ColumnCaseLog columnCaseLog) {

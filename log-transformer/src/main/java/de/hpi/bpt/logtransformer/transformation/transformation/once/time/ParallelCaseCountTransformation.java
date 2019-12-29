@@ -14,6 +14,9 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 
+/**
+ * Transformation T2
+ */
 public class ParallelCaseCountTransformation implements LogTransformation {
 
     @Override

@@ -10,6 +10,9 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Transformation F1_a
+ */
 public class NumberOfActivityExecutionsTransformation implements LogTransformation {
 
     private final Set<String> activityNames = new HashSet<>();

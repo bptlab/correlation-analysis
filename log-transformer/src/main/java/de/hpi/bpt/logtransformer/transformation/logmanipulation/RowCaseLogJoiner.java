@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Joins row-oriented case logs by case id.
+ */
 public class RowCaseLogJoiner {
 
     public RowCaseLog join(RowCaseLog caseLog1, RowCaseLog caseLog2) {

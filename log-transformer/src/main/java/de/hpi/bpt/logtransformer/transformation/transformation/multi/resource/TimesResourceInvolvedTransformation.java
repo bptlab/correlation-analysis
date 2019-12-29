@@ -4,6 +4,9 @@ import de.hpi.bpt.logtransformer.transformation.datastructures.ColumnCaseLog;
 import de.hpi.bpt.logtransformer.transformation.datastructures.ColumnEventLog;
 import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformation;
 
+/**
+ * Transformation R1_r
+ */
 public class TimesResourceInvolvedTransformation implements LogTransformation {
 
     @Override

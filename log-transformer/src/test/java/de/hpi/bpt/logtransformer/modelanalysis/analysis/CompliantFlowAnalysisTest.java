@@ -1,9 +1,8 @@
 package de.hpi.bpt.logtransformer.modelanalysis.analysis;
 
 import de.hpi.bpt.logtransformer.modelanalysis.BpmnModelInstanceBuilder;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResult;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResultType;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.CompliantFlowsFeature;
+import de.hpi.bpt.logtransformer.modelanalysis.result.AnalysisResult;
+import de.hpi.bpt.logtransformer.modelanalysis.result.CompliantFlowsResult;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.junit.jupiter.api.Test;
@@ -29,8 +28,7 @@ class CompliantFlowAnalysisTest {
         assertThat(analysisResults).hasSize(1);
         var result = analysisResults.iterator().next();
 
-        assertThat(result.getType()).isEqualTo(AnalysisResultType.COMPLIANT_FLOWS);
-        var compliantFlows = ((CompliantFlowsFeature) result).getCompliantFlows();
+        var compliantFlows = ((CompliantFlowsResult) result).getCompliantFlows();
         assertThat(compliantFlows).containsOnlyKeys("#START#", "A1", "A2", "A3", "A4", "A5", "A6", "A7");
         assertThat(compliantFlows.get("#START#")).containsExactlyInAnyOrder("A1");
         assertThat(compliantFlows.get("A1")).containsExactlyInAnyOrder("A2", "A3");

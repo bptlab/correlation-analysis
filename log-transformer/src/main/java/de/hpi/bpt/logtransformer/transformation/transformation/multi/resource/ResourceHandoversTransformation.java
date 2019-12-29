@@ -6,6 +6,9 @@ import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformation
 
 import java.util.List;
 
+/**
+ * Transformation R2_r1,r2
+ */
 public class ResourceHandoversTransformation implements LogTransformation {
 
     @Override

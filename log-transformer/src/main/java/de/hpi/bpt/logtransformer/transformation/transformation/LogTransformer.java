@@ -5,10 +5,12 @@ import de.hpi.bpt.logtransformer.transformation.datastructures.ColumnEventLog;
 import de.hpi.bpt.logtransformer.transformation.datastructures.RowCaseLog;
 import de.hpi.bpt.logtransformer.transformation.logmanipulation.CaseLogConverter;
 import de.hpi.bpt.logtransformer.transformation.logmanipulation.RowCaseLogJoiner;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResult;
 
 import java.util.*;
 
+/**
+ * Performs a number of {@link LogTransformation}s on an event log, producing a row-oriented case log.
+ */
 public class LogTransformer {
 
     private ColumnEventLog sourceEventLog;

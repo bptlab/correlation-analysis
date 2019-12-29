@@ -1,9 +1,8 @@
 package de.hpi.bpt.logtransformer.modelanalysis.analysis;
 
 import de.hpi.bpt.logtransformer.modelanalysis.BpmnModelInstanceBuilder;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.ActivityToLaneFeature;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResult;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResultType;
+import de.hpi.bpt.logtransformer.modelanalysis.result.ActivityToLaneResult;
+import de.hpi.bpt.logtransformer.modelanalysis.result.AnalysisResult;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.junit.jupiter.api.Test;
@@ -30,8 +29,7 @@ class LaneAnalysisTest {
         assertThat(analysisResults).hasSize(1);
         var result = analysisResults.iterator().next();
 
-        assertThat(result.getType()).isEqualTo(AnalysisResultType.ACTIVITY_TO_LANE);
-        assertThat(((ActivityToLaneFeature) result).getActivityToLane()).containsExactly(
+        assertThat(((ActivityToLaneResult) result).getActivityToLane()).containsExactly(
                 entry("A1", "Lane1"),
                 entry("A2", "Lane2"),
                 entry("EmptySub", "Lane2"),

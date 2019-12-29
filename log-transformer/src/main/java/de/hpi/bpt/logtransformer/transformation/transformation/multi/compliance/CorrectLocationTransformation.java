@@ -9,6 +9,9 @@ import java.util.*;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+/**
+ * Transformations SC1_s and SC2_s
+ */
 public class CorrectLocationTransformation implements LogTransformation {
 
     private final Map<String, Set<String>> compliantStageTransitions = new HashMap<>();

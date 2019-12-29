@@ -1,7 +1,7 @@
 package de.hpi.bpt.logtransformer.modelanalysis.analysis;
 
-import de.hpi.bpt.logtransformer.modelanalysis.feature.ActivityToLaneFeature;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResult;
+import de.hpi.bpt.logtransformer.modelanalysis.result.ActivityToLaneResult;
+import de.hpi.bpt.logtransformer.modelanalysis.result.AnalysisResult;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
 
@@ -32,6 +32,6 @@ public class LaneAnalysis implements Analysis {
             }
         }
 
-        analysisResults.add(new ActivityToLaneFeature(activityToLane));
+        analysisResults.add(new ActivityToLaneResult(activityToLane));
     }
 }

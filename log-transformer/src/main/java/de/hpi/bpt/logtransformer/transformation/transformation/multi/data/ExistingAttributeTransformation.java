@@ -8,6 +8,9 @@ import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformation
 
 import java.util.*;
 
+/**
+ * Transformations D1_an to D6_an
+ */
 public class ExistingAttributeTransformation implements LogTransformation {
 
     @Override

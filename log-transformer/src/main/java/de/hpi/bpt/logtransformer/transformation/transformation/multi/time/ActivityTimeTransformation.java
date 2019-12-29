@@ -6,6 +6,9 @@ import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformation
 
 import java.time.Duration;
 
+/**
+ * Transformations T1_a, T2_a and T3_a
+ */
 public class ActivityTimeTransformation implements LogTransformation {
 
     @Override

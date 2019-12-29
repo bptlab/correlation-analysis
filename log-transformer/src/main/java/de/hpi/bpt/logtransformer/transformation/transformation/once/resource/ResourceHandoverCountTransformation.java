@@ -6,6 +6,9 @@ import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformation
 
 import java.util.List;
 
+/**
+ * Transformation R2
+ */
 public class ResourceHandoverCountTransformation implements LogTransformation {
     @Override
     public void transform(ColumnEventLog sourceEventLog, ColumnCaseLog resultCaseLog) {

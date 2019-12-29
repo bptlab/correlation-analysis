@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Transformation C1
+ */
 public class NonCompliantLogTransitionsTransformation implements LogTransformation {
 
     private final Map<String, List<String>> compliantFlows = new HashMap<>();

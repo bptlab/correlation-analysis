@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Transformation R1, but for departments (if a model with lanes is given)
+ */
 public class NumberOfDepartmentsInvolvedTransformation implements LogTransformation {
 
     private Map<String, String> activityToLane = new HashMap<>();

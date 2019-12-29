@@ -13,10 +13,8 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 
-/*
- * Per stage:
- * - times entered
- * - number of events
+/**
+ * Transformations SF1_s and SF3_s
  */
 public class StageControlFlowTransformation implements LogTransformation {
 

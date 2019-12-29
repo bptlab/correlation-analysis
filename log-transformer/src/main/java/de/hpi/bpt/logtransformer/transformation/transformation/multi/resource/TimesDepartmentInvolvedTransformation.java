@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+/**
+ * Transformation DR1_d
+ */
 public class TimesDepartmentInvolvedTransformation implements LogTransformation {
 
     private Map<String, String> activityToLane = new HashMap<>();

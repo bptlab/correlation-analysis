@@ -1,9 +1,8 @@
 package de.hpi.bpt.logtransformer.modelanalysis.analysis;
 
 import de.hpi.bpt.logtransformer.modelanalysis.BpmnModelInstanceBuilder;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResult;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResultType;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.StageFeature;
+import de.hpi.bpt.logtransformer.modelanalysis.result.AnalysisResult;
+import de.hpi.bpt.logtransformer.modelanalysis.result.ActivityToStageResult;
 import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
@@ -34,15 +33,14 @@ class StageAnalysisTest {
         assertThat(analysisResults).hasSize(1);
         var result = analysisResults.iterator().next();
 
-        assertThat(result.getType()).isEqualTo(AnalysisResultType.STAGES);
-        assertThat(((StageFeature) result).getStages()).containsExactlyInAnyOrder("S1", "S2", "S3");
-        assertThat(((StageFeature) result).getActivityToStage()).containsExactly(
+        assertThat(((ActivityToStageResult) result).getStages()).containsExactlyInAnyOrder("S1", "S2", "S3");
+        assertThat(((ActivityToStageResult) result).getActivityToStage()).containsExactly(
                 entry("A1", "S1"),
                 entry("A2", "S2"),
                 entry("A3", "S3"),
                 entry("A4", "S3")
         );
-        assertThat(((StageFeature) result).getParallelStages()).containsExactlyInAnyOrder(
+        assertThat(((ActivityToStageResult) result).getParallelStages()).containsExactlyInAnyOrder(
                 Pair.of("S2", "S3")
         );
     }

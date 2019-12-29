@@ -7,6 +7,9 @@ import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformation
 import java.util.HashSet;
 import java.util.List;
 
+/**
+ * Transformation R1
+ */
 public class NumberOfResourcesInvolvedTransformation implements LogTransformation {
 
     @Override

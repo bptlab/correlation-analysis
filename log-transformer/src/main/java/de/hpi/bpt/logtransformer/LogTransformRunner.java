@@ -6,13 +6,13 @@ import de.hpi.bpt.logtransformer.transformation.io.CsvCaseLogReader;
 import de.hpi.bpt.logtransformer.transformation.io.CsvEventLogReader;
 import de.hpi.bpt.logtransformer.transformation.io.CsvLogReader;
 import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformer;
-import de.hpi.bpt.logtransformer.transformation.transformation.ModelFeatureGenerator;
+import de.hpi.bpt.logtransformer.transformation.transformation.ModelBasedFeatureGenerator;
 import de.hpi.bpt.logtransformer.transformation.transformation.multi.controlflow.EventBigramTransformation;
 import de.hpi.bpt.logtransformer.transformation.transformation.multi.controlflow.NumberOfActivityExecutionsTransformation;
 import de.hpi.bpt.logtransformer.transformation.transformation.multi.data.ExistingAttributeTransformation;
 import de.hpi.bpt.logtransformer.transformation.transformation.multi.resource.ResourceHandoversTransformation;
 import de.hpi.bpt.logtransformer.transformation.transformation.multi.resource.TimesResourceInvolvedTransformation;
-import de.hpi.bpt.logtransformer.transformation.transformation.multi.time.ActivityStartEndTimeTransformation;
+import de.hpi.bpt.logtransformer.transformation.transformation.multi.time.ActivityFirstLastTimeTransformation;
 import de.hpi.bpt.logtransformer.transformation.transformation.multi.time.ActivityTimeTransformation;
 import de.hpi.bpt.logtransformer.transformation.transformation.multi.time.BetweenEventsDurationTransformation;
 import de.hpi.bpt.logtransformer.transformation.transformation.once.controlflow.EventsTransformation;
@@ -23,7 +23,7 @@ import de.hpi.bpt.logtransformer.transformation.transformation.once.time.CaseDur
 import de.hpi.bpt.logtransformer.transformation.transformation.once.time.CaseStartEndTimeTransformation;
 import de.hpi.bpt.logtransformer.transformation.transformation.once.time.ParallelCaseCountTransformation;
 import de.hpi.bpt.logtransformer.modelanalysis.ModelAnalyzer;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResult;
+import de.hpi.bpt.logtransformer.modelanalysis.result.AnalysisResult;
 
 import java.io.File;
 import java.util.Collections;
@@ -85,14 +85,14 @@ class LogTransformRunner {
 
         if (transformationType.equals(TransformationType.WITH_MODEL)) {
             // model analysis
-            var featureGenerator = new ModelFeatureGenerator();
+            var featureGenerator = new ModelBasedFeatureGenerator();
             transformer.with(featureGenerator.from(analysisResults));
 
         } else if (transformationType.equals(TransformationType.WITHOUT_MODEL_ALL_ACTIVITIES)) {
             transformer
                     // time
                     .with(new ActivityTimeTransformation())
-                    .with(new ActivityStartEndTimeTransformation())
+                    .with(new ActivityFirstLastTimeTransformation())
                     .with(new BetweenEventsDurationTransformation())
                     .with(new EventBigramTransformation())
 

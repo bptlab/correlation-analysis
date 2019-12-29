@@ -4,6 +4,9 @@ import de.hpi.bpt.logtransformer.transformation.datastructures.CaseColumn;
 import de.hpi.bpt.logtransformer.transformation.datastructures.ColumnCaseLog;
 import de.hpi.bpt.logtransformer.transformation.datastructures.ColumnEventLog;
 
+/**
+ * Required, simply adds a case id column to the new case log.
+ */
 public class CaseIdTransformation implements LogTransformation {
 
     @Override

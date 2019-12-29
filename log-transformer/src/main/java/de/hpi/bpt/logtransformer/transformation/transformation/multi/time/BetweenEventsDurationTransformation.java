@@ -6,6 +6,9 @@ import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformation
 
 import java.time.Duration;
 
+/**
+ * Transformation T6_a,b
+ */
 public class BetweenEventsDurationTransformation implements LogTransformation {
 
     @Override

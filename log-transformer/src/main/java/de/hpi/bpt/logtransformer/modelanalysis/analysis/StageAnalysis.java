@@ -1,7 +1,7 @@
 package de.hpi.bpt.logtransformer.modelanalysis.analysis;
 
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResult;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.StageFeature;
+import de.hpi.bpt.logtransformer.modelanalysis.result.AnalysisResult;
+import de.hpi.bpt.logtransformer.modelanalysis.result.ActivityToStageResult;
 import org.apache.commons.lang3.tuple.Pair;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
@@ -23,7 +23,7 @@ public class StageAnalysis implements Analysis {
             activityToStage.put(activity.getName(), getStage(activity));
         }
 
-        analysisResults.add(new StageFeature(
+        analysisResults.add(new ActivityToStageResult(
                 new HashSet<>(activityToStage.values()),
                 activityToStage,
                 findParallelStages(modelInstance)

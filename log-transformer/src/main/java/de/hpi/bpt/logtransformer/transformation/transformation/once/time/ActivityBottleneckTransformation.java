@@ -12,6 +12,10 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
 
+/**
+ * Activity that was spent the most time executing.
+ * Not described in the thesis, because it did not provide useful information in the experiments.
+ */
 public class ActivityBottleneckTransformation implements LogTransformation {
 
     @Override

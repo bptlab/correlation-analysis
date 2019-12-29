@@ -11,11 +11,8 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
-/*
- * Per stage:
- * - summed duration of stage
- * - time from start of case
- * - time until end of case
+/**
+ * Transformations ST1_s, ST2_s and ST3_s
  */
 public class StageTimeTransformation implements LogTransformation {
 

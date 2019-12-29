@@ -7,6 +7,9 @@ import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformation
 import java.time.Duration;
 import java.util.Date;
 
+/**
+ * Transfomrmation T1
+ */
 public class CaseDurationTransformation implements LogTransformation {
 
     @Override

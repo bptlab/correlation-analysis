@@ -1,9 +1,8 @@
 package de.hpi.bpt.logtransformer.modelanalysis.analysis;
 
 import de.hpi.bpt.logtransformer.modelanalysis.BpmnModelInstanceBuilder;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResult;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResultType;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.OptionalActivityFeature;
+import de.hpi.bpt.logtransformer.modelanalysis.result.AnalysisResult;
+import de.hpi.bpt.logtransformer.modelanalysis.result.OptionalActivityResult;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.EndEvent;
 import org.camunda.bpm.model.bpmn.instance.ExclusiveGateway;
@@ -32,8 +31,7 @@ class OptionalActivityAnalysisTest {
         assertThat(analysisResults).hasSize(1);
         var result = analysisResults.iterator().next();
 
-        assertThat(result.getType()).isEqualTo(AnalysisResultType.OPTIONAL_ACTIVITY);
-        assertThat(((OptionalActivityFeature) result).getActivityNames()).containsExactlyInAnyOrder(
+        assertThat(((OptionalActivityResult) result).getActivityNames()).containsExactlyInAnyOrder(
                 "A2", "A3", "A4", "A5"
         );
     }

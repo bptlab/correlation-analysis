@@ -10,6 +10,10 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
+/**
+ * Determine for a given join gateway the corresponding split gateway using a
+ * "lowest common ancestor" graph algorithm.
+ */
 class SplitFinder {
 
     Optional<Gateway> findLowestCommonAncestor(Gateway joinGateway) {

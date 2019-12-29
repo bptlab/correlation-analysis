@@ -1,7 +1,7 @@
 package de.hpi.bpt.logtransformer.modelanalysis.analysis;
 
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResult;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.OptionalActivityFeature;
+import de.hpi.bpt.logtransformer.modelanalysis.result.AnalysisResult;
+import de.hpi.bpt.logtransformer.modelanalysis.result.OptionalActivityResult;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
 
@@ -16,7 +16,7 @@ public class OptionalActivityAnalysis implements Analysis {
 
     @Override
     public void analyze(BpmnModelInstance modelInstance, Set<AnalysisResult> analysisResults) {
-        OptionalActivityFeature feature = new OptionalActivityFeature();
+        OptionalActivityResult feature = new OptionalActivityResult();
 
         var activityNames = findOptionalActivities(modelInstance);
         feature.addActivities(activityNames);

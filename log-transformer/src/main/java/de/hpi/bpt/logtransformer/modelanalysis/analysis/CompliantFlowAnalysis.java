@@ -1,7 +1,7 @@
 package de.hpi.bpt.logtransformer.modelanalysis.analysis;
 
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResult;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.CompliantFlowsFeature;
+import de.hpi.bpt.logtransformer.modelanalysis.result.AnalysisResult;
+import de.hpi.bpt.logtransformer.modelanalysis.result.CompliantFlowsResult;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.instance.*;
 
@@ -14,7 +14,7 @@ public class CompliantFlowAnalysis implements Analysis {
     @Override
     public void analyze(BpmnModelInstance modelInstance, Set<AnalysisResult> analysisResults) {
         var compliantFlows = findCompliantFlows(modelInstance);
-        var feature = new CompliantFlowsFeature(compliantFlows);
+        var feature = new CompliantFlowsResult(compliantFlows);
         analysisResults.add(feature);
     }
 

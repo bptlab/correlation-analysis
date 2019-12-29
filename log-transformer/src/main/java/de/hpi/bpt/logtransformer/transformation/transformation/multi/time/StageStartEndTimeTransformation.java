@@ -13,6 +13,9 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Transformations ST4_s and ST5_s
+ */
 public class StageStartEndTimeTransformation implements LogTransformation {
 
     private final Map<String, String> activityToStage = new HashMap<>();

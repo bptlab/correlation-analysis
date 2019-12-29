@@ -6,6 +6,9 @@ import de.hpi.bpt.logtransformer.transformation.transformation.LogTransformation
 
 import java.util.HashSet;
 
+/**
+ * Transformations F1 to F4
+ */
 public class EventsTransformation implements LogTransformation {
 
     @Override

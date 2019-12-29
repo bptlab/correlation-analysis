@@ -9,6 +9,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+/**
+ * Write a row-oriented case log in the ARFF format.
+ * See <a href="https://www.cs.waikato.ac.nz/~ml/weka/arff.html">ARFF Specification</a>.
+ */
 public class ArffCaseLogWriter implements CaseLogWriter {
 
     private String dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXX";

@@ -1,7 +1,7 @@
 package de.hpi.bpt.logtransformer.modelanalysis;
 
 import de.hpi.bpt.logtransformer.modelanalysis.analysis.*;
-import de.hpi.bpt.logtransformer.modelanalysis.feature.AnalysisResult;
+import de.hpi.bpt.logtransformer.modelanalysis.result.AnalysisResult;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 
@@ -10,11 +10,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Coordinates the anlayses that are performed on the process model.
+ */
 public class ModelAnalyzer {
 
     private static final List<? extends Analysis> analyses = List.of(
-//            new LoopActivityAnalysis(),
-//            new OutgoingGatewayAnalysis(),
             new OptionalActivityAnalysis(),
             new LaneAnalysis(),
             new StageAnalysis(),
